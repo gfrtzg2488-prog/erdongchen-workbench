@@ -1,8 +1,29 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:59.680Z",
+  "updated_at": "2026-11-04T08:13:41.299Z",
   "tables": {
-    "content_items": [],
+    "content_items": [
+      {
+        "id": "local-mw1ub5wh-1",
+        "created_at": "2026-11-04T08:13:40.385Z",
+        "updated_at": "2026-11-04T08:13:40.385Z",
+        "title": "把出租屋改成喜欢的样子",
+        "platform": "小红书",
+        "format": "图文",
+        "stage": "文案",
+        "topic": "日常分享",
+        "hook": "",
+        "owner": "枕冬",
+        "due_date": "2026-11-09",
+        "priority": 2,
+        "notes": "来自选题库：需拍 before/after",
+        "plays": 0,
+        "likes": 0,
+        "comments": 0,
+        "saves": 0,
+        "shares": 0
+      }
+    ],
     "deals": [],
     "schedule": [
       {
@@ -502,9 +523,10 @@
         "platform": "小红书",
         "tags": "改造,租房,干货",
         "heat": 4,
-        "status": "采纳",
+        "status": "已用",
         "url": "",
-        "note": "需拍 before/after"
+        "note": "需拍 before/after",
+        "updated_at": "2026-11-04T08:13:40.385Z"
       },
       {
         "id": "i5",
