@@ -417,6 +417,7 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
     </div>
     <div class="tb-r">
       <div class="clock" id="clock"></div>
+      <button class="btn ghost sm" id="dataBtn" title="数据连接与备份">数据</button>
       <span class="sync" id="sync"><i></i><span>连接中</span></span>
       <button class="btn primary" id="newBtn"></button>
     </div>
@@ -434,12 +435,19 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 <div id="toast" class="toast"></div>
 <script>
 /* ================= 配置 ================= */
+/* 云端不依赖任何新服务：数据直接读写你自己的 GitHub 仓库里的 data/workbench.json。
+   首次使用：页面右上角「数据」→ 粘贴一次 GitHub 令牌（只存本机浏览器）。 */
 const WB_CONFIG = {
-  APP_ID: "",             // LeanCloud 控制台 → 设置 → 应用凭证 → AppID
-  APP_KEY: "",            // 同页 → AppKey
-  API_BASE: ""            // 同页 → REST API 服务器地址，如 https://xxxx.lc-cn-n1-shared.com
+  OWNER: 'gfrtzg2488-prog',
+  REPO:  'erdongchen-workbench',
+  BRANCH:'main',
+  PATH:  'data/workbench.json'
 };
-const CLOUD = !!(WB_CONFIG.APP_ID && WB_CONFIG.APP_KEY && WB_CONFIG.API_BASE);
+const TOKEN_KEY = 'zd_gh_token';
+function ghToken(){
+  try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; }
+}
+let CLOUD = !!ghToken();
 
 /* ================= 常量 ================= */
 const STAGES = ['文案','剪辑','审核','发布','已发布'];
@@ -663,59 +671,82 @@ const Store = {
   mode: CLOUD ? 'cloud' : 'local',
   data: { content_items:[], deals:[], schedule:[], metrics:[], ideas:[] },
   fp: '',
+  sha: '',
   lastSync: null
 };
 
-function lcUrl(path){ return WB_CONFIG.API_BASE.replace(/\/+$/,'') + '/1.1' + path; }
-function lcHeaders(extra){
+/* ---------- GitHub 数据盘 ---------- */
+const GH_API  = 'https://api.github.com';
+const GH_FILE = '/repos/' + WB_CONFIG.OWNER + '/' + WB_CONFIG.REPO + '/contents/' + WB_CONFIG.PATH;
+
+function ghHeaders(extra){
   return Object.assign({
-    'X-LC-Id': WB_CONFIG.APP_ID,
-    'X-LC-Key': WB_CONFIG.APP_KEY,
-    'Content-Type': 'application/json'
+    'Authorization':'Bearer ' + ghToken(),
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28',
+    'Content-Type':'application/json'
   }, extra || {});
 }
-async function lcFetch(path, opts){
-  const o = Object.assign({ headers: lcHeaders() }, opts || {});
+function b64enc(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for(let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64dec(b64){
+  const bin = atob(String(b64 || '').replace(/\s+/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+async function ghFetch(path, opts){
+  const o = Object.assign({ headers: ghHeaders() }, opts || {});
   let res;
   try{
-    res = await fetch(lcUrl(path), o);
-  }catch(netErr){
-    throw new Error('网络无法连接云端');
+    res = await fetch(GH_API + path, o);
+  }catch(err){
+    throw new Error('网络无法连接 GitHub');
   }
+  if(res.status === 404) return { __notfound:true };
   if(!res.ok){
-    let msg = res.status + ' ' + res.statusText;
-    try{ const j = await res.json(); if(j && (j.error || j.message)) msg = j.error || j.message; }catch(e){}
+    let msg = res.status + ' ' + (res.statusText || '');
+    if(res.status === 401) msg = '令牌无效或已过期';
+    if(res.status === 403) msg = '令牌权限不足或已限流';
+    if(res.status === 409) msg = '数据冲突，请稍后重试';
+    try{ const j = await res.json(); if(j && j.message) msg = j.message; }catch(e){}
     throw new Error(msg);
   }
   const txt = await res.text();
   return txt ? JSON.parse(txt) : null;
 }
-function lcRow(r){
-  return Object.assign({}, r, { id: r.objectId });
+async function ghReadDoc(){
+  const r = await ghFetch(GH_FILE + '?ref=' + WB_CONFIG.BRANCH + '&t=' + Date.now());
+  if(!r || r.__notfound) return { doc:null, sha:null };
+  let doc = null;
+  try{ doc = JSON.parse(b64dec(r.content)); }catch(e){ doc = null; }
+  return { doc, sha:r.sha };
 }
-async function cloudFetchAll(){
-  const out = {};
-  await Promise.all(TABLES.map(async t=>{
-    const j = await lcFetch('/classes/' + t + '?limit=1000');
-    out[t] = ((j && j.results) || []).map(lcRow);
-  }));
-  return out;
+function docOf(data){
+  return { v:1, updated_at:new Date().toISOString(), tables:data };
 }
-async function cloudSeedIfEmpty(){
-  const probe = await lcFetch('/classes/content_items?limit=1');
-  if(probe && probe.results && probe.results.length) return;
-  const s = seedData();
-  const reqs = [];
-  TABLES.forEach(t=>{
-    (s[t] || []).forEach(r=>{
-      const body = Object.assign({}, r);
-      delete body.id;
-      reqs.push({ method:'POST', path:'/1.1/classes/' + t, body });
-    });
-  });
-  for(let i = 0; i < reqs.length; i += 50){
-    await lcFetch('/batch', { method:'POST', body: JSON.stringify({ requests: reqs.slice(i, i + 50) }) });
+async function ghWriteDoc(doc){
+  const body = {
+    message:'data: 工作台数据 ' + new Date().toISOString().slice(0,16).replace('T',' '),
+    content: b64enc(JSON.stringify(doc, null, 2)),
+    branch: WB_CONFIG.BRANCH
+  };
+  if(Store.sha) body.sha = Store.sha;
+  let r;
+  try{
+    r = await ghFetch(GH_FILE, { method:'PUT', body:JSON.stringify(body) });
+  }catch(err){
+    if(!String(err.message).includes('冲突')) throw err;
+    const fresh = await ghReadDoc();
+    Store.sha = fresh.sha || '';
+    if(fresh.sha) body.sha = fresh.sha; else delete body.sha;
+    r = await ghFetch(GH_FILE, { method:'PUT', body:JSON.stringify(body) });
   }
+  Store.sha = (r && r.content && r.content.sha) || Store.sha;
 }
 function lsRead(){
   try{
@@ -744,63 +775,86 @@ function fpOf(d){
   }).join('|');
 }
 
-async function createRow(table, row){
-  if(Store.mode === 'cloud'){
-    const clean = Object.assign({}, row);
-    delete clean.id;
-    const out = await lcFetch('/classes/' + table, { method:'POST', body: JSON.stringify(clean) });
-    const rec = Object.assign({}, clean, { id: out.objectId, createdAt: out.createdAt, updatedAt: out.createdAt });
-    Store.data[table] = (Store.data[table] || []).concat(rec);
-    Store.fp = fpOf(Store.data);
-    return rec;
+let pushTimer = null;
+function schedulePush(){
+  if(Store.mode !== 'cloud') return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushNow, 900);
+}
+async function pushNow(){
+  if(Store.mode !== 'cloud') return;
+  try{
+    await ghWriteDoc(docOf(Store.data));
+    Store.lastSync = Date.now();
+    setSyncState('ok');
+  }catch(e){
+    setSyncState('warn', '保存失败');
+    toast('云端保存失败：' + e.message, true);
   }
+}
+
+async function createRow(table, row){
   const rec = Object.assign({ id:uid(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, row);
   Store.data[table] = (Store.data[table] || []).concat(rec);
-  lsWrite(Store.data);
+  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
   return rec;
 }
 
 async function updateRow(table, id, patch){
-  if(Store.mode === 'cloud'){
-    const out = await lcFetch('/classes/' + table + '/' + encodeURIComponent(id), {
-      method:'PUT',
-      body: JSON.stringify(patch)
-    });
-    const i = (Store.data[table] || []).findIndex(r => r.id === id);
-    if(i > -1) Store.data[table][i] = Object.assign({}, Store.data[table][i], patch, { updatedAt: out && out.updatedAt || new Date().toISOString() });
-    Store.fp = fpOf(Store.data);
-    return Store.data[table][i];
-  }
   const i = (Store.data[table] || []).findIndex(r => r.id === id);
-  if(i > -1){
-    Object.assign(Store.data[table][i], patch, { updated_at:new Date().toISOString() });
-    lsWrite(Store.data);
-    Store.fp = fpOf(Store.data);
-  }
+  if(i < 0) return null;
+  Store.data[table][i] = Object.assign({}, Store.data[table][i], patch, { updated_at:new Date().toISOString() });
+  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
+  Store.fp = fpOf(Store.data);
   return Store.data[table][i];
 }
 
 async function deleteRow(table, id){
-  if(Store.mode === 'cloud'){
-    await lcFetch('/classes/' + table + '/' + encodeURIComponent(id), { method:'DELETE' });
-  }
   Store.data[table] = (Store.data[table] || []).filter(r => r.id !== id);
-  if(Store.mode !== 'cloud') lsWrite(Store.data);
+  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
 }
 
 async function loadAll(){
-  if(Store.mode === 'cloud') await cloudSeedIfEmpty();
-  const d = Store.mode === 'cloud' ? await cloudFetchAll() : lsRead();
-  Store.data = d;
-  Store.fp = fpOf(d);
+  if(Store.mode === 'cloud'){
+    const { doc, sha } = await ghReadDoc();
+    if(doc && doc.tables){
+      Store.data = doc.tables;
+      Store.sha = sha;
+    }else{
+      const d = seedData();
+      Store.data = d;
+      Store.sha = '';
+      await ghWriteDoc(docOf(d));
+    }
+  }else{
+    Store.data = lsRead();
+  }
+  Store.fp = fpOf(Store.data);
   Store.lastSync = Date.now();
 }
 
 async function syncNow(announce){
   try{
-    const d = Store.mode === 'cloud' ? await cloudFetchAll() : lsRead();
+    if(Store.mode === 'cloud'){
+      const { doc, sha } = await ghReadDoc();
+      if(doc && doc.tables && sha && sha !== Store.sha){
+        Store.data = doc.tables;
+        Store.sha = sha;
+        Store.fp = fpOf(Store.data);
+        Store.lastSync = Date.now();
+        setSyncState('ok');
+        renderAll();
+        if(announce) toast('已同步最新数据');
+        return;
+      }
+      Store.lastSync = Date.now();
+      setSyncState('ok');
+      if(announce) toast('已是最新');
+      return;
+    }
+    const d = lsRead();
     const fp = fpOf(d);
     Store.data = d;
     Store.lastSync = Date.now();
@@ -808,7 +862,7 @@ async function syncNow(announce){
     if(fp !== Store.fp){
       Store.fp = fp;
       renderAll();
-      if(announce) toast('已同步最新数据');
+      if(announce) toast('已重新载入本地数据');
     }else if(announce){
       toast('已是最新');
     }
@@ -821,16 +875,127 @@ async function syncNow(announce){
 function setSyncState(state, msg){
   const chip = $('#sync');
   const lab = chip.querySelector('span');
+  const cloud = Store.mode === 'cloud';
   chip.className = 'sync' + (state === 'err' ? ' err' : state === 'warn' ? ' warn' : '');
-  if(state === 'ok'){
-    lab.textContent = CLOUD ? '在线同步' : '本地演示';
-    chip.title = CLOUD ? '已连接 LeanCloud' : '数据保存在本机浏览器，配置 LeanCloud 后自动切换为在线';
-    $('#railData').innerHTML = '<span class="dot-live"></span>' + (CLOUD ? 'LEANCLOUD · 在线' : 'LOCAL · 本机存储');
+  if(state === 'ok' || state === 'warn'){
+    lab.textContent = cloud ? '在线同步' : '本地存储';
+    chip.title = cloud
+      ? '数据存在 GitHub 仓库 ' + WB_CONFIG.OWNER + '/' + WB_CONFIG.REPO + '，点击立即拉取'
+      : '数据只存在本机浏览器，点「数据」可连接云端';
+    $('#railData').innerHTML = '<span class="dot-live"' + (state === 'warn' ? ' style="background:#B07A3C"' : '') + '></span>' +
+      (cloud ? 'GITHUB · 在线' : 'LOCAL · 本机存储');
+    if(state === 'warn' && msg) chip.title = msg;
   }else{
-    lab.textContent = state === 'err' ? '离线' : '同步中';
+    lab.textContent = '离线';
     chip.title = msg || '';
     $('#railData').innerHTML = '<span class="dot-live" style="background:#B04A2B"></span>' + (msg ? esc(msg).slice(0,26) : '数据连接异常');
   }
+}
+
+/* ================= 数据连接与备份 ================= */
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(docOf(Store.data), null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zhidong-workbench-' + todayStr() + '.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast('已导出 JSON 备份');
+}
+function importJSON(file){
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    try{
+      const j = JSON.parse(String(fr.result));
+      const d = j && j.tables ? j.tables : j;
+      if(!d || !Array.isArray(d.content_items)) throw new Error('文件里没有工作台数据');
+      TABLES.forEach(t=>{ if(!Array.isArray(d[t])) d[t] = []; });
+      Store.data = d;
+      Store.fp = fpOf(d);
+      if(Store.mode === 'cloud') schedulePush(); else lsWrite(d);
+      renderAll();
+      toast('已导入 ' + sum(TABLES, t=>d[t].length) + ' 条记录');
+    }catch(e){ toast('导入失败：' + e.message, true); }
+  };
+  fr.readAsText(file);
+}
+async function connectCloud(tok){
+  localStorage.setItem(TOKEN_KEY, tok);
+  Store.mode = 'cloud';
+  Store.sha = '';
+  const { doc, sha } = await ghReadDoc();
+  if(doc && doc.tables){
+    Store.data = doc.tables;
+    Store.sha = sha;
+  }else{
+    await ghWriteDoc(docOf(Store.data));
+  }
+  CLOUD = true;
+  Store.fp = fpOf(Store.data);
+  Store.lastSync = Date.now();
+  setSyncState('ok');
+  renderAll();
+  toast('已连接云端，数据开始在线同步');
+}
+function disconnectCloud(){
+  localStorage.removeItem(TOKEN_KEY);
+  CLOUD = false;
+  Store.mode = 'local';
+  Store.sha = '';
+  lsWrite(Store.data);
+  setSyncState('ok');
+  renderAll();
+  toast('已断开云端，切回本地存储');
+}
+function openDataPanel(){
+  const linked = Store.mode === 'cloud';
+  const html = '<div class="m-head"><div><span class="eyebrow">DATA / 数据</span><h3>数据连接与备份</h3>' +
+    '<p class="sub">' + (linked
+      ? '已连接 GitHub 仓库，手机与电脑共用同一份数据。'
+      : '当前是本地模式：数据只存在这台设备的浏览器里。') + '</p></div>' +
+    '<button class="m-close" data-close aria-label="关闭">' + icon('x') + '</button></div>' +
+    '<div class="m-body">' +
+      '<div class="form-grid"><div class="f full"><label>GitHub 令牌</label>' +
+        '<input id="ghTok" type="password" autocomplete="off" placeholder="ghp_… 或 github_pat_…" value="' + esc(ghToken()) + '">' +
+        '<span class="hint">只保存在本机浏览器，不写进页面代码，也不会发到别处。</span>' +
+      '</div></div>' +
+      '<p class="hint" style="margin-top:12px;line-height:1.9">' +
+        '1. 打开 <a href="https://github.com/settings/tokens/new?scopes=repo&description=zhidong-workbench" target="_blank" rel="noopener">github.com/settings/tokens/new</a>（已预勾 repo 权限）<br>' +
+        '2. 填名字、有效期，滑到底点 Generate token，复制 <b>ghp_</b> 开头那串<br>' +
+        '3. 粘到上面，点「连接云端」。另一台设备重复一次即可同步' +
+      '</p>' +
+    '</div>' +
+    '<div class="m-foot">' +
+      (linked ? '<button type="button" class="btn danger" id="unlinkBtn">断开云端</button>' : '') +
+      '<button type="button" class="btn" id="expBtn">导出备份</button>' +
+      '<button type="button" class="btn" id="impBtn">导入备份</button>' +
+      '<button type="button" class="btn primary" id="linkBtn">' + (linked ? '重新连接' : '连接云端') + '</button>' +
+      '<input type="file" id="impFile" accept="application/json" hidden>' +
+    '</div>';
+  openModal(html, true);
+  const btn = $('#linkBtn');
+  btn.onclick = async ()=>{
+    const tok = ($('#ghTok').value || '').trim();
+    if(!tok){ toast('请先粘贴 GitHub 令牌', true); return; }
+    btn.disabled = true;
+    btn.textContent = '连接中…';
+    try{
+      await connectCloud(tok);
+      closeModal();
+    }catch(err){
+      toast('连接失败：' + ((err && err.message) || '未知错误'), true);
+      btn.disabled = false;
+      btn.textContent = '连接云端';
+    }
+  };
+  $('#expBtn').onclick = exportJSON;
+  $('#impBtn').onclick = ()=>$('#impFile').click();
+  $('#impFile').onchange = e=>{
+    const f = e.target.files && e.target.files[0];
+    if(f){ importJSON(f); e.target.value = ''; closeModal(); }
+  };
+  const un = $('#unlinkBtn');
+  if(un) un.onclick = ()=>{ disconnectCloud(); closeModal(); };
 }
 
 /* ================= 弹层 ================= */
@@ -999,7 +1164,7 @@ function renderToday(){
   const greet = h<6?'夜深了':h<11?'早上好':h<14?'午间好':h<18?'下午好':'晚上好';
 
   const strip = CLOUD ? '' :
-    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地演示模式</b>：数据保存在本机浏览器。在 index.html 顶部填入 LeanCloud 凭证（AppID / AppKey / API 地址）后，自动切换为在线存储与多设备同步。</span></div>';
+    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地模式</b>：数据只存在这台设备的浏览器里。点右上角「数据」粘贴一次 GitHub 令牌，即可把数据存进你的仓库，手机电脑自动同步。</span></div>';
 
   $('#views .view[data-view="today"]').innerHTML = strip +
     '<div class="today-hero"><span class="line">'+greet+'，今天还有 <em>'+undone+'</em> 件事要做</span><span class="rule"></span><span class="eyebrow">'+esc(fmtCN(today))+'</span></div>'+
@@ -1878,7 +2043,11 @@ $('#newBtn').addEventListener('click', ()=>{
   else if(ui.view === 'library') openIdeaForm(null);
 });
 
-$('#sync').addEventListener('click', ()=>syncNow(true));
+$('#dataBtn').addEventListener('click', openDataPanel);
+$('#sync').addEventListener('click', ()=>{
+  if(Store.mode === 'cloud') syncNow(true);
+  else openDataPanel();
+});
 
 /* ================= 启动 ================= */
 async function init(){
@@ -1894,11 +2063,12 @@ async function init(){
     await loadAll();
     setSyncState('ok');
   }catch(err){
+    CLOUD = false;
     Store.mode = 'local';
     Store.data = lsRead();
     Store.fp = fpOf(Store.data);
-    setSyncState('err', '云端不可用，已切本地');
-    toast('云端连接失败，已切换到本地演示数据', true);
+    setSyncState('warn', '云端不可用');
+    toast('云端连接失败，已切回本地数据（可点右上角「数据」重连）', true);
   }
   renderAll();
 
