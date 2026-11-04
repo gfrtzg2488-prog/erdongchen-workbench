@@ -376,10 +376,12 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .icard{flex:1 1 100%}
   .icard .acts{opacity:1}
   .advance{padding:2px 5px}
-  .fan-stage{height:178px}
-  .fan-card{width:150px;padding:11px}
+  .fan-stage{height:176px}
+  .fan-card{width:132px;padding:10px}
   .fan-card h4{font-size:10.5px;height:30px}
   .fan-card .fc-amt{font-size:12px}
+  .fan-card .fc-brand{font-size:10.5px}
+  .fan-arrow{width:34px;height:34px}
   .focus-deal{margin-top:0}
   .fd-head h3{font-size:19px}
   .fd-meta{grid-template-columns:1fr 1fr;gap:8px 12px}
@@ -1424,7 +1426,7 @@ function renderDeals(){
     }
     const abs = Math.abs(off);
     const visible = abs <= (narrow ? 1 : 2);
-    const tx = off * (narrow ? 76 : 92), ty = abs * (narrow ? 7 : 9), rot = off * (narrow ? 6 : 7);
+    const tx = off * (narrow ? 88 : 92), ty = abs * (narrow ? 8 : 9), rot = off * (narrow ? 6 : 7);
     return '<button class="fan-card'+(off===0?'':' dim')+'" data-act="pick-deal" data-i="'+i+'" '+
       'style="transform:translateX(calc(-50% + '+tx+'px)) translateY('+ty+'px) rotate('+rot+'deg);z-index:'+(10-abs)+';opacity:'+(visible?1:0)+';pointer-events:'+(visible?'auto':'none')+'">'+
       '<div class="fc-top"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span><span class="fc-brand">'+esc(x.brand)+'</span><span class="fc-stage">'+statusBadge(x.stage)+'</span></div>'+
