@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:05.843Z",
+  "updated_at": "2026-11-04T08:12:08.067Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c3",
-        "title": "你会在深夜删掉哪条朋友圈",
-        "platform": "小红书",
-        "format": "图文",
-        "stage": "审核",
-        "topic": "互动话题",
-        "hook": "我先说，我删过 37 条",
-        "owner": "枕冬",
-        "due_date": "2026-11-08",
-        "priority": 2,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "评论区引导"
-      },
       {
         "id": "c4",
         "title": "周末两小时房间归零",
