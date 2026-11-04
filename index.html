@@ -226,6 +226,25 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .sched-leg span{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;color:var(--muted)}
 .sched-leg i{width:6px;height:6px;border-radius:1px;display:block}
 .sched-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+/* 手机日程：纵向议程 */
+.sched-range{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
+.ag{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
+.ag-day{display:grid;grid-template-columns:58px minmax(0,1fr);border-bottom:1px solid var(--line2)}
+.ag-day:last-child{border-bottom:0}
+.ag-day.today .ag-h{background:#FBF1E7}
+.ag-h{padding:11px 9px;background:#F4EFE3;border-right:1px solid var(--line2);display:flex;flex-direction:column;gap:2px;align-items:flex-start;justify-content:center}
+.ag-h b{font-family:var(--serif);font-size:14px;font-weight:600;letter-spacing:.02em}
+.ag-h span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.ag-h em{font-size:9px;color:var(--accent);font-style:normal;letter-spacing:.1em}
+.ag-b{padding:8px 10px;display:flex;flex-direction:column;gap:5px;min-height:50px;justify-content:center}
+.ag-ev{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:2px;background:#F5F1E6;border-left:3px solid var(--slate);font-size:12.5px;text-align:left;line-height:1.3;min-height:36px}
+.ag-ev .tm{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
+.ag-ev .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ag-ev .kk{font-size:9.5px;color:var(--faint);flex:none;border:1px solid var(--line);padding:1px 5px;border-radius:2px}
+.ag-ev.done{opacity:.55}
+.ag-ev.done .tt{text-decoration:line-through}
+.ag-add{display:flex;align-items:center;gap:5px;padding:6px 9px;border:1px dashed var(--line);border-radius:2px;color:var(--faint);font-size:11px;text-align:left;min-height:30px}
+.ag-add:hover{border-color:#C4BAA6;color:var(--muted)}
 .sched{display:grid;grid-template-columns:46px repeat(7,minmax(0,1fr));min-width:760px}
 .sched .wk{background:#EFE9DC;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);padding:8px 4px;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--muted);position:sticky;left:0;z-index:2}
 .sched .dh{padding:8px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);text-align:center;background:#F6F1E6}
@@ -439,6 +458,22 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .sched .wk,.sched .wlab{box-shadow:2px 0 0 rgba(23,24,27,.06)}
   .sched-hint{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.04em;margin:0 0 8px;display:flex;align-items:center;gap:6px}
   .sched-hint::before{content:"";width:10px;height:1px;background:var(--line)}
+  /* ---- 手机端字号：正文不小于 12px ---- */
+  .feed .ft b{font-size:13px}
+  .feed .ft span{font-size:11px}
+  .todo .tt{font-size:13px}
+  .todo .time{font-size:10.5px}
+  .card-h{padding:11px 13px}
+  .card-h h3{font-size:13.5px}
+  .card-h .eyebrow{font-size:9px}
+  .mini-deal .md-t b{font-size:12.5px}
+  .mini-deal .md-t span{font-size:10.5px}
+  .fd-meta .k{font-size:9.5px}
+  .fd-meta .v{font-size:12.5px}
+  .fd-list li{font-size:12px}
+  .tb-l h1{font-size:24px}
+  .toolbar{gap:6px}
+  .sched-range{font-size:11.5px}
   .day-list .row{gap:8px}
   .feed .ft span{font-size:10px}
 }
@@ -1675,12 +1710,45 @@ function renderSchedule(){
   }
   body += '</div>';
 
-  $('#views .view[data-view="schedule"]').innerHTML =
-    '<div class="toolbar"><div class="sched-leg">'+legend+'</div><div class="sp"></div>'+
-      '<button class="btn sm" data-act="sched-shift" data-n="-28">'+icon('arrowL',12)+' 上一组</button>'+
-      '<button class="btn sm" data-act="sched-today">本周</button>'+
-      '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
-    '</div>'+
+  const nar = narrowView();
+  const toolbar = nar
+    ? '<div class="toolbar"><div class="sched-range">'+(parseYmd(base).getMonth()+1)+'.'+parseYmd(base).getDate()+' – '+(parseYmd(addDays(base,6)).getMonth()+1)+'.'+parseYmd(addDays(base,6)).getDate()+'</div><div class="sp"></div>'+
+        '<button class="btn sm" data-act="sched-shift" data-n="-7">上一周</button>'+
+        '<button class="btn sm" data-act="sched-today">本周</button>'+
+        '<button class="btn sm" data-act="sched-shift" data-n="7">下一周</button>'+
+      '</div>'
+    : '<div class="toolbar"><div class="sched-leg">'+legend+'</div><div class="sp"></div>'+
+        '<button class="btn sm" data-act="sched-shift" data-n="-28">'+icon('arrowL',12)+' 上一组</button>'+
+        '<button class="btn sm" data-act="sched-today">本周</button>'+
+        '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
+      '</div>';
+
+  if(nar){
+    const wkN = ['周一','周二','周三','周四','周五','周六','周日'];
+    let ag = '<div class="ag">';
+    for(let dj=0; dj<7; dj++){
+      const date = addDays(base, dj);
+      const list = byDate[date] || [];
+      const d = parseYmd(date);
+      ag += '<div class="ag-day'+(date===today?' today':'')+'" data-act="open-day" data-date="'+date+'">'+
+        '<div class="ag-h"><b>'+wkN[dj]+'</b><span>'+(d.getMonth()+1)+'/'+d.getDate()+'</span>'+(date===today?'<em>今天</em>':'')+'</div>'+
+        '<div class="ag-b">'+
+          list.map(e=>'<button class="ag-ev k-'+esc(e.kind)+(e.status==='完成'?' done':'')+'" data-act="edit-event" data-id="'+esc(e.id)+'" style="border-left-color:'+KIND_DOT[e.kind]+'">'+
+            (e.time?'<span class="tm">'+esc(e.time)+'</span>':'')+
+            '<span class="tt">'+esc(e.title)+'</span>'+
+            '<span class="kk">'+esc(e.kind)+'</span>'+
+          '</button>').join('')+
+          '<button class="ag-add" data-act="new-event" data-date="'+date+'">'+icon('plus',11)+' 加一条</button>'+
+        '</div>'+
+      '</div>';
+    }
+    ag += '</div>';
+    $('#views .view[data-view="schedule"]').innerHTML = toolbar +
+      '<div class="mobile-only sched-hint">点条目可改期或删除 · 点日期行看当天清单</div>' + ag;
+    return;
+  }
+
+  $('#views .view[data-view="schedule"]').innerHTML = toolbar +
     '<div class="mobile-only sched-hint">左右滑动看整周 · 点日期格看当天安排</div>'+
     '<div class="sched-scroll">'+head+body+'</div>'+
     '<div class="mobile-only" style="margin-top:10px;font-size:10px;color:var(--faint)">拖拽调整排期在桌面端可用；手机端点日期格后可在弹窗里改期或删除。</div>';
@@ -2341,9 +2409,14 @@ async function init(){
   }, 45000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) syncNow(false); });
   let rsT;
+  let lastNar = narrowView();
   window.addEventListener('resize', ()=>{
     clearTimeout(rsT);
-    rsT = setTimeout(()=>{ if(ui.view==='deals') applyFan(); }, 200);
+    rsT = setTimeout(()=>{
+      const nar = narrowView();
+      if(nar !== lastNar){ lastNar = nar; renderAll(); return; }
+      if(ui.view==='deals') applyFan();
+    }, 200);
   });
 
   /* 商单扇形：左右滑动切换 + 键盘左右键 */
