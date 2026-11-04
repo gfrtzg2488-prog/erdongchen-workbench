@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:13.273Z",
+  "updated_at": "2026-11-04T08:12:15.793Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c5",
-        "title": "打工人早起挑战 Day 4",
-        "platform": "抖音",
-        "format": "视频",
-        "stage": "发布",
-        "topic": "互动话题",
-        "hook": "连续 7 天 6 点起，第 4 天开始崩溃",
-        "owner": "枕冬",
-        "due_date": "2026-11-05",
-        "priority": 2,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "系列第 4 集"
-      },
       {
         "id": "c6",
         "title": "这 5 件小物让我少打扫一半",
