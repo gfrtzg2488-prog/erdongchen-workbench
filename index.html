@@ -172,8 +172,10 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 /* ---------- 商单 ---------- */
 .deal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
 .fan-wrap{position:relative;padding:8px 0 0}
-.fan-stage{position:relative;height:206px;perspective:1100px;overflow:hidden}
-.fan-card{position:absolute;left:50%;top:12px;width:178px;transform-origin:50% 118%;transition:transform .42s cubic-bezier(.22,.8,.25,1),opacity .3s,filter .3s;border-radius:3px;border:1px solid var(--line);background:var(--card2);padding:13px 13px 12px;cursor:pointer;will-change:transform;text-align:left}
+.fan-stage{position:relative;height:206px;perspective:1100px;overflow:visible;touch-action:pan-y}
+.fan-card{position:absolute;left:50%;top:12px;width:178px;transform-origin:50% 118%;transition:transform .52s cubic-bezier(.22,.9,.24,1),opacity .34s ease,filter .34s ease,box-shadow .34s ease;border-radius:3px;border:1px solid var(--line);background:var(--card2);padding:13px 13px 12px;cursor:pointer;will-change:transform;text-align:left}
+.fan-card:not(.dim){box-shadow:0 14px 30px -18px rgba(23,24,27,.5)}
+.fan-card:active{filter:brightness(.985)}
 .fan-card .fc-top{display:flex;align-items:center;gap:6px}
 .fan-card .fc-logo{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#EDE8DC;display:grid;place-items:center;font-family:var(--serif);font-size:12px;flex:none}
 .fan-card .fc-brand{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -189,6 +191,8 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .fan-arrow:hover{border-color:#BDB4A0}
 .fan-arrow svg{width:12px;height:12px}
 .focus-deal{display:grid;grid-template-columns:1.35fr .85fr;gap:0;margin-top:8px;overflow:hidden}
+.fd-anim{animation:fdIn .3s cubic-bezier(.2,.8,.3,1) both}
+@keyframes fdIn{from{opacity:.25;transform:translateY(7px)}to{opacity:1;transform:none}}
 .fd-l{padding:18px 20px;border-right:1px solid var(--line2)}
 .fd-head{display:flex;align-items:flex-start;gap:12px}
 .fd-head .fc-logo{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#EDE8DC;display:grid;place-items:center;font-family:var(--serif);font-size:18px;flex:none}
@@ -1416,19 +1420,12 @@ function renderDeals(){
   const received = sum(deals, x=>x.received);
   const activeN = deals.filter(x=>x.stage!=='已回款').length;
 
-  const narrow = (typeof window !== 'undefined') && window.innerWidth <= 820;
   const n = deals.length;
   const cards = deals.map((x,i)=>{
-    let off = i - idx;
-    if(n > 2){
-      if(off > n/2) off -= n;
-      if(off < -n/2) off += n;
-    }
-    const abs = Math.abs(off);
-    const visible = abs <= (narrow ? 1 : 2);
-    const tx = off * (narrow ? 88 : 92), ty = abs * (narrow ? 8 : 9), rot = off * (narrow ? 6 : 7);
+    const off = fanOffset(i, idx, n), abs = Math.abs(off);
+    const visible = abs <= (narrowView() ? 1 : 2);
     return '<button class="fan-card'+(off===0?'':' dim')+'" data-act="pick-deal" data-i="'+i+'" '+
-      'style="transform:translateX(calc(-50% + '+tx+'px)) translateY('+ty+'px) rotate('+rot+'deg);z-index:'+(10-abs)+';opacity:'+(visible?1:0)+';pointer-events:'+(visible?'auto':'none')+'">'+
+      'style="'+fanStyle(off)+';opacity:'+(visible?1:0)+';pointer-events:'+(visible?'auto':'none')+'">'+
       '<div class="fc-top"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span><span class="fc-brand">'+esc(x.brand)+'</span><span class="fc-stage">'+statusBadge(x.stage)+'</span></div>'+
       '<h4>'+esc(x.title||x.brand)+'</h4>'+
       '<div class="fc-amt">'+fmtMoney(x.amount)+'</div>'+
@@ -1438,8 +1435,6 @@ function renderDeals(){
   }).join('');
 
   const x = deals[idx];
-  const pct = clamp(Number(x.progress)||0, 0, 100);
-  const dl = (x.deliverables||'').split('\n').filter(Boolean);
   const remain = (Number(x.amount)||0) - (Number(x.received)||0);
 
   box.innerHTML =
@@ -1453,30 +1448,83 @@ function renderDeals(){
       '<span class="idx">'+pad2(idx+1)+' / '+pad2(deals.length)+'</span>'+
       '<button class="fan-arrow" data-act="deal-next" aria-label="下一个">'+icon('arrowR',12)+'</button></div>'+
     '</div>'+
-    '<div class="card focus-deal">'+
-      '<div class="fd-l">'+
-        '<div class="fd-head"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span>'+
-          '<div><h3>'+esc(x.brand)+'</h3><div class="sub"><span>'+esc(x.title||'—')+'</span><span>·</span>'+statusBadge(x.stage)+'</div></div>'+
-          '<button class="btn sm" style="margin-left:auto" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料 '+icon('external',12)+'</button>'+
-        '</div>'+
-        '<div class="fd-meta">'+
-          '<div class="m"><div class="k">类型 / 联系人</div><div class="v">'+esc(x.type)+' / '+esc(x.contact||'—')+'</div></div>'+
-          '<div class="m"><div class="k">交付日</div><div class="v">'+esc(fmtD(x.deadline))+' · '+relDay(x.deadline)+'</div></div>'+
-          '<div class="m"><div class="k">合同金额</div><div class="v">'+fmtMoney(x.amount)+'</div></div>'+
-          '<div class="m"><div class="k">已回款</div><div class="v">'+fmtMoney(x.received)+'</div></div>'+
-        '</div>'+
-        '<div class="fd-list"><div class="k">交付内容</div><ul>'+(dl.length? dl.map(t=>'<li>'+esc(t)+'</li>').join('') : '<li>未填写</li>')+'</ul></div>'+
+    '<div class="card focus-deal">'+focusDealHTML(x)+'</div>';
+}
+
+function narrowView(){ return (typeof window !== 'undefined') && window.innerWidth <= 820; }
+function fanOffset(i, idx, n){
+  let off = i - idx;
+  if(n > 2){
+    if(off > n/2) off -= n;
+    if(off < -n/2) off += n;
+  }
+  return off;
+}
+function fanTransform(off){
+  const nar = narrowView(), abs = Math.abs(off);
+  const tx = off * (nar ? 88 : 92), ty = abs * (nar ? 8 : 9), rot = off * (nar ? 6 : 7);
+  const sc = abs === 0 ? 1.045 : (abs === 1 ? .95 : .875);
+  return 'translateX(calc(-50% + '+tx+'px)) translateY('+ty+'px) rotate('+rot+'deg) scale('+sc+')';
+}
+function fanStyle(off){
+  return 'transform:'+fanTransform(off)+';z-index:'+(10-Math.abs(off));
+}
+
+function focusDealHTML(x){
+  const pct = clamp(Number(x.progress)||0, 0, 100);
+  const dl = (x.deliverables||'').split('\n').filter(Boolean);
+  return '<div class="fd-l">'+
+      '<div class="fd-head"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span>'+
+        '<div><h3>'+esc(x.brand)+'</h3><div class="sub"><span>'+esc(x.title||'—')+'</span><span>·</span>'+statusBadge(x.stage)+'</div></div>'+
+        '<button class="btn sm" style="margin-left:auto" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料 '+icon('external',12)+'</button>'+
       '</div>'+
-      '<div class="fd-r">'+
-        '<div class="ring">'+ringSVG(pct)+'<div class="rv"><b>'+pct+'<small style="font-size:11px">%</small></b><span>PROGRESS</span></div></div>'+
-        '<div class="fd-money"><span>合同 / 已收</span><b>'+fmtMoney(x.amount)+' / '+fmtMoney(x.received)+'</b></div>'+
-        '<div class="fd-actions">'+
-          '<button class="btn primary" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料</button>'+
-          '<button class="btn" data-act="deal-schedule" data-id="'+esc(x.id)+'">加入排期</button>'+
-          '<button class="btn ghost" data-act="edit-deal" data-id="'+esc(x.id)+'">编辑商单</button>'+
-        '</div>'+
+      '<div class="fd-meta">'+
+        '<div class="m"><div class="k">类型 / 联系人</div><div class="v">'+esc(x.type)+' / '+esc(x.contact||'—')+'</div></div>'+
+        '<div class="m"><div class="k">交付日</div><div class="v">'+esc(fmtD(x.deadline))+' · '+relDay(x.deadline)+'</div></div>'+
+        '<div class="m"><div class="k">合同金额</div><div class="v">'+fmtMoney(x.amount)+'</div></div>'+
+        '<div class="m"><div class="k">已回款</div><div class="v">'+fmtMoney(x.received)+'</div></div>'+
+      '</div>'+
+      '<div class="fd-list"><div class="k">交付内容</div><ul>'+(dl.length? dl.map(t=>'<li>'+esc(t)+'</li>').join('') : '<li>未填写</li>')+'</ul></div>'+
+    '</div>'+
+    '<div class="fd-r">'+
+      '<div class="ring">'+ringSVG(pct)+'<div class="rv"><b>'+pct+'<small style="font-size:11px">%</small></b><span>PROGRESS</span></div></div>'+
+      '<div class="fd-money"><span>合同 / 已收</span><b>'+fmtMoney(x.amount)+' / '+fmtMoney(x.received)+'</b></div>'+
+      '<div class="fd-actions">'+
+        '<button class="btn primary" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料</button>'+
+        '<button class="btn" data-act="deal-schedule" data-id="'+esc(x.id)+'">加入排期</button>'+
+        '<button class="btn ghost" data-act="edit-deal" data-id="'+esc(x.id)+'">编辑商单</button>'+
       '</div>'+
     '</div>';
+}
+
+/* 只更新扇形与聚焦卡，不重建节点，保留过渡动画 */
+function applyFan(){
+  const deals = Store.data.deals;
+  const n = deals.length;
+  const box = document.querySelector('#views .view[data-view="deals"]');
+  if(!box || !n) return;
+  const idx = clamp(ui.dealIndex, 0, n-1);
+  ui.dealIndex = idx;
+  box.querySelectorAll('.fan-card').forEach(el=>{
+    const i = Number(el.dataset.i);
+    if(!deals[i]) return;
+    const off = fanOffset(i, idx, n), abs = Math.abs(off);
+    const visible = abs <= (narrowView() ? 1 : 2);
+    el.style.transform = fanTransform(off);
+    el.style.zIndex = 10 - abs;
+    el.style.opacity = visible ? 1 : 0;
+    el.style.pointerEvents = visible ? 'auto' : 'none';
+    el.classList.toggle('dim', off !== 0);
+  });
+  const idxEl = box.querySelector('.fan-nav .idx');
+  if(idxEl) idxEl.textContent = pad2(idx+1)+' / '+pad2(n);
+  const fd = box.querySelector('.focus-deal');
+  if(fd){
+    fd.innerHTML = focusDealHTML(deals[idx]);
+    fd.classList.remove('fd-anim');
+    void fd.offsetWidth;
+    fd.classList.add('fd-anim');
+  }
 }
 
 function dealFields(){
@@ -2101,17 +2149,26 @@ document.addEventListener('click', async e=>{
         });
         break;
       }
-      case 'pick-deal':
-        ui.dealIndex = Number(el.dataset.i) || 0;
-        renderDeals();
+      case 'pick-deal': {
+        const i = Number(el.dataset.i) || 0;
+        if(i === ui.dealIndex){
+          const cur = Store.data.deals[i];
+          if(cur) openDeal(cur.id);
+        }else{
+          ui.dealIndex = i;
+          applyFan();
+        }
         break;
+      }
       case 'deal-prev':
+        if(!Store.data.deals.length) break;
         ui.dealIndex = (ui.dealIndex - 1 + Store.data.deals.length) % Store.data.deals.length;
-        renderDeals();
+        applyFan();
         break;
       case 'deal-next':
+        if(!Store.data.deals.length) break;
         ui.dealIndex = (ui.dealIndex + 1) % Store.data.deals.length;
-        renderDeals();
+        applyFan();
         break;
       case 'open-deal':
         openDeal(id);
@@ -2262,7 +2319,42 @@ async function init(){
   let rsT;
   window.addEventListener('resize', ()=>{
     clearTimeout(rsT);
-    rsT = setTimeout(()=>{ if(ui.view==='deals') renderDeals(); }, 200);
+    rsT = setTimeout(()=>{ if(ui.view==='deals') applyFan(); }, 200);
+  });
+
+  /* 商单扇形：左右滑动切换 + 键盘左右键 */
+  let swX = 0, swY = 0, swT = 0, swMoved = false;
+  document.addEventListener('touchstart', e=>{
+    if(!e.target.closest('.fan-stage') || e.touches.length !== 1) return;
+    swX = e.touches[0].clientX; swY = e.touches[0].clientY; swT = Date.now(); swMoved = false;
+  }, { passive: true });
+  document.addEventListener('touchend', e=>{
+    if(!swT || !e.changedTouches.length) return;
+    const dx = e.changedTouches[0].clientX - swX;
+    const dy = e.changedTouches[0].clientY - swY;
+    const fresh = Date.now() - swT < 700;
+    swT = 0;
+    if(!fresh || Math.abs(dx) < 38 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    const n = Store.data.deals.length;
+    if(!n) return;
+    swMoved = true;
+    ui.dealIndex = (ui.dealIndex + (dx < 0 ? 1 : -1) + n) % n;
+    applyFan();
+  }, { passive: true });
+  document.addEventListener('click', e=>{
+    if(swMoved && e.target.closest('.fan-stage')){
+      swMoved = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+  document.addEventListener('keydown', e=>{
+    if(ui.view !== 'deals' || document.querySelector('dialog[open]')) return;
+    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const n = Store.data.deals.length;
+    if(!n) return;
+    ui.dealIndex = (ui.dealIndex + (e.key === 'ArrowRight' ? 1 : -1) + n) % n;
+    applyFan();
   });
 
   window.addEventListener('storage', e=>{
