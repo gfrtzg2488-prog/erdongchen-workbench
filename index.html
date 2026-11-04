@@ -1115,7 +1115,9 @@ const ui = {
   schedStart: null,
   schedDay: null,
   libKind: ALL,
-  libStatus: ALL
+  libStatus: ALL,
+  insRange: 7,
+  insPlat: '小红书'
 };
 
 function stageBadge(s){ return '<span class="badge stage-'+esc(s)+'"><i class="bd"></i>'+esc(s)+'</span>'; }
@@ -1713,7 +1715,11 @@ function trendSVG(points){
     return '<line x1="'+pl+'" y1="'+yy+'" x2="'+(pl+innerW)+'" y2="'+yy+'" stroke="#E7E1D3" stroke-width="1"/>'+
       '<text x="'+(pl-6)+'" y="'+(yy+3)+'" text-anchor="end" font-size="9" font-family="ui-monospace,monospace" fill="#A39B8C">'+fmtNum(max*f)+'</text>';
   }).join('');
-  const labels = points.map((p,i)=>'<text x="'+X(i)+'" y="'+(h-9)+'" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" fill="#A39B8C">'+fmtD(p.date)+'</text>').join('');
+  const labels = points.map((p,i)=>{
+    const every = points.length > 14 ? Math.ceil(points.length / 7) : 1;
+    if(points.length > 14 && i !== points.length-1 && i % every !== 0) return '';
+    return '<text x="'+X(i)+'" y="'+(h-9)+'" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" fill="#A39B8C">'+fmtD(p.date)+'</text>';
+  }).join('');
   const dots = points.map((p,i)=>'<circle cx="'+X(i)+'" cy="'+Y(p.value)+'" r="2.6" fill="#B04A2B"/>').join('');
   return '<svg viewBox="0 0 '+w+' '+h+'"><polygon points="'+areaPts+'" fill="#B04A2B" opacity="0.10"/>'+
     '<polyline points="'+linePts+'" fill="none" stroke="#B04A2B" stroke-width="1.6" stroke-linejoin="round"/>'+
@@ -1725,8 +1731,13 @@ function legend(items){
 }
 
 function renderInsights(){
-  const m = Store.data.metrics;
   const box = $('#views .view[data-view="insights"]');
+  const range = ui.insRange, plat = ui.insPlat;
+  const days = range === 30 ? 30 : (range === 7 ? 7 : 0);
+  const from = days ? addDays(todayStr(), -(days-1)) : '';
+  const inRange = x => !from || (x.date||'') >= from;
+  const m = Store.data.metrics.filter(x=>inRange(x) && (plat===ALL || x.platform===plat));
+  const mAllPlat = Store.data.metrics.filter(inRange);
   const plays = sum(m, x=>x.plays);
   const likes = sum(m, x=>x.likes);
   const comments = sum(m, x=>x.comments);
@@ -1735,16 +1746,19 @@ function renderInsights(){
   const inter = likes + comments + saves + shares;
   const fans = sum(m, x=>x.followers);
   const rate = plays ? (inter / plays * 100) : 0;
-  const published = Store.data.content_items.filter(c=>c.stage==='已发布').length;
+  const contents = Store.data.content_items.filter(c=>plat===ALL || c.platform===plat);
+  const published = contents.filter(c=>c.stage==='已发布').length;
+  const rangeLabel = days ? '近 ' + days + ' 天' : '全部时间';
+  const platLabel = plat === ALL ? '全平台' : plat;
 
   const stageItems = STAGES.map((s,i)=>({
     label:s,
-    value: Store.data.content_items.filter(c=>c.stage===s).length,
+    value: contents.filter(c=>c.stage===s).length,
     color: STAGE_DOT[s] || CHART_COLORS[i%CHART_COLORS.length]
   }));
 
   const platforms = PLATFORMS.map(p=>{
-    const rows = m.filter(x=>x.platform===p);
+    const rows = mAllPlat.filter(x=>x.platform===p);
     return { label:p, value: sum(rows, x=>x.plays), color: CHART_COLORS[PLATFORMS.indexOf(p)%CHART_COLORS.length] };
   }).filter(x=>x.value>0);
 
@@ -1754,19 +1768,27 @@ function renderInsights(){
     color: CHART_COLORS[i%CHART_COLORS.length]
   }));
 
+  const trendDays = days || 30;
   const dates = [];
-  for(let i=6;i>=0;i--) dates.push(addDays(todayStr(), -i));
+  for(let i=trendDays-1;i>=0;i--) dates.push(addDays(todayStr(), -i));
   const trendPoints = dates.map(d=>({ date:d, value: sum(m.filter(x=>x.date===d), x=>x.plays) }));
 
+  const toolbar =
+    '<div class="toolbar">'+
+      [7,30,0].map(r=>'<button class="chip'+(range===r?' on':'')+'" data-act="ins-range" data-v="'+r+'">'+(r?('近 '+r+' 天'):'全部')+'</button>').join('')+
+      '<span style="width:10px"></span>'+
+      [ALL].concat(PLATFORMS).map(p=>'<button class="chip'+(plat===p?' on':'')+'" data-act="ins-plat" data-v="'+esc(p)+'">'+esc(p)+'</button>').join('')+
+    '</div>';
+
   if(!m.length){
-    box.innerHTML = '<div class="card"><div class="empty">还没有互动数据，点右上角「记录数据」补一条</div></div>';
+    box.innerHTML = toolbar + '<div class="card"><div class="empty">'+esc(rangeLabel)+' · '+esc(platLabel)+' 还没有数据，点右上角「记录数据」补一条</div></div>';
     return;
   }
 
-  box.innerHTML =
+  box.innerHTML = toolbar +
     '<div class="kpis">'+
-      '<div class="stat accent"><span class="eyebrow">PLAYS / 总播放</span><b>'+fmtNum(plays)+'</b><div class="sub">累计 '+m.length+' 条记录</div></div>'+
-      '<div class="stat"><span class="eyebrow">ENGAGEMENT / 总互动</span><b>'+fmtNum(inter)+'</b><div class="sub">赞 '+fmtNum(likes)+' · 评 '+fmtNum(comments)+'</div></div>'+
+      '<div class="stat accent"><span class="eyebrow">PLAYS / 播放</span><b>'+fmtNum(plays)+'</b><div class="sub">'+esc(rangeLabel)+' · '+esc(platLabel)+' · '+m.length+' 条记录</div></div>'+
+      '<div class="stat"><span class="eyebrow">ENGAGEMENT / 互动</span><b>'+fmtNum(inter)+'</b><div class="sub">赞 '+fmtNum(likes)+' · 评 '+fmtNum(comments)+'</div></div>'+
       '<div class="stat"><span class="eyebrow">RATE / 互动率</span><b>'+rate.toFixed(1)+'<small>%</small></b><div class="sub">收藏 '+fmtNum(saves)+' · 转发 '+fmtNum(shares)+'</div></div>'+
       '<div class="stat"><span class="eyebrow">GROWTH / 新增关注</span><b>'+fmtNum(fans)+'</b><div class="sub">已发布内容 '+published+' 条</div></div>'+
     '</div>'+
@@ -1777,7 +1799,7 @@ function renderInsights(){
         '<div class="card-b">'+(platforms.length? barsSVG(platforms) : '<div class="empty">暂无播放数据</div>')+'</div></div>'+
       '<div class="card chart-card"><div class="card-h"><h3>反馈分布</h3><span class="eyebrow">FEEDBACK</span></div>'+
         '<div class="card-b">'+barsSVG(fb)+'</div></div>'+
-      '<div class="card chart-card"><div class="card-h"><h3>近 7 日播放趋势</h3><span class="eyebrow">7-DAY TREND</span></div>'+
+      '<div class="card chart-card"><div class="card-h"><h3>'+esc(rangeLabel)+'播放趋势</h3><span class="eyebrow">'+(days||30)+'-DAY TREND</span></div>'+
         '<div class="card-b trend-wrap">'+trendSVG(trendPoints)+'</div></div>'+
       '<div class="card chart-card span2"><div class="card-h"><h3>最近记录</h3><span class="eyebrow">RECORDS / '+m.length+'</span></div>'+
         '<div class="card-b">'+recentMetricsHTML(m)+'</div></div>'+
@@ -2071,6 +2093,16 @@ document.addEventListener('click', async e=>{
           body:'将删除「' + (ev ? ev.title : '') + '」的排期，删除后不可恢复。',
           onOk: async ()=>{ await deleteRow('schedule', id); renderAll(); toast('安排已删除'); }
         });
+        break;
+      }
+      case 'ins-range': {
+        ui.insRange = Number(el.dataset.v);
+        renderInsights();
+        break;
+      }
+      case 'ins-plat': {
+        ui.insPlat = el.dataset.v;
+        renderInsights();
         break;
       }
       case 'edit-metric': {
