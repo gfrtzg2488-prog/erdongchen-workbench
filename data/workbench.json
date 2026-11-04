@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:15:37.410Z",
+  "updated_at": "2026-11-04T08:17:17.239Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -65,7 +65,7 @@
         "platform": "小红书",
         "status": "完成",
         "sort": 1,
-        "updated_at": "2026-11-04T08:15:36.498Z"
+        "updated_at": "2026-11-04T08:17:16.338Z"
       },
       {
         "id": "s7",
