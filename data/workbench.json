@@ -1,25 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:37.983Z",
+  "updated_at": "2026-11-04T08:12:43.042Z",
   "tables": {
     "content_items": [],
     "deals": [
-      {
-        "id": "d2",
-        "brand": "有理书店",
-        "title": "新店开业图文合集",
-        "contact": "小理",
-        "type": "图文",
-        "amount": 6200,
-        "received": 1860,
-        "stage": "已签约",
-        "progress": 35,
-        "start_date": "2026-11-01",
-        "deadline": "2026-11-20",
-        "deliverables": "1 条主图文\n2 条日常植入",
-        "brief": "书店氛围为主，需出现 3 个书区。",
-        "notes": "已收 30% 定金"
-      },
       {
         "id": "d3",
         "brand": "半日花房",
