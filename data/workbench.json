@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:21.199Z",
+  "updated_at": "2026-11-04T08:12:27.135Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c7",
-        "title": "下雨天适合做的三件小事",
-        "platform": "视频号",
-        "format": "视频",
-        "stage": "已发布",
-        "topic": "日常分享",
-        "hook": "雨天不必出门的快乐",
-        "owner": "枕冬",
-        "due_date": "2026-10-31",
-        "priority": 2,
-        "plays": 46000,
-        "likes": 2100,
-        "comments": 180,
-        "saves": 900,
-        "shares": 320,
-        "published_at": "2026-10-31",
-        "notes": ""
-      },
       {
         "id": "c8",
         "title": "投票：你会为了拍照排队吗",
