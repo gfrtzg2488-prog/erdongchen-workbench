@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:26:53.455Z",
+  "updated_at": "2026-11-04T08:26:58.067Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -67,16 +67,6 @@
         "status": "完成",
         "sort": 1,
         "updated_at": "2026-11-04T08:17:16.338Z"
-      },
-      {
-        "id": "s8",
-        "date": "2026-11-05",
-        "time": "16:00",
-        "title": "咖啡探店补拍",
-        "kind": "拍摄",
-        "platform": "抖音",
-        "status": "待办",
-        "sort": 1
       },
       {
         "id": "s9",
