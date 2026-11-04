@@ -15,10 +15,11 @@
   --serif:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif;
   --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
 }
-*{box-sizing:border-box}
-html{-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button{-webkit-appearance:none;appearance:none;touch-action:manipulation}
 button:focus,button:active,a:focus{outline:none}
 button:focus-visible,a:focus-visible,[data-act]:focus-visible{outline:2px solid rgba(176,74,43,.6);outline-offset:2px}
+@media (hover:none){button:focus-visible,a:focus-visible,[data-act]:focus-visible,button:focus,button:active{outline:none}}
 html,body{margin:0;padding:0}
 body{background:var(--paper);color:var(--text);font-family:var(--ff);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh}
 ::selection{background:var(--accent);color:#fff}
