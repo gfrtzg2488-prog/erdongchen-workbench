@@ -1,25 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:43.042Z",
+  "updated_at": "2026-11-04T08:12:49.585Z",
   "tables": {
     "content_items": [],
     "deals": [
-      {
-        "id": "d3",
-        "brand": "半日花房",
-        "title": "花艺课体验视频",
-        "contact": "林半",
-        "type": "视频",
-        "amount": 8000,
-        "received": 4000,
-        "stage": "制作中",
-        "progress": 55,
-        "start_date": "2026-10-29",
-        "deadline": "2026-11-14",
-        "deliverables": "1 条 90s 视频\n1 条花絮",
-        "brief": "强调零基础可上手。",
-        "notes": "拍摄已完成，剪辑中"
-      },
       {
         "id": "d4",
         "brand": "北岸民宿",
