@@ -325,8 +325,9 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);background:var(--ink);color:#F0EBE0;font-size:11.5px;padding:9px 14px;border-radius:3px;opacity:0;pointer-events:none;transition:.22s;z-index:60;max-width:80vw;text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .toast.err{background:#8E3320}
-.offline-strip{display:flex;align-items:center;gap:8px;font-size:10px;color:#7A5326;background:#F7EEDE;border:1px solid #E4D2B4;border-left:3px solid var(--amber);padding:7px 11px;border-radius:2px;margin-bottom:12px}
+.offline-strip{display:flex;align-items:flex-start;gap:8px;font-size:10px;color:#7A5326;background:#F7EEDE;border:1px solid #E4D2B4;border-left:3px solid var(--amber);padding:7px 11px;border-radius:2px;margin-bottom:12px;cursor:pointer;line-height:1.55}
 .offline-strip b{font-weight:500}
+.offline-strip svg{flex:none;width:13px;height:13px;margin-top:2px}
 .mobile-only{display:none}
 
 /* ---------- 响应式 ---------- */
@@ -351,7 +352,7 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .brand,.rail-foot{display:none}
   .nav{flex-direction:row;width:100%;overflow-x:auto;gap:0;scrollbar-width:none}
   .nav::-webkit-scrollbar{display:none}
-  .nav button{flex:1 0 auto;flex-direction:column;gap:3px;padding:5px 8px;font-size:9.5px;border-left:0;border-bottom:2px solid transparent;justify-content:center;min-width:52px}
+  .nav button{flex:1 1 0;min-width:0;flex-direction:column;gap:4px;padding:6px 2px;font-size:10px;border-left:0;border-bottom:2px solid transparent;justify-content:center}
   .nav button.on{border-left-color:transparent;border-bottom-color:var(--accent);background:transparent}
   .nav button svg{width:15px;height:15px}
   .nav .count{display:none}
@@ -395,6 +396,34 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .m-body{max-height:calc(92vh - 128px)}
   .mobile-only{display:block}
   .fp{display:none}
+  /* ---- 手机端触控与可读性 ---- */
+  .chip{padding:6px 11px;font-size:11px;min-height:32px;display:inline-flex;align-items:center}
+  .btn{min-height:34px}
+  .btn.sm{min-height:30px;padding:5px 9px}
+  .iconbtn{width:28px;height:28px}
+  .iconbtn svg{width:14px;height:14px}
+  .f input,.f select,.f textarea{font-size:16px;padding:9px 10px}
+  .f>label,.f .lab{font-size:11px}
+  .today-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .today-stats .stat{padding:10px 10px}
+  .today-stats .stat b{font-size:18px}
+  .today-stats .stat .eyebrow{font-size:8.5px;letter-spacing:.1em}
+  .deal-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .deal-stats .stat{padding:10px}
+  .deal-stats .stat b{font-size:17px}
+  .deal-stats .stat .eyebrow{font-size:8.5px;letter-spacing:.08em}
+  .deal-stats .stat .sub{font-size:9.5px}
+  .kpis .stat .sub{font-size:10px}
+  .icard h4{font-size:13px}
+  .icard .im{font-size:10.5px}
+  .icard .hook{font-size:10.5px}
+  .icard .cf .due{font-size:9.5px}
+  .sched-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .sched .wk,.sched .wlab{box-shadow:2px 0 0 rgba(23,24,27,.06)}
+  .sched-hint{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.04em;margin:0 0 8px;display:flex;align-items:center;gap:6px}
+  .sched-hint::before{content:"";width:10px;height:1px;background:var(--line)}
+  .day-list .row{gap:8px}
+  .feed .ft span{font-size:10px}
 }
 @media (max-width:380px){
   .today-stats,.deal-stats,.kpis{grid-template-columns:1fr}
@@ -1205,7 +1234,7 @@ function renderToday(){
   const greet = h<6?'夜深了':h<11?'早上好':h<14?'午间好':h<18?'下午好':'晚上好';
 
   const strip = CLOUD ? '' :
-    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地模式</b>：数据只存在这台设备的浏览器里。点右上角「数据」粘贴一次 GitHub 令牌，即可把数据存进你的仓库，手机电脑自动同步。</span></div>';
+    '<div class="offline-strip" data-act="open-data" role="button" tabindex="0">'+icon('sparkle',13)+'<span><b>本地模式</b>：数据只存在这台设备的浏览器里。点这里粘贴一次 GitHub 令牌，即可把数据存进你的仓库，手机电脑自动同步。</span></div>';
 
   $('#views .view[data-view="today"]').innerHTML = strip +
     '<div class="today-hero"><span class="line">'+greet+'，今天还有 <em>'+undone+'</em> 件事要做</span><span class="rule"></span><span class="eyebrow">'+esc(fmtCN(today))+'</span></div>'+
@@ -1360,10 +1389,17 @@ function renderDeals(){
   const received = sum(deals, x=>x.received);
   const activeN = deals.filter(x=>x.stage!=='已回款').length;
 
+  const narrow = (typeof window !== 'undefined') && window.innerWidth <= 820;
+  const n = deals.length;
   const cards = deals.map((x,i)=>{
-    const off = i - idx, abs = Math.abs(off);
-    const visible = abs <= 2;
-    const tx = off * 92, ty = abs * 9, rot = off * 7;
+    let off = i - idx;
+    if(n > 2){
+      if(off > n/2) off -= n;
+      if(off < -n/2) off += n;
+    }
+    const abs = Math.abs(off);
+    const visible = abs <= (narrow ? 1 : 2);
+    const tx = off * (narrow ? 76 : 92), ty = abs * (narrow ? 7 : 9), rot = off * (narrow ? 6 : 7);
     return '<button class="fan-card'+(off===0?'':' dim')+'" data-act="pick-deal" data-i="'+i+'" '+
       'style="transform:translateX(calc(-50% + '+tx+'px)) translateY('+ty+'px) rotate('+rot+'deg);z-index:'+(10-abs)+';opacity:'+(visible?1:0)+';pointer-events:'+(visible?'auto':'none')+'">'+
       '<div class="fc-top"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span><span class="fc-brand">'+esc(x.brand)+'</span><span class="fc-stage">'+statusBadge(x.stage)+'</span></div>'+
@@ -1546,8 +1582,9 @@ function renderSchedule(){
       '<button class="btn sm" data-act="sched-today">本周</button>'+
       '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
     '</div>'+
+    '<div class="mobile-only sched-hint">左右滑动看整周 · 点日期格看当天安排</div>'+
     '<div class="sched-scroll">'+head+body+'</div>'+
-    '<div class="mobile-only" style="margin-top:10px;font-size:10px;color:var(--faint)">手机上点击日期格查看当天安排；拖拽调整排期在桌面端可用。</div>';
+    '<div class="mobile-only" style="margin-top:10px;font-size:10px;color:var(--faint)">拖拽调整排期在桌面端可用；手机端点日期格后可在弹窗里改期或删除。</div>';
 }
 
 function eventFields(){
@@ -1777,7 +1814,7 @@ function renderInsights(){
     '<div class="toolbar">'+
       [7,30,0].map(r=>'<button class="chip'+(range===r?' on':'')+'" data-act="ins-range" data-v="'+r+'">'+(r?('近 '+r+' 天'):'全部')+'</button>').join('')+
       '<span style="width:10px"></span>'+
-      [ALL].concat(PLATFORMS).map(p=>'<button class="chip'+(plat===p?' on':'')+'" data-act="ins-plat" data-v="'+esc(p)+'">'+esc(p)+'</button>').join('')+
+      [ALL].concat(PLATFORMS).map(p=>'<button class="chip'+(plat===p?' on':'')+'" data-act="ins-plat" data-v="'+esc(p)+'">'+esc(p===ALL?'全平台':p)+'</button>').join('')+
     '</div>';
 
   if(!m.length){
@@ -2095,6 +2132,7 @@ document.addEventListener('click', async e=>{
         });
         break;
       }
+      case 'open-data': { openDataPanel(); break; }
       case 'ins-range': {
         ui.insRange = Number(el.dataset.v);
         renderInsights();
@@ -2192,6 +2230,11 @@ async function init(){
     if(!document.hidden) syncNow(false);
   }, 45000);
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) syncNow(false); });
+  let rsT;
+  window.addEventListener('resize', ()=>{
+    clearTimeout(rsT);
+    rsT = setTimeout(()=>{ if(ui.view==='deals') renderDeals(); }, 200);
+  });
 
   window.addEventListener('storage', e=>{
     if(e.key === LS_KEY) syncNow(false);
