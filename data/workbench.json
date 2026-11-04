@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T09:33:02.251Z",
+  "updated_at": "2026-11-04T09:36:31.705Z",
   "tables": {
     "content_items": [
       {
@@ -514,20 +514,6 @@
     ],
     "metrics": [
       {
-        "id": "m1",
-        "date": "2026-11-04",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 26000,
-        "likes": 2100,
-        "comments": 260,
-        "saves": 1400,
-        "shares": 210,
-        "followers": 120,
-        "feedback": "吐槽",
-        "title": "这 5 件小物让我少打扫一半"
-      },
-      {
         "id": "m2",
         "date": "2026-11-04",
         "platform": "抖音",
@@ -553,20 +539,6 @@
         "shares": 60,
         "followers": 40,
         "feedback": "吐槽",
-        "title": "下雨天适合做的三件小事"
-      },
-      {
-        "id": "m4",
-        "date": "2026-11-03",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 30100,
-        "likes": 2280,
-        "comments": 284,
-        "saves": 1510,
-        "shares": 228,
-        "followers": 129,
-        "feedback": "无感",
         "title": "下雨天适合做的三件小事"
       },
       {
@@ -596,20 +568,6 @@
         "followers": 42,
         "feedback": "无感",
         "title": "今年最后一个月想做的 5 件事"
-      },
-      {
-        "id": "m7",
-        "date": "2026-11-02",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 34200,
-        "likes": 2460,
-        "comments": 308,
-        "saves": 1620,
-        "shares": 246,
-        "followers": 138,
-        "feedback": "涨粉",
-        "title": "投票：你会为了拍照排队吗"
       },
       {
         "id": "m8",
