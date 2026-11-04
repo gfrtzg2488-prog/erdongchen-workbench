@@ -481,6 +481,8 @@ function ghToken(){
   try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; }
 }
 let CLOUD = !!ghToken();
+const LOCAL_ONLY = /[?&]local=1/.test(location.search);
+if(LOCAL_ONLY) CLOUD = false;
 
 /* ================= 常量 ================= */
 const STAGES = ['文案','剪辑','审核','发布','已发布'];
@@ -659,6 +661,11 @@ function seedData(){
     {id:'s18',date:addDays(base,24),time:'11:00',title:'下月内容排期',kind:'复盘',platform:'',status:'待办',sort:0}
   ];
   const metrics = [];
+  const titles = {
+    '小红书': ['这 5 件小物让我少打扫一半','下雨天适合做的三件小事','投票：你会为了拍照排队吗','北岸民宿｜周末住进山里','你会在深夜删掉哪条朋友圈','通勤包里到底装了什么','周末两小时房间归零','今年最后一个月想做的 5 件事'],
+    '抖音': ['打工人早起挑战 Day 4','咖啡探店：巷子尽头的 8 平米','我的包里常备这 4 样'],
+    '视频号': ['下雨天适合做的三件小事','今年最后一个月想做的 5 件事']
+  };
   const cols = { '小红书':[26000,3200,900,2100,180,260,24,1400,110,210,18,120,9], '抖音':[42000,5200,1800,1600,90,180,12,520,40,300,26,210,15], '视频号':[9000,1200,0,420,30,32,3,260,18,60,5,40,2] };
   let mi = 1;
   for(let g=0; g<=6; g++){
@@ -667,6 +674,7 @@ function seedData(){
       const c = cols[p];
       metrics.push({
         id:'m'+(mi++), date, platform:p, content_id:null,
+        title: titles[p][g % titles[p].length],
         plays: c[0]+g*c[1]+(g%3)*c[2],
         likes: c[3]+g*c[4],
         comments: c[5]+g*c[6],
@@ -763,6 +771,7 @@ function docOf(data){
   return { v:1, updated_at:new Date().toISOString(), tables:data };
 }
 async function ghWriteDoc(doc){
+  if(LOCAL_ONLY) throw new Error('只读演示模式，不会写入云端');
   const body = {
     message:'data: 工作台数据 ' + new Date().toISOString().slice(0,16).replace('T',' '),
     content: b64enc(JSON.stringify(doc, null, 2)),
@@ -817,6 +826,22 @@ function schedulePush(){
 async function pushNow(){
   if(Store.mode !== 'cloud') return;
   try{
+    /* 防误清空：某张表突然少掉七成以上时，以云端为准，避免一次误操作抹掉整表 */
+    try{
+      const remote = await ghReadDoc();
+      if(remote.doc && remote.doc.tables){
+        let fixed = [];
+        TABLES.forEach(t=>{
+          const rl = (remote.doc.tables[t] || []).length;
+          const ll = (Store.data[t] || []).length;
+          if(rl >= 6 && ll < rl * 0.3){
+            Store.data[t] = remote.doc.tables[t];
+            fixed.push(t);
+          }
+        });
+        if(fixed.length) toast('检测到数据异常减少，已按云端恢复：' + fixed.join('、'), true);
+      }
+    }catch(e){}
     await ghWriteDoc(docOf(Store.data));
     Store.lastSync = Date.now();
     setSyncState('ok');
@@ -939,7 +964,7 @@ const XL_SHEETS = [
   { name:'内容', key:'content_items', cols:[['标题','title'],['平台','platform'],['形式','format'],['阶段','stage'],['选题','topic'],['钩子','hook'],['负责人','owner'],['截止日','due_date'],['优先级','priority'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['发布日','published_at'],['备注','notes']] },
   { name:'商单', key:'deals', cols:[['品牌','brand'],['项目','title'],['对接人','contact'],['类型','type'],['金额','amount'],['已收','received'],['阶段','stage'],['进度%','progress'],['开始日','start_date'],['截止日','deadline'],['交付物','deliverables'],['需求简报','brief'],['备注','notes']] },
   { name:'日程', key:'schedule', cols:[['日期','date'],['时间','time'],['事项','title'],['类型','kind'],['平台','platform'],['状态','status']] },
-  { name:'洞察', key:'metrics', cols:[['日期','date'],['平台','platform'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['涨粉','followers'],['反馈','feedback']] },
+  { name:'洞察', key:'metrics', cols:[['日期','date'],['平台','platform'],['内容标题','title'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['涨粉','followers'],['反馈','feedback']] },
   { name:'选题库', key:'ideas', cols:[['类型','kind'],['标题','title'],['平台','platform'],['标签','tags'],['热度','heat'],['状态','status'],['链接','url'],['备注','note']] }
 ];
 function xlCell(v, isNum){
@@ -1847,8 +1872,9 @@ function recentMetricsHTML(m){
   if(!list.length) return '<div class="empty">暂无记录</div>';
   return '<ul class="day-list">'+list.map(x=>
     '<li><span class="time" style="font-family:var(--mono);font-size:10px;color:var(--muted);width:56px;flex:none">'+esc((x.date||'').slice(5))+'</span>'+
-    '<div class="dl-t"><b>'+esc(x.platform||'—')+' · 播放 '+fmtNum(x.plays||0)+'</b>'+
-      '<div class="mm"><span class="tm">赞 '+fmtNum(x.likes||0)+' · 评 '+fmtNum(x.comments||0)+' · 藏 '+fmtNum(x.saves||0)+' · 粉 '+fmtNum(x.followers||0)+'</span>'+
+    '<div class="dl-t"><b>'+esc(x.title || '（未填标题）')+'</b>'+
+      '<div class="mm"><span class="tm">'+esc(x.platform||'—')+' · 播放 '+fmtNum(x.plays||0)+'</span>'+
+        '<span class="tm">赞 '+fmtNum(x.likes||0)+' · 评 '+fmtNum(x.comments||0)+' · 藏 '+fmtNum(x.saves||0)+' · 粉 '+fmtNum(x.followers||0)+'</span>'+
       (x.feedback?'<span class="tm">'+esc(x.feedback)+'</span>':'')+'</div></div>'+
     '<div style="display:flex;gap:2px;flex:none">'+
       '<button class="iconbtn" data-act="edit-metric" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
@@ -1860,6 +1886,7 @@ function metricFields(){
   return [
     { key:'date', label:'日期', type:'date', required:true },
     { key:'platform', label:'平台', type:'select', options:PLATFORMS },
+    { key:'title', label:'这篇内容', type:'text', full:true, placeholder:'填标题，如：通勤包里到底装了什么' },
     { key:'plays', label:'播放', type:'number', min:0 },
     { key:'likes', label:'点赞', type:'number', min:0 },
     { key:'comments', label:'评论', type:'number', min:0 },
@@ -1874,13 +1901,13 @@ function openMetricForm(row){
   openForm({
     eyebrow: row ? 'EDIT / 数据' : 'NEW / 数据',
     title: row ? '修改这条数据' : '记录一天的数据',
-    sub:'按平台记录，洞察页会自动汇总',
+    sub:'一篇一条，填上标题方便回溯；洞察页会自动汇总',
     fields: metricFields(),
-    values: row || { date:todayStr(), platform:'小红书', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' },
+    values: row || { date:todayStr(), platform:'小红书', title:'', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' },
     onDelete: row ? ()=>{
       confirmAction({
         title:'删除这条数据？',
-        body:'将删除 ' + row.date + ' · ' + row.platform + ' 的记录，删除后不可恢复。',
+        body:'将删除 ' + row.date + ' · ' + (row.title ? row.title : row.platform) + ' 的记录，删除后不可恢复。',
         onOk: async ()=>{ await deleteRow('metrics', row.id); renderAll(); toast('记录已删除'); }
       });
     } : null,
