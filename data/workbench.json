@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:38.950Z",
+  "updated_at": "2026-11-04T08:27:41.285Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s15",
-        "date": "2026-11-16",
-        "time": "10:00",
-        "title": "年底清单文案",
-        "kind": "剪辑",
-        "platform": "视频号",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s17",
         "date": "2026-11-21",
