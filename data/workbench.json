@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:14:59.185Z",
+  "updated_at": "2026-11-04T08:15:37.410Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -63,8 +63,9 @@
         "title": "北岸民宿内容过审",
         "kind": "商单",
         "platform": "小红书",
-        "status": "待办",
-        "sort": 1
+        "status": "完成",
+        "sort": 1,
+        "updated_at": "2026-11-04T08:15:36.498Z"
       },
       {
         "id": "s7",
