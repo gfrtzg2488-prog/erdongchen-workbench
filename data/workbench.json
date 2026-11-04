@@ -1,24 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:47.844Z",
+  "updated_at": "2026-11-04T08:41:11.423Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m1",
-        "date": "2026-11-04",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 26000,
-        "likes": 2100,
-        "comments": 260,
-        "saves": 1400,
-        "shares": 210,
-        "followers": 120,
-        "feedback": "吐槽"
-      },
       {
         "id": "m2",
         "date": "2026-11-04",
