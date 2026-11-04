@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:34.069Z",
+  "updated_at": "2026-11-04T08:27:36.365Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -24,17 +24,6 @@
         "platform": "视频号",
         "status": "待办",
         "sort": 0
-      },
-      {
-        "id": "s16",
-        "date": "2026-11-12",
-        "time": "20:30",
-        "title": "书店开业图文发布",
-        "kind": "发布",
-        "platform": "小红书",
-        "status": "待办",
-        "sort": 0,
-        "updated_at": "2026-11-04T08:21:31.933Z"
       },
       {
         "id": "s17",
