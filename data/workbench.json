@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:10.199Z",
+  "updated_at": "2026-11-04T08:12:13.273Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c4",
-        "title": "周末两小时房间归零",
-        "platform": "小红书",
-        "format": "视频",
-        "stage": "发布",
-        "topic": "日常分享",
-        "hook": "不买收纳盒，也能收干净",
-        "owner": "枕冬",
-        "due_date": "2026-11-09",
-        "priority": 1,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "前 3 秒给对比"
-      },
       {
         "id": "c5",
         "title": "打工人早起挑战 Day 4",
