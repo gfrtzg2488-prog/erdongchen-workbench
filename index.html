@@ -1,0 +1,1897 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>枕冬 · 自媒体工作台</title>
+<meta name="theme-color" content="#17181B">
+<style>
+:root{
+  --paper:#F3EFE6;--card:#FBF8F1;--card2:#FFFCF5;--ink:#17181B;--ink2:#1F2023;
+  --text:#1F1D19;--muted:#7A7468;--faint:#A39B8C;--line:#D9D1BF;--line2:#E7E1D3;
+  --accent:#B04A2B;--accent-soft:#EEDFD5;--sage:#6E7A55;--sage-soft:#E4E7DA;
+  --amber:#B07A3C;--plum:#8A6EA8;--slate:#8C8578;
+  --r:3px;--sidebar:224px;--ff:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --serif:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--text);font-family:var(--ff);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh}
+::selection{background:var(--accent);color:#fff}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--accent);text-decoration:none}
+h1,h2,h3,h4,p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- 侧栏 ---------- */
+.rail{position:sticky;top:0;height:100vh;background:var(--ink);color:#EDE8DC;display:flex;flex-direction:column;padding:22px 16px 16px;gap:20px;z-index:20}
+.brand{padding:0 6px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand b{display:block;font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:.06em;line-height:1.15}
+.brand span{display:block;margin-top:7px;font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;color:#8C877B}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:11px;padding:10px 10px;border-radius:var(--r);color:#B9B3A5;font-size:12.5px;text-align:left;transition:background .16s,color .16s;border-left:2px solid transparent}
+.nav button svg{width:16px;height:16px;flex:none;opacity:.8}
+.nav button:hover{background:rgba(255,255,255,.05);color:#EDE8DC}
+.nav button.on{background:rgba(255,255,255,.08);color:#fff;border-left-color:var(--accent)}
+.nav button.on svg{opacity:1}
+.nav .count{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:#7E7A70;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:20px}
+.rail-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:9.5px;line-height:1.9;color:#807B70;letter-spacing:.04em}
+.rail-foot b{color:#C9C3B4;font-weight:500}
+.dot-live{display:inline-block;width:5px;height:5px;border-radius:50%;background:#7E9A63;margin-right:5px;vertical-align:1px}
+
+/* ---------- 主区 ---------- */
+main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:15;background:linear-gradient(var(--paper) 72%,rgba(243,239,230,.86) 88%,rgba(243,239,230,0));padding:22px 0 16px;display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tb-l{min-width:0}
+.tb-l h1{font-family:var(--serif);font-size:27px;font-weight:600;letter-spacing:.02em;line-height:1.1;margin-top:4px}
+.tb-l p{color:var(--muted);font-size:11.5px;margin-top:6px}
+.tb-r{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.clock{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.03em;line-height:1.6;text-align:right}
+.sync{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);padding:5px 9px;border-radius:20px;background:var(--card)}
+.sync i{width:5px;height:5px;border-radius:50%;background:var(--sage);display:block}
+.sync.warn i{background:var(--amber)}.sync.err i{background:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 11px;border-radius:var(--r);font-size:11.5px;transition:.14s;white-space:nowrap}
+.btn:hover{border-color:#BDB4A0;background:var(--card2)}
+.btn svg{width:13px;height:13px}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#F3EFE6}
+.btn.primary:hover{background:#2A2B2E}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--accent);border-color:#DCC3B8}
+.btn.danger:hover{background:#F6E9E2}
+.btn.sm{padding:4px 8px;font-size:10.5px}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+/* ---------- 通用卡片 ---------- */
+.view{display:none;padding-top:20px}
+.view.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.card-h{display:flex;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--line2)}
+.card-h h3{font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.card-h .eyebrow{margin-left:auto}
+.card-b{padding:14px 15px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;position:relative;overflow:hidden}
+.stat .eyebrow{display:block;margin-bottom:9px}
+.stat b{display:block;font-family:var(--mono);font-size:26px;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat b small{font-size:11px;color:var(--muted);font-weight:400;margin-left:3px;letter-spacing:0}
+.stat .sub{font-size:10.5px;color:var(--muted);margin-top:6px}
+.stat::after{content:"";position:absolute;right:0;top:0;width:3px;height:100%;background:var(--line2)}
+.stat.accent::after{background:var(--accent)}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;letter-spacing:.05em;padding:2px 6px;border-radius:2px;border:1px solid var(--line);color:var(--muted);background:#F6F2E9;white-space:nowrap}
+.badge .bd{width:5px;height:5px;border-radius:50%;background:var(--slate)}
+.badge.stage-文案 .bd{background:var(--slate)}.badge.stage-剪辑 .bd{background:var(--amber)}
+.badge.stage-审核 .bd{background:var(--plum)}.badge.stage-发布 .bd{background:var(--accent)}
+.badge.stage-已发布 .bd{background:var(--sage)}
+.badge.k-发布{border-color:#DCC3B8;color:#7E3A24}.badge.k-拍摄{border-color:#E0CDB5;color:#7A5326}
+.badge.k-剪辑{border-color:#DBCFBE;color:#6E624F}.badge.k-审核{border-color:#D6CCE2;color:#5C4A74}
+.badge.k-商单{border-color:#D9C9BC;color:#7A3F2C}.badge.k-复盘{border-color:#C9D0BE;color:#4F5B3D}
+.badge.s-完成,.badge.s-已回款,.badge.s-已交付{border-color:#CAD2BB;color:#4F5B3D;background:#EFF1E7}
+.badge.s-制作中,.badge.s-待发布,.badge.s-已签约,.badge.s-进行中{border-color:#E0D3BD;color:#7A5326;background:#F7F0E4}
+.priority{font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--faint)}
+.priority.p1{color:var(--accent)}
+.hair{height:1px;background:var(--line2);border:0;margin:0}
+.empty{padding:26px 14px;text-align:center;color:var(--faint);font-size:11.5px}
+.bar{height:3px;background:var(--line2);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+
+/* ---------- 今日 ---------- */
+.today-hero{display:flex;align-items:center;gap:18px;padding:2px 0 18px}
+.today-hero .line{font-family:var(--serif);font-size:19px;letter-spacing:.01em}
+.today-hero .line em{font-style:normal;color:var(--accent)}
+.today-hero .rule{flex:1;height:1px;background:var(--line)}
+.today-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.today-grid{display:grid;grid-template-columns:1.05fr 1.35fr .95fr;gap:14px;align-items:start}
+.todo{list-style:none;margin:0;padding:0}
+.todo li{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line2)}
+.todo li:last-child{border-bottom:0}
+.todo .ck{width:15px;height:15px;border:1px solid #C3B9A5;border-radius:2px;flex:none;margin-top:1px;display:grid;place-items:center;background:var(--card2)}
+.todo .ck svg{width:9px;height:9px;opacity:0;fill:var(--sage)}
+.todo li.done .ck{border-color:var(--sage);background:var(--sage-soft)}
+.todo li.done .ck svg{opacity:1}
+.todo li.done .tt{text-decoration:line-through;color:var(--faint)}
+.todo .tt{font-size:12px;line-height:1.45}
+.todo .meta{margin-top:3px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.todo .time{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.todo .over{color:var(--accent)}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line2)}
+.feed li:last-child{border-bottom:0}
+.feed .idx{font-family:var(--mono);font-size:9.5px;color:var(--faint);width:18px;flex:none}
+.feed .ft{min-width:0;flex:1}
+.feed .ft b{display:block;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .ft span{font-size:10px;color:var(--muted)}
+.feed .badge{flex:none}
+.mini-deal{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line2);cursor:pointer}
+.mini-deal:last-child{border-bottom:0}
+.mini-deal .md-b{width:28px;height:28px;border-radius:50%;background:#EFE8DA;display:grid;place-items:center;font-family:var(--serif);font-size:13px;color:#5C5446;flex:none}
+.mini-deal .md-t{flex:1;min-width:0}
+.mini-deal .md-t b{display:block;font-size:11.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-deal .md-t span{font-size:9.5px;color:var(--muted)}
+.mini-deal .md-a{font-family:var(--mono);font-size:10.5px;text-align:right;color:var(--text)}
+
+/* ---------- 内容 ---------- */
+.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filters{display:flex;gap:5px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--card);padding:4px 9px;border-radius:20px;font-size:10.5px;color:var(--muted);transition:.14s}
+.chip:hover{border-color:#BDB4A0}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#EFEADF}
+.toolbar .sp{flex:1}
+.kanban{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;align-items:start;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--card);border:1px solid var(--line);border-radius:var(--r);min-height:220px;display:flex;flex-direction:column;transition:background .15s,border-color .15s}
+.col.over{background:var(--accent-soft);border-color:#CDA695}
+.col-h{display:flex;align-items:center;gap:7px;padding:10px 11px;border-bottom:1px solid var(--line2)}
+.col-h .cdot{width:6px;height:6px;border-radius:50%}
+.col-h b{font-size:11.5px;font-weight:600}
+.col-h span{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--faint)}
+.col-b{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1}
+.icard{background:var(--card2);border:1px solid var(--line2);border-radius:2px;padding:10px;cursor:grab;transition:.14s;position:relative}
+.icard:hover{border-color:#C6BCA7;box-shadow:0 2px 0 rgba(23,24,27,.04)}
+.icard.dragging{opacity:.45}
+.icard h4{font-size:12px;font-weight:500;line-height:1.42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.icard .im{display:flex;align-items:center;gap:5px;margin-top:7px;font-size:9.5px;color:var(--muted)}
+.icard .im .sep{color:var(--line)}
+.icard .hook{margin-top:6px;font-size:10px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icard .cf{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:8px;border-top:1px dashed var(--line2)}
+.icard .cf .due{font-family:var(--mono);font-size:9px;color:var(--faint)}
+.icard .cf .acts{margin-left:auto;display:flex;gap:2px;opacity:0;transition:.15s}
+.icard:hover .acts,.icard:focus-within .acts{opacity:1}
+.iconbtn{width:21px;height:21px;display:grid;place-items:center;border-radius:2px;color:var(--faint)}
+.iconbtn:hover{background:#EFE9DB;color:var(--text)}
+.iconbtn svg{width:12px;height:12px}
+.iconbtn.del:hover{color:var(--accent)}
+.advance{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line2);padding:2px 5px;border-radius:2px}
+.advance:hover{border-color:var(--accent);color:var(--accent)}
+.col-add{padding:6px 8px;border-top:1px dashed var(--line2);font-size:10.5px;color:var(--faint);text-align:center}
+.col-add:hover{color:var(--accent)}
+
+/* ---------- 商单 ---------- */
+.deal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.fan-wrap{position:relative;padding:8px 0 0}
+.fan-stage{position:relative;height:206px;perspective:1100px;overflow:hidden}
+.fan-card{position:absolute;left:50%;top:12px;width:178px;transform-origin:50% 118%;transition:transform .42s cubic-bezier(.22,.8,.25,1),opacity .3s,filter .3s;border-radius:3px;border:1px solid var(--line);background:var(--card2);padding:13px 13px 12px;cursor:pointer;will-change:transform;text-align:left}
+.fan-card .fc-top{display:flex;align-items:center;gap:6px}
+.fan-card .fc-logo{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#EDE8DC;display:grid;place-items:center;font-family:var(--serif);font-size:12px;flex:none}
+.fan-card .fc-brand{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fan-card .fc-stage{margin-left:auto}
+.fan-card h4{font-size:11.5px;font-weight:500;line-height:1.4;margin-top:9px;height:32px;overflow:hidden}
+.fan-card .fc-amt{font-family:var(--mono);font-size:14px;margin-top:8px}
+.fan-card .fc-p{margin-top:8px}
+.fan-card .fc-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8.5px;color:var(--faint);margin-top:6px}
+.fan-card.dim{filter:grayscale(.3) brightness(.97)}
+.fan-nav{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 0 2px}
+.fan-nav .idx{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em}
+.fan-arrow{width:26px;height:26px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;background:var(--card)}
+.fan-arrow:hover{border-color:#BDB4A0}
+.fan-arrow svg{width:12px;height:12px}
+.focus-deal{display:grid;grid-template-columns:1.35fr .85fr;gap:0;margin-top:8px;overflow:hidden}
+.fd-l{padding:18px 20px;border-right:1px solid var(--line2)}
+.fd-head{display:flex;align-items:flex-start;gap:12px}
+.fd-head .fc-logo{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#EDE8DC;display:grid;place-items:center;font-family:var(--serif);font-size:18px;flex:none}
+.fd-head h3{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.2}
+.fd-head .sub{font-size:10.5px;color:var(--muted);margin-top:5px;display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.fd-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin-top:16px}
+.fd-meta .m .k{font-size:9.5px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase}
+.fd-meta .m .v{font-family:var(--mono);font-size:12px;margin-top:2px}
+.fd-list{margin-top:15px}
+.fd-list .k{font-size:9.5px;color:var(--faint);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.fd-list ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.fd-list li{font-size:11px;color:var(--muted);padding-left:14px;position:relative}
+.fd-list li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;background:var(--line);border-radius:50%}
+.fd-r{padding:18px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#F7F3EA}
+.ring{position:relative;width:108px;height:108px}
+.ring svg{width:108px;height:108px}
+.ring .rv{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .rv b{font-family:var(--mono);font-size:22px;font-weight:500;display:block;line-height:1}
+.ring .rv span{font-size:9px;color:var(--muted);letter-spacing:.1em}
+.fd-money{width:100%;display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted)}
+.fd-money b{color:var(--text);font-weight:500}
+.fd-actions{width:100%;display:flex;flex-direction:column;gap:6px}
+.fd-actions .btn{justify-content:center}
+
+/* ---------- 日程 ---------- */
+.sched-leg{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.sched-leg span{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;color:var(--muted)}
+.sched-leg i{width:6px;height:6px;border-radius:1px;display:block}
+.sched-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.sched{display:grid;grid-template-columns:46px repeat(7,minmax(0,1fr));min-width:760px}
+.sched .wk{background:#EFE9DC;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);padding:8px 4px;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--muted);position:sticky;left:0;z-index:2}
+.sched .dh{padding:8px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);text-align:center;background:#F6F1E6}
+.sched .dh b{font-family:var(--mono);font-size:11px;font-weight:500}
+.sched .dh span{display:block;font-size:8.5px;color:var(--faint);letter-spacing:.08em;margin-top:1px}
+.sched .wlab{display:grid;place-items:center;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);background:#EFE9DC;font-family:var(--mono);font-size:8px;color:var(--faint);letter-spacing:.06em;position:sticky;left:0;z-index:2}
+.cell{min-height:104px;padding:6px;border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);background:var(--card);transition:background .12s;display:flex;flex-direction:column;gap:4px;cursor:pointer}
+.cell:nth-child(7n+8){border-right:0}
+.cell.other{background:#F6F2E9;opacity:.55}
+.cell.today{background:#FBF3EA;box-shadow:inset 0 0 0 1px var(--accent)}
+.cell.over{background:var(--accent-soft)}
+.cell .dn{display:flex;align-items:center;gap:3px;font-family:var(--mono);font-size:9.5px;color:var(--muted);min-height:13px}
+.cell.today .dn b{color:var(--accent)}
+.cell .dn b{font-weight:500}
+.cell .dn .mm{margin-left:auto;font-size:8px;color:var(--faint)}
+.ev{display:flex;align-items:center;gap:4px;font-size:9.5px;line-height:1.25;padding:2px 4px;border-radius:2px;background:#EEE8DB;border-left:2px solid var(--slate);cursor:grab;overflow:hidden;white-space:nowrap}
+.ev span{overflow:hidden;text-overflow:ellipsis}
+.ev .tm{font-family:var(--mono);font-size:8px;color:var(--muted);flex:none}
+.ev.k-发布{border-left-color:var(--accent);background:#F7E9E2}
+.ev.k-拍摄{border-left-color:var(--amber);background:#F7EFE2}
+.ev.k-剪辑{border-left-color:#A78B63;background:#F3EEE3}
+.ev.k-审核{border-left-color:var(--plum);background:#EFEAF3}
+.ev.k-商单{border-left-color:#B35A3A;background:#F5E8E0}
+.ev.k-复盘{border-left-color:var(--sage);background:#ECEFE4}
+.ev.done{opacity:.5;text-decoration:line-through}
+.ev.more{background:transparent;border-left-color:transparent;color:var(--faint);font-family:var(--mono);font-size:8px;cursor:pointer}
+.day-list{list-style:none;margin:0;padding:0}
+.day-list li{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line2)}
+.day-list li:last-child{border-bottom:0}
+.day-list .dl-t{flex:1;min-width:0}
+.day-list .dl-t b{font-size:12px;font-weight:500}
+.day-list .dl-t .mm{display:flex;gap:7px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.day-list .dl-t .tm{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+
+/* ---------- 洞察 ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.chart-card .card-b{padding:12px 14px 8px}
+.chart-card svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;color:var(--muted)}
+.legend i{width:7px;height:7px;border-radius:1px;display:block}
+.trend-wrap{overflow-x:auto}
+
+/* ---------- 选题素材库 ---------- */
+.lib-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.lib-tabs button{padding:8px 13px;font-size:11.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
+.lib-tabs button.on{color:var(--text);border-bottom-color:var(--accent);font-weight:500}
+.suggest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.sg{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#F1ECE0;border:1px solid var(--line);border-radius:var(--r)}
+.sg .no{font-family:var(--mono);font-size:9px;color:var(--faint);flex:none}
+.sg .sgt{flex:1;min-width:0}
+.sg .sgt b{display:block;font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sg .sgt span{font-size:9px;color:var(--muted)}
+.sg .btn{flex:none}
+.idea-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ic{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;display:flex;flex-direction:column;gap:9px;position:relative;transition:.15s}
+.ic:hover{border-color:#C6BCA7;box-shadow:0 2px 0 rgba(23,24,27,.04)}
+.ic .ich{display:flex;gap:7px;align-items:flex-start}
+.ic .ich b{font-size:12px;font-weight:500;line-height:1.42;flex:1}
+.ic .tags{display:flex;gap:4px;flex-wrap:wrap}
+.ic .tag{font-size:8.5px;color:var(--muted);border:1px solid var(--line2);padding:1px 5px;border-radius:2px}
+.ic .icf{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:8px;border-top:1px dashed var(--line2)}
+.ic .link{font-family:var(--mono);font-size:8.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:95px}
+.ic .icf .acts{margin-left:auto;display:flex;gap:2px;opacity:0;transition:.15s}
+.ic:hover .acts{opacity:1}
+.heat{display:inline-flex;gap:2px}
+.heat i{width:4px;height:4px;border-radius:50%;background:var(--line)}
+.heat i.f{background:var(--accent)}
+.heat.low i.f{background:var(--amber)}
+
+/* ---------- 弹层 ---------- */
+dialog{border:0;padding:0;background:var(--card);color:var(--text);border-radius:4px;max-width:560px;width:calc(100% - 32px);max-height:88vh;box-shadow:0 18px 50px rgba(23,24,27,.22);overflow:hidden}
+dialog.wide{max-width:720px}
+dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
+.m-head{display:flex;align-items:flex-start;gap:12px;padding:16px 18px 13px;border-bottom:1px solid var(--line)}
+.m-head .eyebrow{display:block;margin-bottom:4px}
+.m-head h3{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.2}
+.m-head .sub{font-size:10.5px;color:var(--muted);margin-top:4px}
+.m-close{margin-left:auto;width:26px;height:26px;display:grid;place-items:center;border-radius:50%;color:var(--muted);flex:none}
+.m-close:hover{background:#EFE9DB;color:var(--text)}
+.m-close svg{width:13px;height:13px}
+.m-body{padding:15px 18px;overflow-y:auto;max-height:calc(88vh - 128px)}
+.m-foot{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:#F7F3EA}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px 13px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+.f label{font-size:9.5px;letter-spacing:.06em;color:var(--muted)}
+.f label b{color:var(--accent);font-weight:400;margin-left:2px}
+.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--card2);padding:7px 9px;border-radius:2px;font-size:11.5px;outline:0;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:#B4977F;box-shadow:0 0 0 2px rgba(176,74,43,.08)}
+.f textarea{resize:vertical;min-height:64px;line-height:1.5}
+.f .hint{font-size:9px;color:var(--faint)}
+.dl-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dl-head h3{font-family:var(--serif);font-size:21px;font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 16px;margin:12px 0}
+.kv .k{font-size:9px;color:var(--faint);letter-spacing:.07em;text-transform:uppercase}
+.kv .v{font-family:var(--mono);font-size:11.5px;margin-top:1px}
+.sec-t{font-size:9.5px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase;margin:14px 0 6px}
+.brief{font-size:11.5px;color:var(--muted);line-height:1.6;background:#F7F3EA;border-left:2px solid var(--line);padding:9px 11px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);background:var(--ink);color:#F0EBE0;font-size:11.5px;padding:9px 14px;border-radius:3px;opacity:0;pointer-events:none;transition:.22s;z-index:60;max-width:80vw;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:#8E3320}
+.offline-strip{display:flex;align-items:center;gap:8px;font-size:10px;color:#7A5326;background:#F7EEDE;border:1px solid #E4D2B4;border-left:3px solid var(--amber);padding:7px 11px;border-radius:2px;margin-bottom:12px}
+.offline-strip b{font-weight:500}
+.mobile-only{display:none}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:1180px){
+  main{padding:0 20px 48px}
+  .kanban{grid-template-columns:repeat(5,minmax(210px,1fr))}
+  .today-grid{grid-template-columns:1fr 1fr}
+  .today-grid .card:last-child{grid-column:1/-1}
+}
+@media (max-width:1020px){
+  .idea-grid,.suggest{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .chart-grid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .deal-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .focus-deal{grid-template-columns:1fr}
+  .fd-l{border-right:0;border-bottom:1px solid var(--line2)}
+  .today-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  body{grid-template-columns:1fr;display:block}
+  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;flex-direction:row;padding:6px 8px calc(6px + env(safe-area-inset-bottom));gap:0;border-top:1px solid #2A2B2E;background:rgba(23,24,27,.98);backdrop-filter:blur(8px)}
+  .brand,.rail-foot{display:none}
+  .nav{flex-direction:row;width:100%;overflow-x:auto;gap:0;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{flex:1 0 auto;flex-direction:column;gap:3px;padding:5px 8px;font-size:9.5px;border-left:0;border-bottom:2px solid transparent;justify-content:center;min-width:52px}
+  .nav button.on{border-left-color:transparent;border-bottom-color:var(--accent);background:transparent}
+  .nav button svg{width:15px;height:15px}
+  .nav .count{display:none}
+  main{padding:0 13px calc(64px + env(safe-area-inset-bottom))}
+  .topbar{padding:14px 0 11px;gap:9px}
+  .tb-l h1{font-size:21px}
+  .tb-l p{display:none}
+  .tb-r{gap:7px;flex:1;justify-content:flex-end}
+  .clock{display:none}
+  .sync{font-size:8.5px;padding:4px 7px}
+  #newBtn{padding:6px 9px;font-size:10.5px}
+  .view{padding-top:13px}
+  .today-grid,.grid-3,.grid-2{grid-template-columns:1fr}
+  .today-grid .card:last-child{grid-column:auto}
+  .today-hero{display:none}
+  .today-stats,.deal-stats,.kpis{grid-template-columns:1fr 1fr;gap:8px}
+  .stat b{font-size:21px}
+  .kanban{grid-template-columns:1fr;gap:9px}
+  .col{min-height:0}
+  .col-b{flex-direction:row;flex-wrap:wrap}
+  .icard{flex:1 1 100%}
+  .icard .acts{opacity:1}
+  .advance{padding:2px 5px}
+  .fan-stage{height:178px}
+  .fan-card{width:150px;padding:11px}
+  .fan-card h4{font-size:10.5px;height:30px}
+  .fan-card .fc-amt{font-size:12px}
+  .focus-deal{margin-top:0}
+  .fd-head h3{font-size:19px}
+  .fd-meta{grid-template-columns:1fr 1fr;gap:8px 12px}
+  .sched{min-width:700px}
+  .cell{min-height:96px}
+  .chart-card .card-b{padding:8px 6px 2px}
+  .legend{gap:7px}
+  .idea-grid,.suggest{grid-template-columns:1fr}
+  .lib-tabs button{flex:1;text-align:center}
+  .ic .acts{opacity:1}
+  .form-grid{grid-template-columns:1fr}
+  .f.full{grid-column:auto}
+  dialog{width:calc(100% - 20px);max-height:92vh}
+  .m-body{max-height:calc(92vh - 128px)}
+  .mobile-only{display:block}
+  .fp{display:none}
+}
+@media (max-width:380px){
+  .today-stats,.deal-stats,.kpis{grid-template-columns:1fr}
+  .sync span{display:none}
+  .sync{padding:4px 6px}
+}
+</style>
+</head>
+<body>
+<aside class="rail">
+  <div class="brand"><b>枕冬</b><span>ZHENDONG · STUDIO</span></div>
+  <nav class="nav" id="nav"></nav>
+  <div class="rail-foot">
+    <div><b id="railWeek">W—</b> · <span id="railDate">—</span></div>
+    <div id="railData"><span class="dot-live"></span>正在连接数据</div>
+  </div>
+</aside>
+<main>
+  <header class="topbar">
+    <div class="tb-l">
+      <div class="eyebrow" id="viewEyebrow">TODAY / 今日</div>
+      <h1 id="viewTitle">今日</h1>
+      <p id="viewSub">今天的待办、内容与商单</p>
+    </div>
+    <div class="tb-r">
+      <div class="clock" id="clock"></div>
+      <span class="sync" id="sync"><i></i><span>连接中</span></span>
+      <button class="btn primary" id="newBtn"></button>
+    </div>
+  </header>
+  <div id="views">
+    <section class="view" data-view="today"></section>
+    <section class="view" data-view="content"></section>
+    <section class="view" data-view="deals"></section>
+    <section class="view" data-view="schedule"></section>
+    <section class="view" data-view="insights"></section>
+    <section class="view" data-view="library"></section>
+  </div>
+</main>
+<dialog id="modal"></dialog>
+<div id="toast" class="toast"></div>
+<script>
+/* ================= 配置 ================= */
+const WB_CONFIG = {
+  SUPABASE_URL: "",       // 例：https://xxxxxx.supabase.co
+  SUPABASE_ANON_KEY: ""   // Supabase 项目设置 → API → anon public
+};
+const CLOUD = !!(WB_CONFIG.SUPABASE_URL && WB_CONFIG.SUPABASE_ANON_KEY);
+
+/* ================= 常量 ================= */
+const STAGES = ['文案','剪辑','审核','发布','已发布'];
+const PLATFORMS = ['小红书','抖音','视频号','公众号'];
+const FORMATS = ['图文','视频','长文'];
+const TOPICS = ['日常分享','互动话题','干货清单','商单','复盘'];
+const DEAL_STAGES = ['洽谈','已签约','制作中','待发布','已交付','已回款'];
+const EVENT_KINDS = ['发布','拍摄','剪辑','审核','商单','复盘'];
+const EVENT_STATUS = ['待办','进行中','完成'];
+const IDEA_KINDS = ['选题','话题','素材'];
+const IDEA_STATUS = ['待选','采纳','已用','归档'];
+const FEEDBACKS = ['涨粉','收藏','咨询','吐槽','无感'];
+const ALL = '全部';
+
+const STAGE_DOT = {'文案':'#8C8578','剪辑':'#B07A3C','审核':'#8A6EA8','发布':'#B04A2B','已发布':'#6E7A55'};
+const KIND_DOT = {'发布':'#B04A2B','拍摄':'#B07A3C','剪辑':'#A78B63','审核':'#8A6EA8','商单':'#B35A3A','复盘':'#6E7A55'};
+const CHART_COLORS = ['#B04A2B','#6E7A55','#B07A3C','#8A6EA8','#8C8578','#A78B63'];
+
+const NAV = [
+  { key:'today',    label:'今日',   en:'TODAY',    icon:'home',     title:'今日',   sub:'今天的待办、内容与商单' },
+  { key:'content',  label:'内容',   en:'CONTENT',  icon:'layers',   title:'内容',   sub:'文案 → 剪辑 → 审核 → 发布 的生产流水线' },
+  { key:'deals',    label:'商单',   en:'DEALS',    icon:'briefcase',title:'商单',   sub:'商业交付项目与回款进度' },
+  { key:'schedule', label:'日程',   en:'SCHEDULE', icon:'calendar', title:'日程',   sub:'四周排期，按天查看，拖拽调整' },
+  { key:'insights', label:'洞察',   en:'INSIGHTS', icon:'chart',    title:'洞察',   sub:'播放、互动与内容结构' },
+  { key:'library',  label:'选题库', en:'LIBRARY',  icon:'bookmark', title:'选题库', sub:'选题、话题与素材的储备池' }
+];
+
+/* ================= 工具 ================= */
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+function esc(v){
+  return String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function pad2(n){ return String(n).padStart(2,'0'); }
+function ymd(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function todayStr(){ return ymd(new Date()); }
+function parseYmd(s){
+  if(!s) return null;
+  const p = String(s).slice(0,10).split('-').map(Number);
+  if(p.length !== 3 || !p[0]) return null;
+  return new Date(p[0], p[1]-1, p[2]);
+}
+function addDays(s, n){
+  const d = parseYmd(s) || new Date();
+  d.setDate(d.getDate() + n);
+  return ymd(d);
+}
+function weekStart(s){
+  const d = parseYmd(s) || new Date();
+  d.setDate(d.getDate() - (d.getDay()+6)%7);
+  return ymd(d);
+}
+function diffDays(a, b){
+  const A = parseYmd(a), B = parseYmd(b);
+  if(!A || !B) return 0;
+  return Math.round((B - A)/86400000);
+}
+function fmtD(s){ const d = parseYmd(s); return d ? (d.getMonth()+1)+'/'+d.getDate() : '—'; }
+function fmtCN(s){
+  const d = parseYmd(s); if(!d) return '—';
+  const wk = ['日','一','二','三','四','五','六'][d.getDay()];
+  return (d.getMonth()+1)+'月'+d.getDate()+'日 周'+wk;
+}
+function weekNoOf(s){
+  const d = parseYmd(s) || new Date();
+  const start = new Date(d.getFullYear(),0,1);
+  return Math.ceil((Math.floor((d-start)/86400000) + start.getDay() + 1)/7);
+}
+function relDay(s){
+  const n = diffDays(todayStr(), s);
+  if(!s) return '未排期';
+  if(n === 0) return '今天';
+  if(n === 1) return '明天';
+  if(n === -1) return '昨天';
+  return n > 0 ? n+' 天后' : (-n)+' 天前';
+}
+function fmtNum(n){
+  n = Number(n) || 0;
+  if(n >= 1e8) return (n/1e8).toFixed(1).replace(/\.0$/,'')+'亿';
+  if(n >= 1e4) return (n/1e4).toFixed(1).replace(/\.0$/,'')+'万';
+  return String(Math.round(n));
+}
+function fmtMoney(n){
+  n = Number(n) || 0;
+  return '¥' + n.toLocaleString('zh-CN', { maximumFractionDigits: 0 });
+}
+function fmtCompact(n){
+  n = Number(n) || 0;
+  if(n >= 1e4) return (n/1e4).toFixed(1).replace(/\.0$/,'') + 'w';
+  return String(n);
+}
+let _seq = 0;
+function uid(){ _seq++; return 'local-' + Date.now().toString(36) + '-' + _seq; }
+function sortBy(arr, fn){ return arr.slice().sort(fn); }
+function sum(arr, fn){ return arr.reduce((a,x)=>a+(Number(fn(x))||0),0); }
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+let toastTimer = null;
+function toast(msg, isErr){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'toast on' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.className = 'toast'; }, 2400);
+}
+
+/* ================= 图标 ================= */
+const ICON_PATHS = {
+  home:'<path d="M3 10.6 12 3l9 7.6"/><path d="M5.6 9.6V20h12.8V9.6"/><path d="M9.6 20v-5.4h4.8V20"/>',
+  layers:'<path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12.6 9 5 9-5"/><path d="m3 17.2 9 5 9-5"/>',
+  briefcase:'<rect x="3" y="7.4" width="18" height="12.6" rx="1.3"/><path d="M9 7.4V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.4"/><path d="M3 12.6h18"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M2.5 20h19"/>',
+  bookmark:'<path d="M6 3.5h12v17l-6-4-6 4v-17Z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  arrowL:'<path d="M15 5l-7 7 7 7"/>',
+  arrowR:'<path d="M9 5l7 7-7 7"/>',
+  check:'<path d="m4.5 12.5 5 5L19.5 6.5"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  edit:'<path d="M4 20h4l10-10-4-4L4 16v4Z"/><path d="m14.5 5.5 4 4"/>',
+  trash:'<path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/>',
+  external:'<path d="M14 4h6v6"/><path d="m20 4-8.5 8.5"/><path d="M18.5 14.5V20h-15V5h5.5"/>',
+  refresh:'<path d="M20 11.5A8 8 0 0 0 5.5 6.5L4 8"/><path d="M4 4v4h4"/><path d="M4 12.5a8 8 0 0 0 14.5 5l1.5-1.5"/><path d="M20 20v-4h-4"/>',
+  sparkle:'<path d="M12 3.5 13.8 9l5.2 1.8-5.2 1.8L12 18l-1.8-5.4L5 10.8 10.2 9 12 3.5Z"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  grip:'<circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/>'
+};
+function icon(name, size){
+  return '<svg viewBox="0 0 24 24" width="'+(size||16)+'" height="'+(size||16)+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON_PATHS[name]||'')+'</svg>';
+}
+
+/* ================= 种子数据 ================= */
+function seedData(){
+  const base = weekStart(todayStr());
+  const content = [
+    {id:'c1',title:'通勤包里到底装了什么',platform:'小红书',format:'图文',stage:'文案',topic:'日常分享',hook:'早上 7:20 的包里，有一半是没用的',owner:'枕冬',due_date:addDays(todayStr(),2),priority:1,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'拍 6 张平铺图'},
+    {id:'c2',title:'一人食晚餐的 10 分钟公式',platform:'小红书',format:'视频',stage:'剪辑',topic:'日常分享',hook:'不用买菜，冰箱剩什么吃什么',owner:'枕冬',due_date:addDays(todayStr(),3),priority:1,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'横屏 45 秒'},
+    {id:'c3',title:'你会在深夜删掉哪条朋友圈',platform:'小红书',format:'图文',stage:'审核',topic:'互动话题',hook:'我先说，我删过 37 条',owner:'枕冬',due_date:addDays(todayStr(),4),priority:2,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'评论区引导'},
+    {id:'c4',title:'周末两小时房间归零',platform:'小红书',format:'视频',stage:'发布',topic:'日常分享',hook:'不买收纳盒，也能收干净',owner:'枕冬',due_date:addDays(todayStr(),5),priority:1,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'前 3 秒给对比'},
+    {id:'c5',title:'打工人早起挑战 Day 4',platform:'抖音',format:'视频',stage:'发布',topic:'互动话题',hook:'连续 7 天 6 点起，第 4 天开始崩溃',owner:'枕冬',due_date:addDays(todayStr(),1),priority:2,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'系列第 4 集'},
+    {id:'c6',title:'这 5 件小物让我少打扫一半',platform:'小红书',format:'图文',stage:'已发布',topic:'干货清单',hook:'第 3 个真的后悔没早买',owner:'枕冬',due_date:addDays(todayStr(),-3),priority:1,plays:128000,likes:9400,comments:820,saves:6100,shares:1200,published_at:addDays(todayStr(),-3),notes:''},
+    {id:'c7',title:'下雨天适合做的三件小事',platform:'视频号',format:'视频',stage:'已发布',topic:'日常分享',hook:'雨天不必出门的快乐',owner:'枕冬',due_date:addDays(todayStr(),-4),priority:2,plays:46000,likes:2100,comments:180,saves:900,shares:320,published_at:addDays(todayStr(),-4),notes:''},
+    {id:'c8',title:'投票：你会为了拍照排队吗',platform:'小红书',format:'图文',stage:'已发布',topic:'互动话题',hook:'排 40 分钟换一张图',owner:'枕冬',due_date:addDays(todayStr(),-5),priority:2,plays:210000,likes:16000,comments:3200,saves:4200,shares:2100,published_at:addDays(todayStr(),-5),notes:''},
+    {id:'c9',title:'北岸民宿｜周末住进山里',platform:'小红书',format:'图文',stage:'发布',topic:'商单',hook:'推开窗就是雾和树',owner:'枕冬',due_date:addDays(todayStr(),6),priority:1,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'商单 d4'},
+    {id:'c10',title:'咖啡探店：巷子尽头的 8 平米',platform:'抖音',format:'视频',stage:'剪辑',topic:'商单',hook:'老板只卖三款豆子',owner:'枕冬',due_date:addDays(todayStr(),8),priority:2,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:'商单 d1'},
+    {id:'c11',title:'我的包里常备这 4 样',platform:'抖音',format:'视频',stage:'文案',topic:'干货清单',hook:'第 2 样救过我三次',owner:'枕冬',due_date:addDays(todayStr(),9),priority:3,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:''},
+    {id:'c12',title:'今年最后一个月想做的 5 件事',platform:'视频号',format:'图文',stage:'审核',topic:'互动话题',hook:'你的清单里有什么',owner:'枕冬',due_date:addDays(todayStr(),7),priority:2,plays:0,likes:0,comments:0,saves:0,shares:0,published_at:null,notes:''}
+  ];
+  const deals = [
+    {id:'d1',brand:'山也咖啡',title:'巷子咖啡馆探店视频',contact:'阿山',type:'视频',amount:4800,received:0,stage:'洽谈',progress:20,start_date:todayStr(),deadline:addDays(todayStr(),12),deliverables:'1 条 60s 视频\n1 组图文\n授权 6 个月',brief:'突出手冲过程与老板故事，不硬广。',notes:'等对方确认报价'},
+    {id:'d2',brand:'有理书店',title:'新店开业图文合集',contact:'小理',type:'图文',amount:6200,received:1860,stage:'已签约',progress:35,start_date:addDays(todayStr(),-3),deadline:addDays(todayStr(),16),deliverables:'1 条主图文\n2 条日常植入',brief:'书店氛围为主，需出现 3 个书区。',notes:'已收 30% 定金'},
+    {id:'d3',brand:'半日花房',title:'花艺课体验视频',contact:'林半',type:'视频',amount:8000,received:4000,stage:'制作中',progress:55,start_date:addDays(todayStr(),-6),deadline:addDays(todayStr(),10),deliverables:'1 条 90s 视频\n1 条花絮',brief:'强调零基础可上手。',notes:'拍摄已完成，剪辑中'},
+    {id:'d4',brand:'北岸民宿',title:'周末山居民宿图文',contact:'舟舟',type:'组合',amount:12000,received:7200,stage:'待发布',progress:75,start_date:addDays(todayStr(),-10),deadline:addDays(todayStr(),6),deliverables:'1 条图文\n1 条视频\n1 组 Stories',brief:'窗景与早餐必须露出。',notes:'内容已过审，排期周五'},
+    {id:'d5',brand:'轻野户外',title:'露营装备清单',contact:'老周',type:'图文',amount:9600,received:9600,stage:'已交付',progress:100,start_date:addDays(todayStr(),-24),deadline:addDays(todayStr(),-4),deliverables:'1 条图文\n1 条清单长图',brief:'不夸大参数，标注价格区间。',notes:'已交付，等待平台数据'},
+    {id:'d6',brand:'雾里茶事',title:'秋茶礼盒开箱',contact:'茶茶',type:'视频',amount:5600,received:5600,stage:'已回款',progress:100,start_date:addDays(todayStr(),-32),deadline:addDays(todayStr(),-12),deliverables:'1 条 45s 开箱',brief:'突出礼盒包装与送礼场景。',notes:'尾款到账，合作良好'}
+  ];
+  const schedule = [
+    {id:'s1',date:addDays(base,0),time:'09:30',title:'整理本周选题',kind:'复盘',platform:'',status:'完成',sort:0},
+    {id:'s2',date:addDays(base,0),time:'14:00',title:'通勤包拍摄',kind:'拍摄',platform:'小红书',status:'完成',sort:1},
+    {id:'s3',date:addDays(base,1),time:'10:00',title:'一人食视频粗剪',kind:'剪辑',platform:'小红书',status:'进行中',sort:0},
+    {id:'s4',date:addDays(base,1),time:'20:00',title:'抖音早起挑战更新',kind:'发布',platform:'抖音',status:'待办',sort:1},
+    {id:'s5',date:addDays(base,2),time:'11:00',title:'深夜朋友圈文案定稿',kind:'审核',platform:'小红书',status:'待办',sort:0},
+    {id:'s6',date:addDays(base,2),time:'19:30',title:'北岸民宿内容过审',kind:'商单',platform:'小红书',status:'待办',sort:1},
+    {id:'s7',date:addDays(base,3),time:'08:30',title:'周末归零视频发布',kind:'发布',platform:'小红书',status:'待办',sort:0},
+    {id:'s8',date:addDays(base,3),time:'16:00',title:'咖啡探店补拍',kind:'拍摄',platform:'抖音',status:'待办',sort:1},
+    {id:'s9',date:addDays(base,4),time:'15:00',title:'北岸民宿发布',kind:'发布',platform:'小红书',status:'待办',sort:0},
+    {id:'s10',date:addDays(base,5),time:'10:00',title:'本周数据复盘',kind:'复盘',platform:'',status:'待办',sort:0},
+    {id:'s11',date:addDays(base,7),time:'09:00',title:'下周选题会',kind:'复盘',platform:'',status:'待办',sort:0},
+    {id:'s12',date:addDays(base,8),time:'13:00',title:'包里常备小物拍摄',kind:'拍摄',platform:'抖音',status:'待办',sort:0},
+    {id:'s13',date:addDays(base,9),time:'10:30',title:'花艺课视频审核',kind:'审核',platform:'小红书',status:'待办',sort:0},
+    {id:'s14',date:addDays(base,11),time:'18:00',title:'花艺课视频发布',kind:'发布',platform:'小红书',status:'待办',sort:0},
+    {id:'s15',date:addDays(base,14),time:'10:00',title:'年底清单文案',kind:'剪辑',platform:'视频号',status:'待办',sort:0},
+    {id:'s16',date:addDays(base,16),time:'20:30',title:'书店开业图文发布',kind:'发布',platform:'小红书',status:'待办',sort:0},
+    {id:'s17',date:addDays(base,19),time:'15:00',title:'月度商单对账',kind:'商单',platform:'',status:'待办',sort:0},
+    {id:'s18',date:addDays(base,24),time:'11:00',title:'下月内容排期',kind:'复盘',platform:'',status:'待办',sort:0}
+  ];
+  const metrics = [];
+  const cols = { '小红书':[26000,3200,900,2100,180,260,24,1400,110,210,18,120,9], '抖音':[42000,5200,1800,1600,90,180,12,520,40,300,26,210,15], '视频号':[9000,1200,0,420,30,32,3,260,18,60,5,40,2] };
+  let mi = 1;
+  for(let g=0; g<=6; g++){
+    const date = addDays(todayStr(), -g);
+    ['小红书','抖音','视频号'].forEach(p=>{
+      const c = cols[p];
+      metrics.push({
+        id:'m'+(mi++), date, platform:p, content_id:null,
+        plays: c[0]+g*c[1]+(g%3)*c[2],
+        likes: c[3]+g*c[4],
+        comments: c[5]+g*c[6],
+        saves: c[7]+g*c[8],
+        shares: c[9]+g*c[10],
+        followers: c[11]+g*c[12],
+        feedback: FEEDBACKS[(g + p.length)%5]
+      });
+    });
+  }
+  const ideas = [
+    {id:'i1',kind:'选题',title:'独居第三年，我的 10 条生活规则',platform:'小红书',tags:'独居,日常,清单',heat:5,status:'待选',url:'',note:'适合做成 10 图文系列'},
+    {id:'i2',kind:'选题',title:'打工人的周末 48 小时',platform:'抖音',tags:'周末,打工人,日常',heat:4,status:'待选',url:'',note:'视频节奏按小时切'},
+    {id:'i3',kind:'选题',title:'你最近一次心动是什么时候',platform:'小红书',tags:'互动,情感,话题',heat:5,status:'待选',url:'',note:'评论区征集故事'},
+    {id:'i4',kind:'选题',title:'把出租屋改成喜欢的样子',platform:'小红书',tags:'改造,租房,干货',heat:4,status:'采纳',url:'',note:'需拍 before/after'},
+    {id:'i5',kind:'话题',title:'#一个人也能过得很好',platform:'小红书',tags:'话题,独居',heat:5,status:'采纳',url:'',note:'话题页已建'},
+    {id:'i6',kind:'话题',title:'#打工人的下班仪式感',platform:'抖音',tags:'话题,职场',heat:4,status:'待选',url:'',note:''},
+    {id:'i7',kind:'话题',title:'#今年最想删掉的一张照片',platform:'小红书',tags:'话题,互动',heat:3,status:'待选',url:'',note:''},
+    {id:'i8',kind:'选题',title:'一人食：冰箱清空挑战',platform:'视频号',tags:'美食,一人食,挑战',heat:4,status:'已用',url:'',note:'已转为内容'},
+    {id:'i9',kind:'素材',title:'雾中民宿窗景参考图',platform:'小红书',tags:'图片,民宿,商单',heat:3,status:'已用',url:'https://example.com/minsu',note:'北岸民宿商单用'},
+    {id:'i10',kind:'素材',title:'手冲咖啡分镜参考',platform:'抖音',tags:'视频,分镜,商单',heat:4,status:'采纳',url:'https://example.com/coffee',note:'山也咖啡商单参考'},
+    {id:'i11',kind:'素材',title:'暖色调封面配色板',platform:'小红书',tags:'设计,封面',heat:4,status:'采纳',url:'https://example.com/palette',note:'米白 #F3EFE6 / 赤陶 #B04A2B'},
+    {id:'i12',kind:'素材',title:'剪辑卡点 BGM 清单',platform:'抖音',tags:'音乐,剪辑',heat:3,status:'待选',url:'https://example.com/bgm',note:'10 首轻鼓点'},
+    {id:'i13',kind:'选题',title:'花小钱提升出租屋幸福感',platform:'小红书',tags:'好物,租房,干货',heat:4,status:'待选',url:'',note:'可接家居类商单'},
+    {id:'i14',kind:'选题',title:'凌晨四点的城市长什么样',platform:'视频号',tags:'城市,纪实,日常',heat:3,status:'归档',url:'',note:'拍摄成本偏高'},
+    {id:'i15',kind:'素材',title:'书店空间布局参考',platform:'小红书',tags:'图片,书店,商单',heat:3,status:'采纳',url:'https://example.com/bookstore',note:'有理书店商单参考'}
+  ];
+  return { content_items: content, deals, schedule, metrics, ideas };
+}
+/* ================= 数据层 ================= */
+const TABLES = ['content_items','deals','schedule','metrics','ideas'];
+const LS_KEY = 'zd_workbench_v1';
+
+const Store = {
+  mode: CLOUD ? 'cloud' : 'local',
+  data: { content_items:[], deals:[], schedule:[], metrics:[], ideas:[] },
+  fp: '',
+  lastSync: null
+};
+
+function apiUrl(path){ return WB_CONFIG.SUPABASE_URL.replace(/\/+$/,'') + '/rest/v1/' + path; }
+function apiHeaders(){
+  return {
+    apikey: WB_CONFIG.SUPABASE_ANON_KEY,
+    Authorization: 'Bearer ' + WB_CONFIG.SUPABASE_ANON_KEY,
+    'Content-Type': 'application/json'
+  };
+}
+async function apiFetch(path, opts){
+  const o = Object.assign({ headers: apiHeaders() }, opts || {});
+  const res = await fetch(apiUrl(path), o);
+  if(!res.ok){
+    let msg = res.status + ' ' + res.statusText;
+    try{ const j = await res.json(); if(j && (j.message || j.hint)) msg = j.message || j.hint; }catch(e){}
+    throw new Error(msg);
+  }
+  if(res.status === 204) return null;
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+async function cloudFetchAll(){
+  const rows = await Promise.all(TABLES.map(t => apiFetch(t + '?select=*')));
+  const out = {};
+  TABLES.forEach((t,i)=>{ out[t] = rows[i] || []; });
+  return out;
+}
+function lsRead(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      if(d && d.content_items) return d;
+    }
+  }catch(e){}
+  const s = seedData();
+  lsWrite(s);
+  return s;
+}
+function lsWrite(d){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch(e){ toast('本地存储写入失败', true); }
+}
+function fpOf(d){
+  return TABLES.map(t=>{
+    const rows = d[t] || [];
+    let mx = '';
+    for(const r of rows){
+      const v = String(r.updated_at || r.created_at || '');
+      if(v > mx) mx = v;
+    }
+    return t + ':' + rows.length + ':' + mx;
+  }).join('|');
+}
+
+async function createRow(table, row){
+  if(Store.mode === 'cloud'){
+    const clean = Object.assign({}, row);
+    delete clean.id;
+    const out = await apiFetch(table, {
+      method:'POST',
+      headers: Object.assign(apiHeaders(), { Prefer:'return=representation' }),
+      body: JSON.stringify(clean)
+    });
+    const rec = Array.isArray(out) ? out[0] : out;
+    Store.data[table] = (Store.data[table] || []).concat(rec);
+    Store.fp = fpOf(Store.data);
+    return rec;
+  }
+  const rec = Object.assign({ id:uid(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, row);
+  Store.data[table] = (Store.data[table] || []).concat(rec);
+  lsWrite(Store.data);
+  Store.fp = fpOf(Store.data);
+  return rec;
+}
+
+async function updateRow(table, id, patch){
+  if(Store.mode === 'cloud'){
+    const out = await apiFetch(table + '?id=eq.' + encodeURIComponent(id), {
+      method:'PATCH',
+      headers: Object.assign(apiHeaders(), { Prefer:'return=representation' }),
+      body: JSON.stringify(patch)
+    });
+    const rec = Array.isArray(out) ? out[0] : out;
+    const i = (Store.data[table] || []).findIndex(r => r.id === id);
+    if(i > -1) Store.data[table][i] = rec || Object.assign(Store.data[table][i], patch);
+    Store.fp = fpOf(Store.data);
+    return Store.data[table][i];
+  }
+  const i = (Store.data[table] || []).findIndex(r => r.id === id);
+  if(i > -1){
+    Object.assign(Store.data[table][i], patch, { updated_at:new Date().toISOString() });
+    lsWrite(Store.data);
+    Store.fp = fpOf(Store.data);
+  }
+  return Store.data[table][i];
+}
+
+async function deleteRow(table, id){
+  if(Store.mode === 'cloud'){
+    await apiFetch(table + '?id=eq.' + encodeURIComponent(id), { method:'DELETE' });
+  }
+  Store.data[table] = (Store.data[table] || []).filter(r => r.id !== id);
+  if(Store.mode !== 'cloud') lsWrite(Store.data);
+  Store.fp = fpOf(Store.data);
+}
+
+async function loadAll(){
+  const d = Store.mode === 'cloud' ? await cloudFetchAll() : lsRead();
+  Store.data = d;
+  Store.fp = fpOf(d);
+  Store.lastSync = Date.now();
+}
+
+async function syncNow(announce){
+  try{
+    const d = Store.mode === 'cloud' ? await cloudFetchAll() : lsRead();
+    const fp = fpOf(d);
+    Store.data = d;
+    Store.lastSync = Date.now();
+    setSyncState('ok');
+    if(fp !== Store.fp){
+      Store.fp = fp;
+      renderAll();
+      if(announce) toast('已同步最新数据');
+    }else if(announce){
+      toast('已是最新');
+    }
+  }catch(e){
+    setSyncState('err', e.message);
+    if(announce) toast('同步失败：' + e.message, true);
+  }
+}
+
+function setSyncState(state, msg){
+  const chip = $('#sync');
+  const lab = chip.querySelector('span');
+  chip.className = 'sync' + (state === 'err' ? ' err' : state === 'warn' ? ' warn' : '');
+  if(state === 'ok'){
+    lab.textContent = CLOUD ? '在线同步' : '本地演示';
+    chip.title = CLOUD ? '已连接 Supabase' : '数据保存在本机浏览器，配置 Supabase 后自动切换为在线';
+    $('#railData').innerHTML = '<span class="dot-live"></span>' + (CLOUD ? 'SUPABASE · 在线' : 'LOCAL · 本机存储');
+  }else{
+    lab.textContent = state === 'err' ? '离线' : '同步中';
+    chip.title = msg || '';
+    $('#railData').innerHTML = '<span class="dot-live" style="background:#B04A2B"></span>' + (msg ? esc(msg).slice(0,26) : '数据连接异常');
+  }
+}
+
+/* ================= 弹层 ================= */
+const modalEl = $('#modal');
+function openModal(html, wide){
+  modalEl.className = wide ? 'wide' : '';
+  modalEl.innerHTML = html;
+  if(!modalEl.open) modalEl.showModal();
+}
+function closeModal(){ if(modalEl.open) modalEl.close(); }
+
+modalEl.addEventListener('click', e => {
+  if(e.target === modalEl) closeModal();
+});
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close]');
+  if(c && modalEl.open) closeModal();
+});
+modalEl.addEventListener('close', () => { modalEl.innerHTML = ''; modalEl.className=''; });
+
+function fieldHTML(f, values){
+  const val = values[f.key] == null ? (f.def == null ? '' : f.def) : values[f.key];
+  let input;
+  if(f.type === 'textarea'){
+    input = '<textarea name="'+f.key+'" rows="'+(f.rows||3)+'" placeholder="'+esc(f.placeholder||'')+'">'+esc(val)+'</textarea>';
+  }else if(f.type === 'select'){
+    input = '<select name="'+f.key+'">'+(f.options||[]).map(o=>'<option value="'+esc(o)+'"'+(String(o)===String(val)?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+  }else{
+    input = '<input name="'+f.key+'" type="'+(f.type||'text')+'" value="'+esc(val)+'" placeholder="'+esc(f.placeholder||'')+'"'+
+      (f.required?' required':'')+(f.min!=null?' min="'+f.min+'"':'')+(f.max!=null?' max="'+f.max+'"':'')+(f.step!=null?' step="'+f.step+'"':'')+'>';
+  }
+  return '<div class="f'+(f.full?' full':'')+'"><label>'+esc(f.label)+(f.required?'<b>*</b>':'')+'</label>'+input+(f.hint?'<span class="hint">'+esc(f.hint)+'</span>':'')+'</div>';
+}
+
+function openForm(opt){
+  const values = opt.values || {};
+  const fields = opt.fields || [];
+  const html = '<div class="m-head"><div><span class="eyebrow">'+esc(opt.eyebrow||'编辑')+'</span><h3>'+esc(opt.title)+'</h3>'+
+    (opt.sub?'<p class="sub">'+esc(opt.sub)+'</p>':'')+'</div><button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<form id="wform" novalidate><div class="m-body"><div class="form-grid">'+fields.map(f=>fieldHTML(f,values)).join('')+'</div></div>'+
+    '<div class="m-foot"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">'+esc(opt.submitText||'保存')+'</button></div></form>';
+  openModal(html, opt.wide);
+  const form = $('#wform');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const out = {};
+    let missing = null;
+    fields.forEach(f=>{
+      let v = fd.get(f.key);
+      v = v == null ? '' : String(v).trim();
+      if(f.type === 'number') v = v === '' ? 0 : Number(v);
+      if(f.required && v === '') missing = missing || f.label;
+      out[f.key] = v;
+    });
+    if(missing){ toast('请填写：' + missing, true); return; }
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    try{
+      await opt.onSubmit(out);
+      closeModal();
+    }catch(err){
+      toast((err && err.message) || '保存失败', true);
+      btn.disabled = false;
+    }
+  });
+  setTimeout(()=>{
+    const first = form.querySelector('input,textarea,select');
+    if(first && window.innerWidth > 820) first.focus();
+  }, 40);
+}
+/* ================= 通用渲染 ================= */
+const ui = {
+  view: 'today',
+  contentStage: ALL,
+  contentPlatform: ALL,
+  dealIndex: 0,
+  schedStart: null,
+  schedDay: null,
+  libKind: ALL,
+  libStatus: ALL
+};
+
+function stageBadge(s){ return '<span class="badge stage-'+esc(s)+'"><i class="bd"></i>'+esc(s)+'</span>'; }
+function kindBadge(k){
+  return '<span class="badge k-'+esc(k)+'"><i class="bd" style="background:'+(KIND_DOT[k]||'var(--slate)')+'"></i>'+esc(k)+'</span>';
+}
+function statusBadge(s){
+  const cls = ['完成','已回款','已交付','已签约','制作中','待发布','进行中'].indexOf(s) > -1 ? 's-'+s : '';
+  return '<span class="badge '+cls+'">'+esc(s)+'</span>';
+}
+function prioTag(p){
+  const n = Number(p)||2;
+  return '<span class="priority p'+n+'">P'+n+'</span>';
+}
+
+function renderAll(){
+  renderNav();
+  updateHeader();
+  renderToday();
+  renderContent();
+  renderDeals();
+  renderSchedule();
+  renderInsights();
+  renderLibrary();
+}
+
+function navCount(key){
+  const d = Store.data;
+  if(key === 'today') return d.schedule.filter(e=>e.date===todayStr() && e.status!=='完成').length;
+  if(key === 'content') return d.content_items.filter(c=>c.stage!=='已发布').length;
+  if(key === 'deals') return d.deals.filter(x=>x.stage!=='已回款').length;
+  if(key === 'schedule') {
+    const start = todayStr(), end = addDays(todayStr(), 7);
+    return d.schedule.filter(e=>e.date>=start && e.date<=end && e.status!=='完成').length;
+  }
+  if(key === 'library') return d.ideas.filter(x=>x.status==='待选').length;
+  return 0;
+}
+
+function renderNav(){
+  $('#nav').innerHTML = NAV.map(n=>{
+    const c = navCount(n.key);
+    return '<button data-nav="'+n.key+'" class="'+(ui.view===n.key?'on':'')+'">'+
+      icon(n.icon)+'<span>'+esc(n.label)+'</span>'+(c?'<span class="count">'+c+'</span>':'')+'</button>';
+  }).join('');
+}
+
+function newBtnLabel(){
+  return { today:'新建待办', content:'新建内容', deals:'新建商单', schedule:'新建日程', insights:'记录数据', library:'新增选题' }[ui.view] || '新建';
+}
+
+function updateHeader(){
+  const n = NAV.find(x=>x.key===ui.view) || NAV[0];
+  $('#viewEyebrow').textContent = n.en + ' / ' + n.label;
+  $('#viewTitle').textContent = n.title;
+  $('#viewSub').textContent = n.sub;
+  $$('.view').forEach(v=>v.classList.toggle('on', v.dataset.view === ui.view));
+  $('#newBtn').innerHTML = icon('plus', 13) + '<span>'+newBtnLabel()+'</span>';
+  $('#railWeek').textContent = 'W' + weekNoOf(todayStr());
+  $('#railDate').textContent = fmtD(todayStr());
+}
+
+function tickClock(){
+  const d = new Date();
+  const wk = ['日','一','二','三','四','五','六'][d.getDay()];
+  $('#clock').innerHTML = '<div>'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 周'+wk+'</div><div>'+pad2(d.getHours())+':'+pad2(d.getMinutes())+'</div>';
+}
+
+/* ================= 今日 ================= */
+function renderToday(){
+  const d = Store.data;
+  const today = todayStr();
+  const todos = sortBy(d.schedule.filter(e=>e.date===today), (a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  const undone = todos.filter(t=>t.status!=='完成').length;
+  const weekEnd = addDays(today, 7);
+  const queued = d.content_items.filter(c=>c.stage==='发布' && c.due_date && c.due_date>=today && c.due_date<=weekEnd);
+  const activeDeals = d.deals.filter(x=>x.stage!=='已交付' && x.stage!=='已回款');
+  const pendingMoney = sum(activeDeals, x=>(Number(x.amount)||0)-(Number(x.received)||0));
+  const feed = sortBy(d.content_items, (a,b)=>{
+    if(!a.due_date) return 1; if(!b.due_date) return -1;
+    return a.due_date.localeCompare(b.due_date);
+  }).slice(0,6);
+  const previewDeals = sortBy(activeDeals, (a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999')).slice(0,4);
+  const h = new Date().getHours();
+  const greet = h<6?'夜深了':h<11?'早上好':h<14?'午间好':h<18?'下午好':'晚上好';
+
+  const strip = CLOUD ? '' :
+    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地演示模式</b>：数据保存在本机浏览器。在 index.html 顶部填入 Supabase URL 与 anon key 后，自动切换为在线存储与多设备同步。</span></div>';
+
+  $('#views .view[data-view="today"]').innerHTML = strip +
+    '<div class="today-hero"><span class="line">'+greet+'，今天还有 <em>'+undone+'</em> 件事要做</span><span class="rule"></span><span class="eyebrow">'+esc(fmtCN(today))+'</span></div>'+
+    '<div class="today-stats">'+
+      '<div class="stat accent"><span class="eyebrow">TODAY / 今日待办</span><b>'+undone+'<small>/ '+todos.length+'</small></b><div class="sub">'+(todos.length? '下一件：'+esc((todos.find(t=>t.status!=='完成')||todos[0]).title) : '今天还没有安排')+'</div></div>'+
+      '<div class="stat"><span class="eyebrow">QUEUE / 本周待发</span><b>'+queued.length+'<small>条</small></b><div class="sub">'+(queued.length? '最近：'+esc(queued[0].title.slice(0,14)) : '顺排期表推一推进度')+'</div></div>'+
+      '<div class="stat"><span class="eyebrow">DEALS / 在途商单</span><b>'+activeDeals.length+'<small>个</small></b><div class="sub">待收 '+fmtMoney(pendingMoney)+'</div></div>'+
+    '</div>'+
+    '<div class="today-grid">'+
+      '<div class="card"><div class="card-h"><h3>今日待办</h3><span class="eyebrow">'+undone+' / '+todos.length+'</span></div><div class="card-b">'+
+        (todos.length? '<ul class="todo">'+todos.map(t=>{
+          const done = t.status==='完成';
+          return '<li class="'+(done?'done':'')+'">'+
+            '<button class="ck" data-act="toggle-todo" data-id="'+esc(t.id)+'" aria-label="切换完成">'+icon('check',9)+'</button>'+
+            '<div><div class="tt">'+esc(t.title)+'</div><div class="meta">'+
+              (t.time?'<span class="time">'+esc(t.time)+'</span>':'')+
+              kindBadge(t.kind)+(t.platform?'<span class="time">'+esc(t.platform)+'</span>':'')+
+            '</div></div></li>';
+        }).join('')+'</ul>' : '<div class="empty">今天还没有待办</div>')+
+      '</div></div>'+
+      '<div class="card"><div class="card-h"><h3>内容流</h3><span class="eyebrow">'+d.content_items.length+' 条 · 按截止日</span></div><div class="card-b">'+
+        (feed.length? '<ul class="feed">'+feed.map((c,i)=>{
+          return '<li data-act="edit-content" data-id="'+esc(c.id)+'" style="cursor:pointer">'+
+            '<span class="idx">'+pad2(i+1)+'</span>'+
+            '<div class="ft"><b>'+esc(c.title)+'</b><span>'+esc(c.platform)+' · '+esc(c.format)+' · '+relDay(c.due_date)+'</span></div>'+
+            stageBadge(c.stage)+'</li>';
+        }).join('')+'</ul>' : '<div class="empty">还没有内容</div>')+
+      '</div></div>'+
+      '<div class="card"><div class="card-h"><h3>商单预览</h3><span class="eyebrow">'+activeDeals.length+' 个在途</span></div><div class="card-b">'+
+        (previewDeals.length? previewDeals.map(x=>{
+          return '<div class="mini-deal" data-act="open-deal" data-id="'+esc(x.id)+'">'+
+            '<span class="md-b">'+esc((x.brand||'?').slice(0,1))+'</span>'+
+            '<div class="md-t"><b>'+esc(x.brand)+'</b><span>'+esc(x.stage)+' · '+relDay(x.deadline)+'</span></div>'+
+            '<div class="md-a">'+fmtMoney(x.amount)+'</div></div>';
+        }).join('') : '<div class="empty">暂无在途商单</div>')+
+      '</div></div>'+
+    '</div>';
+}
+
+/* ================= 内容 ================= */
+function contentCardHTML(c){
+  const st = c.stage;
+  const idx = STAGES.indexOf(st);
+  const next = idx > -1 && idx < STAGES.length-1 ? STAGES[idx+1] : null;
+  const overdue = c.due_date && c.due_date < todayStr() && st !== '已发布';
+  return '<div class="icard" draggable="true" data-id="'+esc(c.id)+'" data-act="edit-content">'+
+    '<h4>'+esc(c.title)+'</h4>'+
+    '<div class="im">'+esc(c.platform)+'<span class="sep">/</span>'+esc(c.format)+'<span class="sep">/</span>'+esc(c.topic||'')+'</div>'+
+    (c.hook?'<div class="hook">“'+esc(c.hook)+'”</div>':'')+
+    '<div class="cf">'+prioTag(c.priority)+
+      '<span class="due'+(overdue?' priority p1':'')+'" style="font-family:var(--mono);font-size:9px;'+(overdue?'color:var(--accent);':'')+'">'+relDay(c.due_date)+'</span>'+
+      '<div class="acts">'+
+        (next?'<button class="advance" data-act="advance-content" data-id="'+esc(c.id)+'">'+esc(next)+' →</button>':'')+
+        '<button class="iconbtn" data-act="edit-content" data-id="'+esc(c.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
+        '<button class="iconbtn del" data-act="del-content" data-id="'+esc(c.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
+      '</div>'+
+    '</div></div>';
+}
+
+function renderContent(){
+  const items = Store.data.content_items.filter(c =>
+    (ui.contentStage === ALL || c.stage === ui.contentStage) &&
+    (ui.contentPlatform === ALL || c.platform === ui.contentPlatform)
+  );
+  const stageChips = [ALL].concat(STAGES).map(s=>{
+    const n = s === ALL ? Store.data.content_items.length : Store.data.content_items.filter(c=>c.stage===s).length;
+    return '<button class="chip '+(ui.contentStage===s?'on':'')+'" data-act="filter-stage" data-v="'+esc(s)+'">'+esc(s)+'<span style="opacity:.55;margin-left:4px">'+n+'</span></button>';
+  }).join('');
+  const platOpts = [ALL].concat(PLATFORMS).map(p=>'<option value="'+esc(p)+'"'+(ui.contentPlatform===p?' selected':'')+'>'+(p===ALL?'全部平台':esc(p))+'</option>').join('');
+
+  $('#views .view[data-view="content"]').innerHTML =
+    '<div class="toolbar"><div class="filters">'+stageChips+'</div><div class="sp"></div>'+
+      '<select id="platFilter" style="border:1px solid var(--line);background:var(--card);padding:5px 9px;border-radius:3px;font-size:10.5px;color:var(--muted)">'+platOpts+'</select>'+
+    '</div>'+
+    '<div class="kanban">'+STAGES.map(st=>{
+      const list = items.filter(c=>c.stage===st);
+      return '<div class="col" data-stage="'+esc(st)+'">'+
+        '<div class="col-h"><span class="cdot" style="background:'+STAGE_DOT[st]+'"></span><b>'+esc(st)+'</b><span>'+list.length+'</span></div>'+
+        '<div class="col-b">'+(list.length? list.map(contentCardHTML).join('') : '<div class="empty" style="padding:16px 6px">拖到这里</div>')+'</div>'+
+        '<button class="col-add" data-act="new-content" data-stage="'+esc(st)+'">+ 新建到「'+esc(st)+'」</button>'+
+      '</div>';
+    }).join('')+'</div>';
+}
+
+function contentFields(){
+  return [
+    { key:'title', label:'标题', type:'text', full:true, required:true, placeholder:'例如：通勤包里到底装了什么' },
+    { key:'platform', label:'平台', type:'select', options:PLATFORMS },
+    { key:'format', label:'形式', type:'select', options:FORMATS },
+    { key:'stage', label:'阶段', type:'select', options:STAGES },
+    { key:'topic', label:'选题类型', type:'select', options:TOPICS },
+    { key:'priority', label:'优先级', type:'number', min:1, max:3, hint:'1 最高' },
+    { key:'due_date', label:'截止日', type:'date' },
+    { key:'owner', label:'负责人', type:'text', placeholder:'枕冬' },
+    { key:'hook', label:'开场钩子', type:'text', full:true, placeholder:'前三秒/首图的一句话' },
+    { key:'notes', label:'备注', type:'textarea', full:true, rows:3, placeholder:'拍摄要求、参考链接（不要填客户隐私信息）' }
+  ];
+}
+
+function openContentForm(row, presetStage){
+  const base = row || {
+    platform:'小红书', format:'图文', stage: presetStage || '文案', topic:'日常分享',
+    priority:2, due_date:addDays(todayStr(),3), owner:'枕冬', hook:'', notes:''
+  };
+  openForm({
+    eyebrow: row ? 'EDIT / 内容' : 'NEW / 内容',
+    title: row ? '编辑内容' : '新建内容',
+    sub: row ? '修改后立即写回数据表' : '新内容会进入流水线第一列',
+    fields: contentFields(),
+    values: base,
+    onSubmit: async v => {
+      if(row) await updateRow('content_items', row.id, v);
+      else await createRow('content_items', v);
+      renderAll();
+      toast(row ? '内容已更新' : '内容已新建');
+    }
+  });
+}
+
+async function advanceContent(id){
+  const c = Store.data.content_items.find(x=>x.id===id);
+  if(!c) return;
+  const i = STAGES.indexOf(c.stage);
+  if(i < 0 || i >= STAGES.length-1) return;
+  const next = STAGES[i+1];
+  const patch = { stage: next };
+  if(next === '已发布'){
+    patch.published_at = new Date().toISOString();
+    patch.due_date = c.due_date || todayStr();
+  }
+  await updateRow('content_items', id, patch);
+  renderAll();
+  toast('已推进到「'+next+'」');
+}
+/* ================= 商单 ================= */
+function ringSVG(pct){
+  const r = 44, c = 2 * Math.PI * r, dash = c * clamp(pct,0,100) / 100;
+  return '<svg viewBox="0 0 108 108"><circle cx="54" cy="54" r="'+r+'" fill="none" stroke="#E7E1D3" stroke-width="9"/>'+
+    '<circle cx="54" cy="54" r="'+r+'" fill="none" stroke="#B04A2B" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+dash+' '+(c-dash)+'" transform="rotate(-90 54 54)"/></svg>';
+}
+
+function renderDeals(){
+  const deals = Store.data.deals;
+  const box = $('#views .view[data-view="deals"]');
+  if(!deals.length){
+    box.innerHTML = '<div class="card"><div class="empty">还没有商单，点右上角「新建商单」开始记录</div></div>';
+    return;
+  }
+  const idx = clamp(ui.dealIndex, 0, deals.length-1);
+  ui.dealIndex = idx;
+  const total = sum(deals, x=>x.amount);
+  const received = sum(deals, x=>x.received);
+  const activeN = deals.filter(x=>x.stage!=='已回款').length;
+
+  const cards = deals.map((x,i)=>{
+    const off = i - idx, abs = Math.abs(off);
+    const visible = abs <= 2;
+    const tx = off * 92, ty = abs * 9, rot = off * 7;
+    return '<button class="fan-card'+(off===0?'':' dim')+'" data-act="pick-deal" data-i="'+i+'" '+
+      'style="transform:translateX(calc(-50% + '+tx+'px)) translateY('+ty+'px) rotate('+rot+'deg);z-index:'+(10-abs)+';opacity:'+(visible?1:0)+';pointer-events:'+(visible?'auto':'none')+'">'+
+      '<div class="fc-top"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span><span class="fc-brand">'+esc(x.brand)+'</span><span class="fc-stage">'+statusBadge(x.stage)+'</span></div>'+
+      '<h4>'+esc(x.title||x.brand)+'</h4>'+
+      '<div class="fc-amt">'+fmtMoney(x.amount)+'</div>'+
+      '<div class="fc-p"><div class="bar"><i style="width:'+clamp(x.progress||0,0,100)+'%"></i></div></div>'+
+      '<div class="fc-meta"><span>'+esc(x.type)+'</span><span>'+relDay(x.deadline)+'</span></div>'+
+    '</button>';
+  }).join('');
+
+  const x = deals[idx];
+  const pct = clamp(Number(x.progress)||0, 0, 100);
+  const dl = (x.deliverables||'').split('\n').filter(Boolean);
+  const remain = (Number(x.amount)||0) - (Number(x.received)||0);
+
+  box.innerHTML =
+    '<div class="deal-stats">'+
+      '<div class="stat"><span class="eyebrow">CONTRACT / 合同总额</span><b>'+fmtMoney(total)+'</b><div class="sub">'+deals.length+' 个商单</div></div>'+
+      '<div class="stat"><span class="eyebrow">RECEIVED / 已回款</span><b>'+fmtMoney(received)+'</b><div class="sub">回款率 '+(total?Math.round(received/total*100):0)+'%</div></div>'+
+      '<div class="stat accent"><span class="eyebrow">PENDING / 待收</span><b>'+fmtMoney(remain>0?remain:0)+'</b><div class="sub">'+activeN+' 个在途项目</div></div>'+
+    '</div>'+
+    '<div class="fan-wrap"><div class="fan-stage">'+cards+'</div>'+
+      '<div class="fan-nav"><button class="fan-arrow" data-act="deal-prev" aria-label="上一个">'+icon('arrowL',12)+'</button>'+
+      '<span class="idx">'+pad2(idx+1)+' / '+pad2(deals.length)+'</span>'+
+      '<button class="fan-arrow" data-act="deal-next" aria-label="下一个">'+icon('arrowR',12)+'</button></div>'+
+    '</div>'+
+    '<div class="card focus-deal">'+
+      '<div class="fd-l">'+
+        '<div class="fd-head"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span>'+
+          '<div><h3>'+esc(x.brand)+'</h3><div class="sub"><span>'+esc(x.title||'—')+'</span><span>·</span>'+statusBadge(x.stage)+'</div></div>'+
+          '<button class="btn sm" style="margin-left:auto" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料 '+icon('external',12)+'</button>'+
+        '</div>'+
+        '<div class="fd-meta">'+
+          '<div class="m"><div class="k">类型 / 联系人</div><div class="v">'+esc(x.type)+' / '+esc(x.contact||'—')+'</div></div>'+
+          '<div class="m"><div class="k">交付日</div><div class="v">'+esc(fmtD(x.deadline))+' · '+relDay(x.deadline)+'</div></div>'+
+          '<div class="m"><div class="k">合同金额</div><div class="v">'+fmtMoney(x.amount)+'</div></div>'+
+          '<div class="m"><div class="k">已回款</div><div class="v">'+fmtMoney(x.received)+'</div></div>'+
+        '</div>'+
+        '<div class="fd-list"><div class="k">交付内容</div><ul>'+(dl.length? dl.map(t=>'<li>'+esc(t)+'</li>').join('') : '<li>未填写</li>')+'</ul></div>'+
+      '</div>'+
+      '<div class="fd-r">'+
+        '<div class="ring">'+ringSVG(pct)+'<div class="rv"><b>'+pct+'<small style="font-size:11px">%</small></b><span>PROGRESS</span></div></div>'+
+        '<div class="fd-money"><span>合同 / 已收</span><b>'+fmtMoney(x.amount)+' / '+fmtMoney(x.received)+'</b></div>'+
+        '<div class="fd-actions">'+
+          '<button class="btn primary" data-act="open-deal" data-id="'+esc(x.id)+'">打开项目资料</button>'+
+          '<button class="btn" data-act="deal-schedule" data-id="'+esc(x.id)+'">加入排期</button>'+
+          '<button class="btn ghost" data-act="edit-deal" data-id="'+esc(x.id)+'">编辑商单</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+function dealFields(){
+  return [
+    { key:'brand', label:'品牌 / 客户', type:'text', required:true, placeholder:'用占位符替代真实客户名' },
+    { key:'title', label:'项目名称', type:'text', placeholder:'例如：新店开业图文合集' },
+    { key:'contact', label:'对接人', type:'text', placeholder:'{联系人}' },
+    { key:'type', label:'交付类型', type:'select', options:FORMATS.concat(['组合']) },
+    { key:'amount', label:'合同金额', type:'number', min:0, step:1 },
+    { key:'received', label:'已回款', type:'number', min:0, step:1 },
+    { key:'stage', label:'阶段', type:'select', options:DEAL_STAGES },
+    { key:'progress', label:'进度 %', type:'number', min:0, max:100 },
+    { key:'start_date', label:'开始日期', type:'date' },
+    { key:'deadline', label:'交付截止', type:'date' },
+    { key:'deliverables', label:'交付内容', type:'textarea', full:true, rows:3, placeholder:'每行一条交付物' },
+    { key:'brief', label:'Brief', type:'textarea', full:true, rows:3, placeholder:'对方要求与禁区' },
+    { key:'notes', label:'内部备注', type:'textarea', full:true, rows:2 }
+  ];
+}
+
+function openDealForm(row){
+  const base = row || {
+    brand:'', title:'', contact:'', type:'图文', amount:0, received:0,
+    stage:'洽谈', progress:0, start_date:todayStr(), deadline:addDays(todayStr(),14),
+    deliverables:'', brief:'', notes:''
+  };
+  openForm({
+    eyebrow: row ? 'EDIT / 商单' : 'NEW / 商单',
+    title: row ? '编辑商单' : '新建商单',
+    sub: '涉及金额与合作条件仅作内部记录，对外发送前需人工确认',
+    fields: dealFields(),
+    values: base,
+    wide: true,
+    onSubmit: async v => {
+      if(row) await updateRow('deals', row.id, v);
+      else await createRow('deals', v);
+      renderAll();
+      toast(row ? '商单已更新' : '商单已新建');
+    }
+  });
+}
+
+function openDeal(id){
+  const x = Store.data.deals.find(d=>d.id===id);
+  if(!x) return;
+  const dl = (x.deliverables||'').split('\n').filter(Boolean);
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">PROJECT FILE / 项目资料</span><h3>'+esc(x.brand)+'</h3>'+
+      '<p class="sub">'+esc(x.title||'—')+'</p></div><button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<div class="m-body">'+
+      '<div class="dl-head"><span class="fc-logo">'+esc((x.brand||'?').slice(0,1))+'</span><div>'+statusBadge(x.stage)+
+        '<span style="margin-left:6px">'+esc(x.type)+'</span></div></div>'+
+      '<div class="kv">'+
+        '<div><div class="k">合同金额</div><div class="v">'+fmtMoney(x.amount)+'</div></div>'+
+        '<div><div class="k">已回款</div><div class="v">'+fmtMoney(x.received)+'</div></div>'+
+        '<div><div class="k">对接人</div><div class="v">'+esc(x.contact||'—')+'</div></div>'+
+        '<div><div class="k">进度</div><div class="v">'+clamp(x.progress||0,0,100)+'%</div></div>'+
+        '<div><div class="k">开始日期</div><div class="v">'+esc(fmtD(x.start_date))+'</div></div>'+
+        '<div><div class="k">交付截止</div><div class="v">'+esc(fmtD(x.deadline))+' · '+relDay(x.deadline)+'</div></div>'+
+      '</div>'+
+      '<div class="sec-t">交付内容</div><div class="brief">'+(dl.length? dl.map(esc).join('<br>') : '未填写')+'</div>'+
+      '<div class="sec-t">Brief</div><div class="brief">'+esc(x.brief||'未填写')+'</div>'+
+      '<div class="sec-t">内部备注</div><div class="brief">'+esc(x.notes||'未填写')+'</div>'+
+    '</div>'+
+    '<div class="m-foot"><button class="btn danger" style="margin-right:auto" data-act="del-deal" data-id="'+esc(x.id)+'">删除</button>'+
+      '<button class="btn" data-close>关闭</button>'+
+      '<button class="btn primary" data-act="edit-deal" data-id="'+esc(x.id)+'">编辑</button></div>', true);
+}
+
+async function addDealToSchedule(id){
+  const x = Store.data.deals.find(d=>d.id===id);
+  if(!x) return;
+  const exists = Store.data.schedule.some(e=>e.deal_id===x.id);
+  if(exists){ toast('这个商单已经在排期里了'); return; }
+  await createRow('schedule', {
+    date: x.deadline || todayStr(),
+    time:'10:00',
+    title: x.brand + ' · ' + (x.title || '交付'),
+    kind:'商单',
+    platform:'',
+    status:'待办',
+    deal_id: x.id,
+    sort: 0
+  });
+  renderAll();
+  toast('已加入排期：' + fmtD(x.deadline));
+}
+
+/* ================= 日程 ================= */
+function renderSchedule(){
+  const base = ui.schedStart || weekStart(todayStr());
+  ui.schedStart = base;
+  const today = todayStr();
+  const byDate = {};
+  Store.data.schedule.forEach(e=>{ (byDate[e.date] = byDate[e.date] || []).push(e); });
+  Object.keys(byDate).forEach(k=>{
+    byDate[k].sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  });
+
+  const legend = EVENT_KINDS.map(k=>'<span><i style="background:'+KIND_DOT[k]+'"></i>'+esc(k)+'</span>').join('');
+  const head = '<div class="sched"><div class="wk">WK</div>'+
+    [0,1,2,3,4,5,6].map(i=>{
+      const d = parseYmd(addDays(base, i));
+      const wk = ['周一','周二','周三','周四','周五','周六','周日'][i];
+      return '<div class="dh" style="'+(i===6?'border-right:0':'')+'"><b>'+(d.getMonth()+1)+'/'+d.getDate()+'</b><span>'+wk+'</span></div>';
+    }).join('');
+
+  let body = '';
+  for(let w=0; w<4; w++){
+    const wDate = parseYmd(addDays(base, w*7));
+    body += '<div class="wlab">W'+(weekNoOf(ymd(wDate)))+'</div>';
+    for(let dj=0; dj<7; dj++){
+      const date = addDays(base, w*7+dj);
+      const list = byDate[date] || [];
+      const shown = list.slice(0, 2);
+      body += '<div class="cell'+(date===today?' today':'')+(w===3 && dj>3?' other':'')+(w===0 && dj===0?'':'')+'" data-date="'+date+'" data-day="1" style="'+(dj===6?'border-right:0':'')+'">'+
+        '<div class="dn"><b>'+parseYmd(date).getDate()+'</b>'+(parseYmd(date).getDate()===1?'<span class="mm">'+(parseYmd(date).getMonth()+1)+'月</span>':'')+'</div>'+
+        shown.map(e=>'<div class="ev k-'+esc(e.kind)+(e.status==='完成'?' done':'')+'" draggable="true" data-ev="'+esc(e.id)+'" data-act="edit-event" data-id="'+esc(e.id)+'" title="'+esc(e.title)+'">'+
+          (e.time?'<span class="tm">'+esc(e.time)+'</span>':'')+'<span>'+esc(e.title)+'</span></div>').join('')+
+        (list.length > 2 ? '<div class="ev more" data-act="open-day" data-date="'+date+'">+'+(list.length-2)+' 项</div>' : '')+
+      '</div>';
+    }
+  }
+  body += '</div>';
+
+  $('#views .view[data-view="schedule"]').innerHTML =
+    '<div class="toolbar"><div class="sched-leg">'+legend+'</div><div class="sp"></div>'+
+      '<button class="btn sm" data-act="sched-shift" data-n="-28">'+icon('arrowL',12)+' 上一组</button>'+
+      '<button class="btn sm" data-act="sched-today">本周</button>'+
+      '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
+    '</div>'+
+    '<div class="sched-scroll">'+head+body+'</div>'+
+    '<div class="mobile-only" style="margin-top:10px;font-size:10px;color:var(--faint)">手机上点击日期格查看当天安排；拖拽调整排期在桌面端可用。</div>';
+}
+
+function eventFields(){
+  return [
+    { key:'date', label:'日期', type:'date', required:true },
+    { key:'time', label:'时间', type:'time' },
+    { key:'title', label:'标题', type:'text', full:true, required:true, placeholder:'例如：北岸民宿发布' },
+    { key:'kind', label:'类型', type:'select', options:EVENT_KINDS },
+    { key:'platform', label:'平台', type:'select', options:['不关联'].concat(PLATFORMS) },
+    { key:'status', label:'状态', type:'select', options:EVENT_STATUS }
+  ];
+}
+
+function openEventForm(row, presetDate){
+  const base = row || { date: presetDate || todayStr(), time:'10:00', title:'', kind:'发布', platform:'不关联', status:'待办' };
+  openForm({
+    eyebrow: row ? 'EDIT / 日程' : 'NEW / 日程',
+    title: row ? '编辑日程' : '新建日程',
+    sub: '安排会写回日程表，并同步到「今日」待办',
+    fields: eventFields(),
+    values: base,
+    onSubmit: async v => {
+      if(v.platform === '不关联') v.platform = '';
+      if(row) await updateRow('schedule', row.id, v);
+      else await createRow('schedule', Object.assign({ sort:0 }, v));
+      renderAll();
+      toast(row ? '日程已更新' : '日程已新建');
+    }
+  });
+}
+
+function openDay(date){
+  ui.schedDay = date;
+  const list = sortBy(Store.data.schedule.filter(e=>e.date===date), (a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">DAY / 单日安排</span><h3>'+esc(fmtCN(date))+'</h3>'+
+      '<p class="sub">'+list.length+' 项安排 · 共 '+list.filter(e=>e.status==='完成').length+' 项已完成</p></div>'+
+      '<button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<div class="m-body">'+
+      (list.length? '<ul class="day-list">'+list.map(e=>'<li>'+
+        '<span class="time" style="font-family:var(--mono);font-size:10px;color:var(--muted);width:38px;flex:none">'+esc(e.time||'—')+'</span>'+
+        '<div class="dl-t"><b>'+esc(e.title)+'</b><div class="mm">'+kindBadge(e.kind)+statusBadge(e.status)+(e.platform?'<span class="tm">'+esc(e.platform)+'</span>':'')+'</div></div>'+
+        '<div style="display:flex;gap:2px;flex:none">'+
+          '<button class="iconbtn" data-act="edit-event" data-id="'+esc(e.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
+          '<button class="iconbtn del" data-act="del-event" data-id="'+esc(e.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
+        '</div></li>').join('')+'</ul>' : '<div class="empty">这天还没有安排</div>')+
+    '</div>'+
+    '<div class="m-foot"><button class="btn" data-close>关闭</button>'+
+      '<button class="btn primary" data-act="new-event" data-date="'+esc(date)+'">'+icon('plus',12)+' 新建安排</button></div>', true);
+}
+
+/* ================= 拖拽 ================= */
+let dragOverEl = null;
+document.addEventListener('dragstart', e=>{
+  const card = e.target.closest ? e.target.closest('.icard[draggable="true"]') : null;
+  if(card){
+    e.dataTransfer.setData('text/plain', 'content:' + card.dataset.id);
+    e.dataTransfer.effectAllowed = 'move';
+    card.classList.add('dragging');
+    return;
+  }
+  const ev = e.target.closest ? e.target.closest('.ev[draggable="true"]') : null;
+  if(ev){
+    e.dataTransfer.setData('text/plain', 'event:' + ev.dataset.id);
+    e.dataTransfer.effectAllowed = 'move';
+    ev.classList.add('dragging');
+  }
+});
+document.addEventListener('dragend', e=>{
+  $$('.icard.dragging,.ev.dragging').forEach(x=>x.classList.remove('dragging'));
+  $$('.col.over,.cell.over').forEach(x=>x.classList.remove('over'));
+  dragOverEl = null;
+});
+document.addEventListener('dragover', e=>{
+  const t = e.target.closest ? (e.target.closest('.col') || e.target.closest('.cell')) : null;
+  if(!t) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if(dragOverEl && dragOverEl !== t) dragOverEl.classList.remove('over');
+  t.classList.add('over');
+  dragOverEl = t;
+});
+document.addEventListener('drop', async e=>{
+  const t = e.target.closest ? (e.target.closest('.col') || e.target.closest('.cell')) : null;
+  if(!t) return;
+  e.preventDefault();
+  $$('.col.over,.cell.over').forEach(x=>x.classList.remove('over'));
+  dragOverEl = null;
+  const raw = e.dataTransfer.getData('text/plain') || '';
+  const p = raw.indexOf(':');
+  const type = raw.slice(0, p), id = raw.slice(p+1);
+  try{
+    if(type === 'content' && t.classList.contains('col')){
+      const stage = t.dataset.stage;
+      const c = Store.data.content_items.find(x=>x.id===id);
+      if(!c || c.stage === stage) return;
+      const patch = { stage };
+      if(stage === '已发布') patch.published_at = new Date().toISOString();
+      await updateRow('content_items', id, patch);
+      renderAll();
+      toast('已移动到「'+stage+'」');
+    }else if(type === 'event' && t.classList.contains('cell')){
+      const date = t.dataset.date;
+      const ev = Store.data.schedule.find(x=>x.id===id);
+      if(!ev || ev.date === date) return;
+      await updateRow('schedule', id, { date });
+      renderAll();
+      toast('已改到 ' + fmtD(date));
+    }
+  }catch(err){
+    toast('移动失败：' + err.message, true);
+  }
+});
+/* ================= 洞察 ================= */
+function donutSVG(items){
+  const total = sum(items, x=>x.value);
+  const safe = total || 1;
+  const r = 56, C = 2 * Math.PI * r;
+  let acc = 0;
+  const arcs = items.filter(x=>x.value>0).map((x,i)=>{
+    const dash = x.value / safe * C;
+    const rot = acc / safe * 360 - 90;
+    acc += x.value;
+    return '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="'+x.color+'" stroke-width="15" stroke-dasharray="'+dash+' '+(C-dash)+'" transform="rotate('+rot+' 80 80)"/>';
+  }).join('');
+  return '<svg viewBox="0 0 160 160" style="max-width:190px;margin:4px auto 2px;display:block">'+arcs+
+    '<text x="80" y="77" text-anchor="middle" font-size="22" font-family="ui-monospace,monospace" fill="#1F1D19">'+(total?fmtNum(total):'0')+'</text>'+
+    '<text x="80" y="95" text-anchor="middle" font-size="8.5" letter-spacing="1.6" fill="#7A7468">TOTAL</text></svg>';
+}
+
+function barsSVG(items){
+  const w = 560, rowH = 34, labelW = 64, valW = 58;
+  const h = items.length * rowH + 8;
+  const barW = w - labelW - valW - 10;
+  const max = Math.max.apply(null, items.map(x=>x.value).concat([1]));
+  const rows = items.map((x,i)=>{
+    const yy = 4 + i * rowH;
+    const bw = Math.max(2, x.value / max * barW);
+    return '<text x="0" y="'+(yy+12)+'" font-size="10" fill="#7A7468">'+esc(x.label)+'</text>'+
+      '<rect x="'+labelW+'" y="'+yy+'" width="'+barW+'" height="10" rx="2" fill="#E7E1D3"/>'+
+      '<rect x="'+labelW+'" y="'+yy+'" width="'+bw+'" height="10" rx="2" fill="'+x.color+'"/>'+
+      '<text x="'+w+'" y="'+(yy+10)+'" text-anchor="end" font-size="10" font-family="ui-monospace,monospace" fill="#1F1D19">'+fmtNum(x.value)+'</text>';
+  }).join('');
+  return '<svg viewBox="0 0 '+w+' '+h+'" style="padding:4px 2px 2px">'+rows+'</svg>';
+}
+
+function trendSVG(points){
+  const w = 620, h = 200, pl = 44, pr = 14, pt = 16, pb = 28;
+  const innerW = w - pl - pr, innerH = h - pt - pb;
+  const max = Math.max.apply(null, points.map(p=>p.value).concat([1]));
+  const step = points.length > 1 ? innerW / (points.length-1) : 0;
+  const X = i => pl + (points.length > 1 ? i * step : innerW/2);
+  const Y = v => pt + innerH - (v / max) * innerH;
+  const linePts = points.map((p,i)=>X(i)+','+Y(p.value)).join(' ');
+  const areaPts = pl+','+(pt+innerH)+' '+linePts+' '+(pl+innerW)+','+(pt+innerH);
+  const grid = [0,0.5,1].map(f=>{
+    const yy = pt + innerH - f * innerH;
+    return '<line x1="'+pl+'" y1="'+yy+'" x2="'+(pl+innerW)+'" y2="'+yy+'" stroke="#E7E1D3" stroke-width="1"/>'+
+      '<text x="'+(pl-6)+'" y="'+(yy+3)+'" text-anchor="end" font-size="9" font-family="ui-monospace,monospace" fill="#A39B8C">'+fmtNum(max*f)+'</text>';
+  }).join('');
+  const labels = points.map((p,i)=>'<text x="'+X(i)+'" y="'+(h-9)+'" text-anchor="middle" font-size="9" font-family="ui-monospace,monospace" fill="#A39B8C">'+fmtD(p.date)+'</text>').join('');
+  const dots = points.map((p,i)=>'<circle cx="'+X(i)+'" cy="'+Y(p.value)+'" r="2.6" fill="#B04A2B"/>').join('');
+  return '<svg viewBox="0 0 '+w+' '+h+'"><polygon points="'+areaPts+'" fill="#B04A2B" opacity="0.10"/>'+
+    '<polyline points="'+linePts+'" fill="none" stroke="#B04A2B" stroke-width="1.6" stroke-linejoin="round"/>'+
+    grid + dots + labels + '</svg>';
+}
+
+function legend(items){
+  return '<div class="legend">'+items.map(x=>'<span><i style="background:'+x.color+'"></i>'+esc(x.label)+' · '+fmtNum(x.value)+'</span>').join('')+'</div>';
+}
+
+function renderInsights(){
+  const m = Store.data.metrics;
+  const box = $('#views .view[data-view="insights"]');
+  const plays = sum(m, x=>x.plays);
+  const likes = sum(m, x=>x.likes);
+  const comments = sum(m, x=>x.comments);
+  const saves = sum(m, x=>x.saves);
+  const shares = sum(m, x=>x.shares);
+  const inter = likes + comments + saves + shares;
+  const fans = sum(m, x=>x.followers);
+  const rate = plays ? (inter / plays * 100) : 0;
+  const published = Store.data.content_items.filter(c=>c.stage==='已发布').length;
+
+  const stageItems = STAGES.map((s,i)=>({
+    label:s,
+    value: Store.data.content_items.filter(c=>c.stage===s).length,
+    color: STAGE_DOT[s] || CHART_COLORS[i%CHART_COLORS.length]
+  }));
+
+  const platforms = PLATFORMS.map(p=>{
+    const rows = m.filter(x=>x.platform===p);
+    return { label:p, value: sum(rows, x=>x.plays), color: CHART_COLORS[PLATFORMS.indexOf(p)%CHART_COLORS.length] };
+  }).filter(x=>x.value>0);
+
+  const fb = FEEDBACKS.map((f,i)=>({
+    label:f,
+    value: m.filter(x=>x.feedback===f).length,
+    color: CHART_COLORS[i%CHART_COLORS.length]
+  }));
+
+  const dates = [];
+  for(let i=6;i>=0;i--) dates.push(addDays(todayStr(), -i));
+  const trendPoints = dates.map(d=>({ date:d, value: sum(m.filter(x=>x.date===d), x=>x.plays) }));
+
+  if(!m.length){
+    box.innerHTML = '<div class="card"><div class="empty">还没有互动数据，点右上角「记录数据」补一条</div></div>';
+    return;
+  }
+
+  box.innerHTML =
+    '<div class="kpis">'+
+      '<div class="stat accent"><span class="eyebrow">PLAYS / 总播放</span><b>'+fmtNum(plays)+'</b><div class="sub">累计 '+m.length+' 条记录</div></div>'+
+      '<div class="stat"><span class="eyebrow">ENGAGEMENT / 总互动</span><b>'+fmtNum(inter)+'</b><div class="sub">赞 '+fmtNum(likes)+' · 评 '+fmtNum(comments)+'</div></div>'+
+      '<div class="stat"><span class="eyebrow">RATE / 互动率</span><b>'+rate.toFixed(1)+'<small>%</small></b><div class="sub">收藏 '+fmtNum(saves)+' · 转发 '+fmtNum(shares)+'</div></div>'+
+      '<div class="stat"><span class="eyebrow">GROWTH / 新增关注</span><b>'+fmtNum(fans)+'</b><div class="sub">已发布内容 '+published+' 条</div></div>'+
+    '</div>'+
+    '<div class="chart-grid">'+
+      '<div class="card chart-card"><div class="card-h"><h3>内容状态分布</h3><span class="eyebrow">PIPELINE</span></div>'+
+        '<div class="card-b">'+donutSVG(stageItems)+legend(stageItems)+'</div></div>'+
+      '<div class="card chart-card"><div class="card-h"><h3>渠道播放</h3><span class="eyebrow">BY CHANNEL</span></div>'+
+        '<div class="card-b">'+(platforms.length? barsSVG(platforms) : '<div class="empty">暂无播放数据</div>')+'</div></div>'+
+      '<div class="card chart-card"><div class="card-h"><h3>反馈分布</h3><span class="eyebrow">FEEDBACK</span></div>'+
+        '<div class="card-b">'+barsSVG(fb)+'</div></div>'+
+      '<div class="card chart-card"><div class="card-h"><h3>近 7 日播放趋势</h3><span class="eyebrow">7-DAY TREND</span></div>'+
+        '<div class="card-b trend-wrap">'+trendSVG(trendPoints)+'</div></div>'+
+    '</div>';
+}
+
+function metricFields(){
+  return [
+    { key:'date', label:'日期', type:'date', required:true },
+    { key:'platform', label:'平台', type:'select', options:PLATFORMS },
+    { key:'plays', label:'播放', type:'number', min:0 },
+    { key:'likes', label:'点赞', type:'number', min:0 },
+    { key:'comments', label:'评论', type:'number', min:0 },
+    { key:'saves', label:'收藏', type:'number', min:0 },
+    { key:'shares', label:'转发', type:'number', min:0 },
+    { key:'followers', label:'新增关注', type:'number', min:0 },
+    { key:'feedback', label:'主要反馈', type:'select', options:FEEDBACKS, full:true }
+  ];
+}
+
+function openMetricForm(){
+  openForm({
+    eyebrow:'NEW / 数据',
+    title:'记录一天的数据',
+    sub:'按平台记录，洞察页会自动汇总',
+    fields: metricFields(),
+    values: { date:todayStr(), platform:'小红书', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' },
+    onSubmit: async v => {
+      await createRow('metrics', v);
+      renderAll();
+      toast('数据已记录');
+    }
+  });
+}
+
+/* ================= 选题库 ================= */
+function heatDots(n){
+  let s = '<span class="heat'+(Number(n)>=4?'':' low')+'" title="热度 '+Number(n)+'/5">';
+  for(let i=0;i<5;i++) s += '<i class="'+(i < Number(n)?'f':'')+'"></i>';
+  return s + '</span>';
+}
+
+function renderLibrary(){
+  const all = Store.data.ideas;
+  const list = all.filter(i => (ui.libKind===ALL || i.kind===ui.libKind) && (ui.libStatus===ALL || i.status===ui.libStatus));
+  const sug = all.filter(i=>i.status==='待选' && Number(i.heat)>=4).slice(0,3);
+
+  const tabs = [ALL].concat(IDEA_KINDS).map(k=>{
+    const n = k===ALL ? all.length : all.filter(i=>i.kind===k).length;
+    return '<button class="'+(ui.libKind===k?'on':'')+'" data-act="lib-tab" data-v="'+esc(k)+'">'+esc(k)+' <span style="opacity:.5;font-family:var(--mono);font-size:9px">'+n+'</span></button>';
+  }).join('');
+  const statusChips = [ALL].concat(IDEA_STATUS).map(s=>
+    '<button class="chip '+(ui.libStatus===s?'on':'')+'" data-act="lib-status" data-v="'+esc(s)+'">'+esc(s)+'</button>'
+  ).join('');
+
+  $('#views .view[data-view="library"]').innerHTML =
+    '<div class="lib-tabs">'+tabs+'</div>'+
+    '<div class="toolbar"><div class="filters">'+statusChips+'</div><div class="sp"></div>'+
+      '<span class="eyebrow">'+list.length+' 条</span></div>'+
+    (sug.length? '<div class="suggest">'+sug.map((x,i)=>'<div class="sg"><span class="no">'+pad2(i+1)+'</span>'+
+      '<div class="sgt"><b>'+esc(x.title)+'</b><span>'+esc(x.platform)+' · 热度 '+Number(x.heat)+'/5</span></div>'+
+      '<button class="btn sm" data-act="idea-to-content" data-id="'+esc(x.id)+'">转内容</button></div>').join('')+'</div>' : '')+
+    (list.length? '<div class="idea-grid">'+list.map(x=>{
+      const tags = (x.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+      return '<div class="ic">'+
+        '<div class="ich"><b>'+esc(x.title)+'</b><span class="badge">'+esc(x.kind)+'</span></div>'+
+        '<div class="tags">'+(tags.length? tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('') : '<span class="tag">未打标签</span>')+'</div>'+
+        '<div class="icf">'+heatDots(x.heat)+statusBadge(x.status)+
+          (x.url?'<a class="link" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+
+          '<div class="acts">'+
+            '<button class="iconbtn" data-act="idea-to-content" data-id="'+esc(x.id)+'" aria-label="转内容">'+icon('sparkle',12)+'</button>'+
+            '<button class="iconbtn" data-act="edit-idea" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
+            '<button class="iconbtn del" data-act="del-idea" data-id="'+esc(x.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
+          '</div></div>'+
+      '</div>';
+    }).join('')+'</div>' : '<div class="card"><div class="empty">这个筛选下还没有选题，换一个标签或新建</div></div>');
+}
+
+function ideaFields(){
+  return [
+    { key:'kind', label:'类型', type:'select', options:IDEA_KINDS },
+    { key:'status', label:'状态', type:'select', options:IDEA_STATUS },
+    { key:'title', label:'标题', type:'text', full:true, required:true, placeholder:'一句话把选题说清楚' },
+    { key:'platform', label:'平台', type:'select', options:PLATFORMS },
+    { key:'heat', label:'热度 1-5', type:'number', min:1, max:5 },
+    { key:'tags', label:'标签', type:'text', full:true, placeholder:'用英文逗号分隔，如：日常,清单' },
+    { key:'url', label:'参考链接', type:'text', full:true, placeholder:'https://…（可留空）' },
+    { key:'note', label:'备注', type:'textarea', full:true, rows:3 }
+  ];
+}
+
+function openIdeaForm(row){
+  const base = row || { kind:'选题', status:'待选', title:'', platform:'小红书', heat:3, tags:'', url:'', note:'' };
+  openForm({
+    eyebrow: row ? 'EDIT / 选题' : 'NEW / 选题',
+    title: row ? '编辑选题' : '新增选题',
+    sub: '选题、话题和素材统一收在这里，选中后一键转内容',
+    fields: ideaFields(),
+    values: base,
+    onSubmit: async v => {
+      if(row) await updateRow('ideas', row.id, v);
+      else await createRow('ideas', v);
+      renderAll();
+      toast(row ? '选题已更新' : '选题已加入库');
+    }
+  });
+}
+
+async function ideaToContent(id){
+  const it = Store.data.ideas.find(x=>x.id===id);
+  if(!it) return;
+  await createRow('content_items', {
+    title: it.title,
+    platform: it.platform || '小红书',
+    format: '图文',
+    stage: '文案',
+    topic: it.kind === '话题' ? '互动话题' : '日常分享',
+    hook:'',
+    owner:'枕冬',
+    due_date: addDays(todayStr(), 5),
+    priority: 2,
+    notes: '来自选题库：' + (it.note || ''),
+    plays:0, likes:0, comments:0, saves:0, shares:0
+  });
+  await updateRow('ideas', id, { status:'已用' });
+  renderAll();
+  toast('已转为内容，进入「文案」列');
+}
+
+/* ================= 确认框 ================= */
+function confirmAction(opt){
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">CONFIRM / 请确认</span><h3>'+esc(opt.title)+'</h3></div>'+
+      '<button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<div class="m-body"><div class="brief">'+esc(opt.body)+'</div></div>'+
+    '<div class="m-foot"><button class="btn" data-close>取消</button>'+
+      '<button class="btn danger" id="cfmBtn">'+esc(opt.ok || '确认删除')+'</button></div>');
+  $('#cfmBtn').addEventListener('click', async ()=>{
+    const b = $('#cfmBtn');
+    b.disabled = true;
+    try{ await opt.onOk(); closeModal(); }
+    catch(err){ toast((err && err.message) || '操作失败', true); b.disabled = false; }
+  });
+}
+
+/* ================= 路由与事件 ================= */
+function goView(key, push){
+  if(!NAV.some(n=>n.key===key)) key = 'today';
+  if(push && location.hash !== '#/' + key){
+    location.hash = '#/' + key;
+    return;
+  }
+  if(ui.view === key){
+    renderNav(); updateHeader();
+    return;
+  }
+  ui.view = key;
+  renderNav();
+  updateHeader();
+}
+
+window.addEventListener('hashchange', ()=>{
+  const k = location.hash.replace(/^#\/?/, '');
+  if(k && NAV.some(n=>n.key===k)) goView(k, false);
+});
+
+document.addEventListener('change', e=>{
+  if(e.target.id === 'platFilter'){
+    ui.contentPlatform = e.target.value;
+    renderContent();
+  }
+});
+
+document.addEventListener('click', async e=>{
+  const nav = e.target.closest('[data-nav]');
+  if(nav){ goView(nav.dataset.nav, true); return; }
+  const el = e.target.closest('[data-act]');
+  if(!el) return;
+  const act = el.dataset.act;
+  const id = el.dataset.id;
+  try{
+    switch(act){
+      case 'toggle-todo': {
+        const ev = Store.data.schedule.find(x=>x.id===id);
+        if(ev){
+          await updateRow('schedule', id, { status: ev.status==='完成' ? '待办' : '完成' });
+          renderAll();
+        }
+        break;
+      }
+      case 'filter-stage':
+        ui.contentStage = el.dataset.v;
+        renderContent();
+        break;
+      case 'new-content':
+        openContentForm(null, el.dataset.stage || '文案');
+        break;
+      case 'edit-content': {
+        const c = Store.data.content_items.find(x=>x.id===id);
+        if(c) openContentForm(c);
+        break;
+      }
+      case 'advance-content':
+        await advanceContent(id);
+        break;
+      case 'del-content': {
+        const c = Store.data.content_items.find(x=>x.id===id);
+        confirmAction({
+          title:'删除这条内容？',
+          body:'将删除「' + (c ? c.title : '') + '」。此操作同步写回数据表，删除后无法在页面恢复。',
+          onOk: async ()=>{ await deleteRow('content_items', id); renderAll(); toast('内容已删除'); }
+        });
+        break;
+      }
+      case 'pick-deal':
+        ui.dealIndex = Number(el.dataset.i) || 0;
+        renderDeals();
+        break;
+      case 'deal-prev':
+        ui.dealIndex = (ui.dealIndex - 1 + Store.data.deals.length) % Store.data.deals.length;
+        renderDeals();
+        break;
+      case 'deal-next':
+        ui.dealIndex = (ui.dealIndex + 1) % Store.data.deals.length;
+        renderDeals();
+        break;
+      case 'open-deal':
+        openDeal(id);
+        break;
+      case 'edit-deal': {
+        const d = Store.data.deals.find(x=>x.id===id);
+        if(d) openDealForm(d);
+        break;
+      }
+      case 'deal-schedule':
+        await addDealToSchedule(id);
+        break;
+      case 'del-deal': {
+        const d = Store.data.deals.find(x=>x.id===id);
+        confirmAction({
+          title:'删除这个商单？',
+          body:'将删除「' + (d ? d.brand : '') + '」及其金额、交付记录。该操作不可撤销。',
+          onOk: async ()=>{ await deleteRow('deals', id); renderAll(); toast('商单已删除'); }
+        });
+        break;
+      }
+      case 'sched-shift':
+        ui.schedStart = addDays(ui.schedStart || weekStart(todayStr()), Number(el.dataset.n));
+        renderSchedule();
+        break;
+      case 'sched-today':
+        ui.schedStart = weekStart(todayStr());
+        renderSchedule();
+        break;
+      case 'open-day':
+        openDay(el.dataset.date);
+        break;
+      case 'new-event':
+        openEventForm(null, el.dataset.date);
+        break;
+      case 'edit-event': {
+        const ev = Store.data.schedule.find(x=>x.id===id);
+        if(ev) openEventForm(ev);
+        break;
+      }
+      case 'del-event': {
+        const ev = Store.data.schedule.find(x=>x.id===id);
+        confirmAction({
+          title:'删除这项安排？',
+          body:'将删除「' + (ev ? ev.title : '') + '」的排期，删除后不可恢复。',
+          onOk: async ()=>{ await deleteRow('schedule', id); renderAll(); toast('安排已删除'); }
+        });
+        break;
+      }
+      case 'lib-tab':
+        ui.libKind = el.dataset.v;
+        renderLibrary();
+        break;
+      case 'lib-status':
+        ui.libStatus = el.dataset.v;
+        renderLibrary();
+        break;
+      case 'edit-idea': {
+        const it = Store.data.ideas.find(x=>x.id===id);
+        if(it) openIdeaForm(it);
+        break;
+      }
+      case 'idea-to-content':
+        await ideaToContent(id);
+        break;
+      case 'del-idea': {
+        const it = Store.data.ideas.find(x=>x.id===id);
+        confirmAction({
+          title:'删除这条选题？',
+          body:'将删除「' + (it ? it.title : '') + '」。该操作不可撤销。',
+          onOk: async ()=>{ await deleteRow('ideas', id); renderAll(); toast('选题已删除'); }
+        });
+        break;
+      }
+    }
+  }catch(err){
+    toast((err && err.message) || '操作失败', true);
+  }
+});
+
+$('#newBtn').addEventListener('click', ()=>{
+  if(ui.view === 'today') openEventForm(null, todayStr());
+  else if(ui.view === 'content') openContentForm(null, '文案');
+  else if(ui.view === 'deals') openDealForm(null);
+  else if(ui.view === 'schedule') openEventForm(null, todayStr());
+  else if(ui.view === 'insights') openMetricForm();
+  else if(ui.view === 'library') openIdeaForm(null);
+});
+
+$('#sync').addEventListener('click', ()=>syncNow(true));
+
+/* ================= 启动 ================= */
+async function init(){
+  const initial = location.hash.replace(/^#\/?/, '');
+  if(NAV.some(n=>n.key===initial)) ui.view = initial;
+  ui.schedStart = weekStart(todayStr());
+  renderNav();
+  updateHeader();
+  tickClock();
+  setInterval(tickClock, 30000);
+
+  try{
+    await loadAll();
+    setSyncState('ok');
+  }catch(err){
+    Store.mode = 'local';
+    Store.data = lsRead();
+    Store.fp = fpOf(Store.data);
+    setSyncState('err', '云端不可用，已切本地');
+    toast('云端连接失败，已切换到本地演示数据', true);
+  }
+  renderAll();
+
+  setInterval(()=>{
+    if(!document.hidden) syncNow(false);
+  }, 5000);
+
+  window.addEventListener('storage', e=>{
+    if(e.key === LS_KEY) syncNow(false);
+  });
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
+</body>
+</html>
