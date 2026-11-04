@@ -1,21 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:43.708Z",
+  "updated_at": "2026-11-04T08:27:47.844Z",
   "tables": {
     "content_items": [],
     "deals": [],
-    "schedule": [
-      {
-        "id": "s18",
-        "date": "2026-11-26",
-        "time": "11:00",
-        "title": "下月内容排期",
-        "kind": "复盘",
-        "platform": "",
-        "status": "待办",
-        "sort": 0
-      }
-    ],
+    "schedule": [],
     "metrics": [
       {
         "id": "m1",
