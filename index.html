@@ -244,6 +244,9 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .ev.k-复盘{border-left-color:var(--sage);background:#ECEFE4}
 .ev.done{opacity:.5;text-decoration:line-through}
 .ev.more{background:transparent;border-left-color:transparent;color:var(--faint);font-family:var(--mono);font-size:8px;cursor:pointer}
+.ev.add{background:transparent;border-left-color:transparent;color:var(--faint);opacity:0;transition:opacity .12s;cursor:pointer;justify-content:center}
+.cell:hover .ev.add{opacity:1}
+.ev.add svg{width:10px;height:10px}
 .day-list{list-style:none;margin:0;padding:0}
 .day-list li{display:flex;gap:9px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line2)}
 .day-list li:last-child{border-bottom:0}
@@ -1068,9 +1071,12 @@ function openForm(opt){
   const html = '<div class="m-head"><div><span class="eyebrow">'+esc(opt.eyebrow||'编辑')+'</span><h3>'+esc(opt.title)+'</h3>'+
     (opt.sub?'<p class="sub">'+esc(opt.sub)+'</p>':'')+'</div><button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
     '<form id="wform" novalidate><div class="m-body"><div class="form-grid">'+fields.map(f=>fieldHTML(f,values)).join('')+'</div></div>'+
-    '<div class="m-foot"><button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">'+esc(opt.submitText||'保存')+'</button></div></form>';
+    '<div class="m-foot">'+(opt.onDelete?'<button type="button" class="btn danger" id="wdel" style="margin-right:auto">'+esc(opt.deleteText||'删除')+'</button>':'')+
+    '<button type="button" class="btn" data-close>取消</button><button type="submit" class="btn primary">'+esc(opt.submitText||'保存')+'</button></div></form>';
   openModal(html, opt.wide);
   const form = $('#wform');
+  const del = $('#wdel');
+  if(del) del.onclick = ()=> opt.onDelete();
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const fd = new FormData(form);
@@ -1520,11 +1526,12 @@ function renderSchedule(){
       const date = addDays(base, w*7+dj);
       const list = byDate[date] || [];
       const shown = list.slice(0, 2);
-      body += '<div class="cell'+(date===today?' today':'')+(w===3 && dj>3?' other':'')+(w===0 && dj===0?'':'')+'" data-date="'+date+'" data-day="1" style="'+(dj===6?'border-right:0':'')+'">'+
+      body += '<div class="cell'+(date===today?' today':'')+(w===3 && dj>3?' other':'')+'" data-date="'+date+'" data-act="open-day" title="点此查看当天安排">'+
         '<div class="dn"><b>'+parseYmd(date).getDate()+'</b>'+(parseYmd(date).getDate()===1?'<span class="mm">'+(parseYmd(date).getMonth()+1)+'月</span>':'')+'</div>'+
         shown.map(e=>'<div class="ev k-'+esc(e.kind)+(e.status==='完成'?' done':'')+'" draggable="true" data-ev="'+esc(e.id)+'" data-act="edit-event" data-id="'+esc(e.id)+'" title="'+esc(e.title)+'">'+
           (e.time?'<span class="tm">'+esc(e.time)+'</span>':'')+'<span>'+esc(e.title)+'</span></div>').join('')+
-        (list.length > 2 ? '<div class="ev more" data-act="open-day" data-date="'+date+'">+'+(list.length-2)+' 项</div>' : '')+
+        (list.length > 2 ? '<div class="ev more" data-act="open-day" data-date="'+date+'">+'+(list.length-2)+' 项</div>'
+          : (list.length === 0 ? '<div class="ev add" data-act="new-event" data-date="'+date+'">'+icon('plus',10)+'</div>' : ''))+
       '</div>';
     }
   }
@@ -1559,6 +1566,13 @@ function openEventForm(row, presetDate){
     sub: '安排会写回日程表，并同步到「今日」待办',
     fields: eventFields(),
     values: base,
+    onDelete: row ? ()=>{
+      confirmAction({
+        title:'删除这项安排？',
+        body:'将删除「' + row.title + '」的排期，删除后不可恢复。',
+        onOk: async ()=>{ await deleteRow('schedule', row.id); renderAll(); toast('安排已删除'); }
+      });
+    } : null,
     onSubmit: async v => {
       if(v.platform === '不关联') v.platform = '';
       if(row) await updateRow('schedule', row.id, v);
