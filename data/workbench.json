@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:23.789Z",
+  "updated_at": "2026-11-04T08:27:26.369Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s10",
-        "date": "2026-11-07",
-        "time": "10:00",
-        "title": "本周数据复盘",
-        "kind": "复盘",
-        "platform": "",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s11",
         "date": "2026-11-09",
