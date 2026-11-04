@@ -1,28 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:27.135Z",
+  "updated_at": "2026-11-04T08:12:30.050Z",
   "tables": {
-    "content_items": [
-      {
-        "id": "c8",
-        "title": "投票：你会为了拍照排队吗",
-        "platform": "小红书",
-        "format": "图文",
-        "stage": "已发布",
-        "topic": "互动话题",
-        "hook": "排 40 分钟换一张图",
-        "owner": "枕冬",
-        "due_date": "2026-10-30",
-        "priority": 2,
-        "plays": 210000,
-        "likes": 16000,
-        "comments": 3200,
-        "saves": 4200,
-        "shares": 2100,
-        "published_at": "2026-10-30",
-        "notes": ""
-      }
-    ],
+    "content_items": [],
     "deals": [
       {
         "id": "d1",
