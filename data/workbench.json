@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:13.623Z",
+  "updated_at": "2026-11-04T08:27:18.426Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -14,16 +14,6 @@
         "platform": "",
         "status": "完成",
         "sort": 0
-      },
-      {
-        "id": "s2",
-        "date": "2026-11-02",
-        "time": "14:00",
-        "title": "通勤包拍摄",
-        "kind": "拍摄",
-        "platform": "小红书",
-        "status": "完成",
-        "sort": 1
       },
       {
         "id": "s9",
