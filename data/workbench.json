@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:07.258Z",
+  "updated_at": "2026-11-04T08:27:13.623Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -24,17 +24,6 @@
         "platform": "小红书",
         "status": "完成",
         "sort": 1
-      },
-      {
-        "id": "s4",
-        "date": "2026-11-03",
-        "time": "20:00",
-        "title": "抖音早起挑战更新",
-        "kind": "发布",
-        "platform": "抖音",
-        "status": "完成",
-        "sort": 1,
-        "updated_at": "2026-11-04T08:17:21.216Z"
       },
       {
         "id": "s9",
