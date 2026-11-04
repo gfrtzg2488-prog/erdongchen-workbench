@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:17:17.239Z",
+  "updated_at": "2026-11-04T08:17:22.123Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -42,8 +42,9 @@
         "title": "抖音早起挑战更新",
         "kind": "发布",
         "platform": "抖音",
-        "status": "待办",
-        "sort": 1
+        "status": "完成",
+        "sort": 1,
+        "updated_at": "2026-11-04T08:17:21.216Z"
       },
       {
         "id": "s5",
