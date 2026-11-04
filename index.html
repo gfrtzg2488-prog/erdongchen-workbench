@@ -435,10 +435,11 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 <script>
 /* ================= 配置 ================= */
 const WB_CONFIG = {
-  SUPABASE_URL: "https://ylbkttvyrmtuwxggxzo.supabase.co",
-  SUPABASE_ANON_KEY: "sb_publishable_73tyA3vAfYUP7CiBA1IXZg_JphvWNE8"
+  APP_ID: "",             // LeanCloud 控制台 → 设置 → 应用凭证 → AppID
+  APP_KEY: "",            // 同页 → AppKey
+  API_BASE: ""            // 同页 → REST API 服务器地址，如 https://xxxx.lc-cn-n1-shared.com
 };
-const CLOUD = !!(WB_CONFIG.SUPABASE_URL && WB_CONFIG.SUPABASE_ANON_KEY);
+const CLOUD = !!(WB_CONFIG.APP_ID && WB_CONFIG.APP_KEY && WB_CONFIG.API_BASE);
 
 /* ================= 常量 ================= */
 const STAGES = ['文案','剪辑','审核','发布','已发布'];
@@ -665,31 +666,56 @@ const Store = {
   lastSync: null
 };
 
-function apiUrl(path){ return WB_CONFIG.SUPABASE_URL.replace(/\/+$/,'') + '/rest/v1/' + path; }
-function apiHeaders(){
-  return {
-    apikey: WB_CONFIG.SUPABASE_ANON_KEY,
-    Authorization: 'Bearer ' + WB_CONFIG.SUPABASE_ANON_KEY,
+function lcUrl(path){ return WB_CONFIG.API_BASE.replace(/\/+$/,'') + '/1.1' + path; }
+function lcHeaders(extra){
+  return Object.assign({
+    'X-LC-Id': WB_CONFIG.APP_ID,
+    'X-LC-Key': WB_CONFIG.APP_KEY,
     'Content-Type': 'application/json'
-  };
+  }, extra || {});
 }
-async function apiFetch(path, opts){
-  const o = Object.assign({ headers: apiHeaders() }, opts || {});
-  const res = await fetch(apiUrl(path), o);
+async function lcFetch(path, opts){
+  const o = Object.assign({ headers: lcHeaders() }, opts || {});
+  let res;
+  try{
+    res = await fetch(lcUrl(path), o);
+  }catch(netErr){
+    throw new Error('网络无法连接云端');
+  }
   if(!res.ok){
     let msg = res.status + ' ' + res.statusText;
-    try{ const j = await res.json(); if(j && (j.message || j.hint)) msg = j.message || j.hint; }catch(e){}
+    try{ const j = await res.json(); if(j && (j.error || j.message)) msg = j.error || j.message; }catch(e){}
     throw new Error(msg);
   }
-  if(res.status === 204) return null;
   const txt = await res.text();
   return txt ? JSON.parse(txt) : null;
 }
+function lcRow(r){
+  return Object.assign({}, r, { id: r.objectId });
+}
 async function cloudFetchAll(){
-  const rows = await Promise.all(TABLES.map(t => apiFetch(t + '?select=*')));
   const out = {};
-  TABLES.forEach((t,i)=>{ out[t] = rows[i] || []; });
+  await Promise.all(TABLES.map(async t=>{
+    const j = await lcFetch('/classes/' + t + '?limit=1000');
+    out[t] = ((j && j.results) || []).map(lcRow);
+  }));
   return out;
+}
+async function cloudSeedIfEmpty(){
+  const probe = await lcFetch('/classes/content_items?limit=1');
+  if(probe && probe.results && probe.results.length) return;
+  const s = seedData();
+  const reqs = [];
+  TABLES.forEach(t=>{
+    (s[t] || []).forEach(r=>{
+      const body = Object.assign({}, r);
+      delete body.id;
+      reqs.push({ method:'POST', path:'/1.1/classes/' + t, body });
+    });
+  });
+  for(let i = 0; i < reqs.length; i += 50){
+    await lcFetch('/batch', { method:'POST', body: JSON.stringify({ requests: reqs.slice(i, i + 50) }) });
+  }
 }
 function lsRead(){
   try{
@@ -711,7 +737,7 @@ function fpOf(d){
     const rows = d[t] || [];
     let mx = '';
     for(const r of rows){
-      const v = String(r.updated_at || r.created_at || '');
+      const v = String(r.updatedAt || r.updated_at || r.createdAt || r.created_at || '');
       if(v > mx) mx = v;
     }
     return t + ':' + rows.length + ':' + mx;
@@ -722,12 +748,8 @@ async function createRow(table, row){
   if(Store.mode === 'cloud'){
     const clean = Object.assign({}, row);
     delete clean.id;
-    const out = await apiFetch(table, {
-      method:'POST',
-      headers: Object.assign(apiHeaders(), { Prefer:'return=representation' }),
-      body: JSON.stringify(clean)
-    });
-    const rec = Array.isArray(out) ? out[0] : out;
+    const out = await lcFetch('/classes/' + table, { method:'POST', body: JSON.stringify(clean) });
+    const rec = Object.assign({}, clean, { id: out.objectId, createdAt: out.createdAt, updatedAt: out.createdAt });
     Store.data[table] = (Store.data[table] || []).concat(rec);
     Store.fp = fpOf(Store.data);
     return rec;
@@ -741,14 +763,12 @@ async function createRow(table, row){
 
 async function updateRow(table, id, patch){
   if(Store.mode === 'cloud'){
-    const out = await apiFetch(table + '?id=eq.' + encodeURIComponent(id), {
-      method:'PATCH',
-      headers: Object.assign(apiHeaders(), { Prefer:'return=representation' }),
+    const out = await lcFetch('/classes/' + table + '/' + encodeURIComponent(id), {
+      method:'PUT',
       body: JSON.stringify(patch)
     });
-    const rec = Array.isArray(out) ? out[0] : out;
     const i = (Store.data[table] || []).findIndex(r => r.id === id);
-    if(i > -1) Store.data[table][i] = rec || Object.assign(Store.data[table][i], patch);
+    if(i > -1) Store.data[table][i] = Object.assign({}, Store.data[table][i], patch, { updatedAt: out && out.updatedAt || new Date().toISOString() });
     Store.fp = fpOf(Store.data);
     return Store.data[table][i];
   }
@@ -763,7 +783,7 @@ async function updateRow(table, id, patch){
 
 async function deleteRow(table, id){
   if(Store.mode === 'cloud'){
-    await apiFetch(table + '?id=eq.' + encodeURIComponent(id), { method:'DELETE' });
+    await lcFetch('/classes/' + table + '/' + encodeURIComponent(id), { method:'DELETE' });
   }
   Store.data[table] = (Store.data[table] || []).filter(r => r.id !== id);
   if(Store.mode !== 'cloud') lsWrite(Store.data);
@@ -771,6 +791,7 @@ async function deleteRow(table, id){
 }
 
 async function loadAll(){
+  if(Store.mode === 'cloud') await cloudSeedIfEmpty();
   const d = Store.mode === 'cloud' ? await cloudFetchAll() : lsRead();
   Store.data = d;
   Store.fp = fpOf(d);
@@ -803,8 +824,8 @@ function setSyncState(state, msg){
   chip.className = 'sync' + (state === 'err' ? ' err' : state === 'warn' ? ' warn' : '');
   if(state === 'ok'){
     lab.textContent = CLOUD ? '在线同步' : '本地演示';
-    chip.title = CLOUD ? '已连接 Supabase' : '数据保存在本机浏览器，配置 Supabase 后自动切换为在线';
-    $('#railData').innerHTML = '<span class="dot-live"></span>' + (CLOUD ? 'SUPABASE · 在线' : 'LOCAL · 本机存储');
+    chip.title = CLOUD ? '已连接 LeanCloud' : '数据保存在本机浏览器，配置 LeanCloud 后自动切换为在线';
+    $('#railData').innerHTML = '<span class="dot-live"></span>' + (CLOUD ? 'LEANCLOUD · 在线' : 'LOCAL · 本机存储');
   }else{
     lab.textContent = state === 'err' ? '离线' : '同步中';
     chip.title = msg || '';
@@ -978,7 +999,7 @@ function renderToday(){
   const greet = h<6?'夜深了':h<11?'早上好':h<14?'午间好':h<18?'下午好':'晚上好';
 
   const strip = CLOUD ? '' :
-    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地演示模式</b>：数据保存在本机浏览器。在 index.html 顶部填入 Supabase URL 与 anon key 后，自动切换为在线存储与多设备同步。</span></div>';
+    '<div class="offline-strip">'+icon('sparkle',13)+'<span><b>本地演示模式</b>：数据保存在本机浏览器。在 index.html 顶部填入 LeanCloud 凭证（AppID / AppKey / API 地址）后，自动切换为在线存储与多设备同步。</span></div>';
 
   $('#views .view[data-view="today"]').innerHTML = strip +
     '<div class="today-hero"><span class="line">'+greet+'，今天还有 <em>'+undone+'</em> 件事要做</span><span class="rule"></span><span class="eyebrow">'+esc(fmtCN(today))+'</span></div>'+
@@ -1883,7 +1904,8 @@ async function init(){
 
   setInterval(()=>{
     if(!document.hidden) syncNow(false);
-  }, 5000);
+  }, 45000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) syncNow(false); });
 
   window.addEventListener('storage', e=>{
     if(e.key === LS_KEY) syncNow(false);
