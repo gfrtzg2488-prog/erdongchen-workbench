@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:03.855Z",
+  "updated_at": "2026-11-04T08:12:05.843Z",
   "tables": {
     "content_items": [
       {
@@ -135,25 +135,6 @@
         "shares": 0,
         "published_at": null,
         "notes": "商单 d4"
-      },
-      {
-        "id": "c10",
-        "title": "咖啡探店：巷子尽头的 8 平米",
-        "platform": "抖音",
-        "format": "视频",
-        "stage": "剪辑",
-        "topic": "商单",
-        "hook": "老板只卖三款豆子",
-        "owner": "枕冬",
-        "due_date": "2026-11-12",
-        "priority": 2,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "商单 d1"
       },
       {
         "id": "c12",
