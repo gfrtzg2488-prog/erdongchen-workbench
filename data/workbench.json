@@ -1,25 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:30.050Z",
+  "updated_at": "2026-11-04T08:12:37.983Z",
   "tables": {
     "content_items": [],
     "deals": [
-      {
-        "id": "d1",
-        "brand": "山也咖啡",
-        "title": "巷子咖啡馆探店视频",
-        "contact": "阿山",
-        "type": "视频",
-        "amount": 4800,
-        "received": 0,
-        "stage": "洽谈",
-        "progress": 20,
-        "start_date": "2026-11-04",
-        "deadline": "2026-11-16",
-        "deliverables": "1 条 60s 视频\n1 组图文\n授权 6 个月",
-        "brief": "突出手冲过程与老板故事，不硬广。",
-        "notes": "等对方确认报价"
-      },
       {
         "id": "d2",
         "brand": "有理书店",
