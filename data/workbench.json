@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:14:19.466Z",
+  "updated_at": "2026-11-04T08:14:59.185Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -52,8 +52,9 @@
         "title": "深夜朋友圈文案定稿",
         "kind": "审核",
         "platform": "小红书",
-        "status": "待办",
-        "sort": 0
+        "status": "完成",
+        "sort": 0,
+        "updated_at": "2026-11-04T08:14:58.272Z"
       },
       {
         "id": "s6",
