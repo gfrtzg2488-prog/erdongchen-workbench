@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:04.362Z",
+  "updated_at": "2026-11-04T08:27:07.258Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -24,16 +24,6 @@
         "platform": "小红书",
         "status": "完成",
         "sort": 1
-      },
-      {
-        "id": "s3",
-        "date": "2026-11-03",
-        "time": "10:00",
-        "title": "一人食视频粗剪",
-        "kind": "剪辑",
-        "platform": "小红书",
-        "status": "进行中",
-        "sort": 0
       },
       {
         "id": "s4",
