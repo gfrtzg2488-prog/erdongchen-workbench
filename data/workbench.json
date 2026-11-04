@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T09:39:18.240Z",
+  "updated_at": "2026-11-04T10:07:16.804Z",
   "tables": {
     "content_items": [
       {
@@ -358,16 +358,6 @@
         "title": "花艺课视频发布",
         "kind": "发布",
         "platform": "小红书",
-        "status": "待办",
-        "sort": 0
-      },
-      {
-        "id": "s15",
-        "date": "2026-11-16",
-        "time": "10:00",
-        "title": "年底清单文案",
-        "kind": "剪辑",
-        "platform": "视频号",
         "status": "待办",
         "sort": 0
       },
