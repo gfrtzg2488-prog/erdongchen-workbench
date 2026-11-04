@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:20.964Z",
+  "updated_at": "2026-11-04T08:27:23.789Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s9",
-        "date": "2026-11-06",
-        "time": "15:00",
-        "title": "北岸民宿发布",
-        "kind": "发布",
-        "platform": "小红书",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s10",
         "date": "2026-11-07",
