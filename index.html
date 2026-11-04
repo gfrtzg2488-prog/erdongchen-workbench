@@ -902,6 +902,36 @@ function exportJSON(){
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   toast('已导出 JSON 备份');
 }
+const XL_SHEETS = [
+  { name:'内容', key:'content_items', cols:[['标题','title'],['平台','platform'],['形式','format'],['阶段','stage'],['选题','topic'],['钩子','hook'],['负责人','owner'],['截止日','due_date'],['优先级','priority'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['发布日','published_at'],['备注','notes']] },
+  { name:'商单', key:'deals', cols:[['品牌','brand'],['项目','title'],['对接人','contact'],['类型','type'],['金额','amount'],['已收','received'],['阶段','stage'],['进度%','progress'],['开始日','start_date'],['截止日','deadline'],['交付物','deliverables'],['需求简报','brief'],['备注','notes']] },
+  { name:'日程', key:'schedule', cols:[['日期','date'],['时间','time'],['事项','title'],['类型','kind'],['平台','platform'],['状态','status']] },
+  { name:'洞察', key:'metrics', cols:[['日期','date'],['平台','platform'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['涨粉','followers'],['反馈','feedback']] },
+  { name:'选题库', key:'ideas', cols:[['类型','kind'],['标题','title'],['平台','platform'],['标签','tags'],['热度','heat'],['状态','status'],['链接','url'],['备注','note']] }
+];
+function xlCell(v, isNum){
+  const s = v == null ? '' : String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const t = (isNum && v !== null && v !== '') ? 'Number' : 'String';
+  return '<Cell><Data ss:Type="' + t + '">' + s + '</Data></Cell>';
+}
+function exportXLSX(){
+  let sheets = '';
+  XL_SHEETS.forEach(sh=>{
+    const rows = Store.data[sh.key] || [];
+    let body = '<Row>' + sh.cols.map(c=>xlCell(c[0], false)).join('') + '</Row>';
+    rows.forEach(r=>{ body += '<Row>' + sh.cols.map(c=>xlCell(r[c[1]], typeof r[c[1]] === 'number')).join('') + '</Row>'; });
+    sheets += '<Worksheet ss:Name="' + sh.name + '"><Table>' + body + '</Table></Worksheet>';
+  });
+  const xml = '<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>' +
+    '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">' + sheets + '</Workbook>';
+  const blob = new Blob(['\ufeff' + xml], { type:'application/vnd.ms-excel' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zhidong-workbench-' + todayStr() + '.xls';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast('已导出表格文件（5 个工作表）');
+}
 function importJSON(file){
   const fr = new FileReader();
   fr.onload = ()=>{
@@ -967,6 +997,7 @@ function openDataPanel(){
     '</div>' +
     '<div class="m-foot">' +
       (linked ? '<button type="button" class="btn danger" id="unlinkBtn">断开云端</button>' : '') +
+      '<button type="button" class="btn" id="xlsBtn">导出表格</button>' +
       '<button type="button" class="btn" id="expBtn">导出备份</button>' +
       '<button type="button" class="btn" id="impBtn">导入备份</button>' +
       '<button type="button" class="btn primary" id="linkBtn">' + (linked ? '重新连接' : '连接云端') + '</button>' +
@@ -988,6 +1019,7 @@ function openDataPanel(){
       btn.textContent = '连接云端';
     }
   };
+  $('#xlsBtn').onclick = exportXLSX;
   $('#expBtn').onclick = exportJSON;
   $('#impBtn').onclick = ()=>$('#impFile').click();
   $('#impFile').onchange = e=>{
