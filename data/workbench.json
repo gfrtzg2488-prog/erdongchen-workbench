@@ -1,24 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:41:31.081Z",
+  "updated_at": "2026-11-04T08:41:47.076Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m7",
-        "date": "2026-11-02",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 34200,
-        "likes": 2460,
-        "comments": 308,
-        "saves": 1620,
-        "shares": 246,
-        "followers": 138,
-        "feedback": "涨粉"
-      },
       {
         "id": "m8",
         "date": "2026-11-02",
