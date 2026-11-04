@@ -259,6 +259,7 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
 .chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .chart-card .card-b{padding:12px 14px 8px}
+.chart-card.span2{grid-column:1/-1}
 .chart-card svg{display:block;width:100%;height:auto}
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .legend span{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;color:var(--muted)}
@@ -1778,7 +1779,22 @@ function renderInsights(){
         '<div class="card-b">'+barsSVG(fb)+'</div></div>'+
       '<div class="card chart-card"><div class="card-h"><h3>近 7 日播放趋势</h3><span class="eyebrow">7-DAY TREND</span></div>'+
         '<div class="card-b trend-wrap">'+trendSVG(trendPoints)+'</div></div>'+
+      '<div class="card chart-card span2"><div class="card-h"><h3>最近记录</h3><span class="eyebrow">RECORDS / '+m.length+'</span></div>'+
+        '<div class="card-b">'+recentMetricsHTML(m)+'</div></div>'+
     '</div>';
+}
+function recentMetricsHTML(m){
+  const list = m.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0, 8);
+  if(!list.length) return '<div class="empty">暂无记录</div>';
+  return '<ul class="day-list">'+list.map(x=>
+    '<li><span class="time" style="font-family:var(--mono);font-size:10px;color:var(--muted);width:56px;flex:none">'+esc((x.date||'').slice(5))+'</span>'+
+    '<div class="dl-t"><b>'+esc(x.platform||'—')+' · 播放 '+fmtNum(x.plays||0)+'</b>'+
+      '<div class="mm"><span class="tm">赞 '+fmtNum(x.likes||0)+' · 评 '+fmtNum(x.comments||0)+' · 藏 '+fmtNum(x.saves||0)+' · 粉 '+fmtNum(x.followers||0)+'</span>'+
+      (x.feedback?'<span class="tm">'+esc(x.feedback)+'</span>':'')+'</div></div>'+
+    '<div style="display:flex;gap:2px;flex:none">'+
+      '<button class="iconbtn" data-act="edit-metric" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
+      '<button class="iconbtn del" data-act="del-metric" data-id="'+esc(x.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
+    '</div></li>').join('')+'</ul>';
 }
 
 function metricFields(){
@@ -1795,17 +1811,25 @@ function metricFields(){
   ];
 }
 
-function openMetricForm(){
+function openMetricForm(row){
   openForm({
-    eyebrow:'NEW / 数据',
-    title:'记录一天的数据',
+    eyebrow: row ? 'EDIT / 数据' : 'NEW / 数据',
+    title: row ? '修改这条数据' : '记录一天的数据',
     sub:'按平台记录，洞察页会自动汇总',
     fields: metricFields(),
-    values: { date:todayStr(), platform:'小红书', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' },
+    values: row || { date:todayStr(), platform:'小红书', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' },
+    onDelete: row ? ()=>{
+      confirmAction({
+        title:'删除这条数据？',
+        body:'将删除 ' + row.date + ' · ' + row.platform + ' 的记录，删除后不可恢复。',
+        onOk: async ()=>{ await deleteRow('metrics', row.id); renderAll(); toast('记录已删除'); }
+      });
+    } : null,
     onSubmit: async v => {
-      await createRow('metrics', v);
+      if(row) await updateRow('metrics', row.id, v);
+      else await createRow('metrics', v);
       renderAll();
-      toast('数据已记录');
+      toast(row ? '数据已更新' : '数据已记录');
     }
   });
 }
@@ -2046,6 +2070,20 @@ document.addEventListener('click', async e=>{
           title:'删除这项安排？',
           body:'将删除「' + (ev ? ev.title : '') + '」的排期，删除后不可恢复。',
           onOk: async ()=>{ await deleteRow('schedule', id); renderAll(); toast('安排已删除'); }
+        });
+        break;
+      }
+      case 'edit-metric': {
+        const mt = Store.data.metrics.find(x=>x.id===id);
+        if(mt) openMetricForm(mt);
+        break;
+      }
+      case 'del-metric': {
+        const mt = Store.data.metrics.find(x=>x.id===id);
+        confirmAction({
+          title:'删除这条数据？',
+          body:'将删除 ' + (mt ? mt.date + ' · ' + mt.platform : '该记录') + '，删除后不可恢复。',
+          onOk: async ()=>{ await deleteRow('metrics', id); renderAll(); toast('记录已删除'); }
         });
         break;
       }
