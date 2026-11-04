@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:31.909Z",
+  "updated_at": "2026-11-04T08:27:34.069Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s13",
-        "date": "2026-11-11",
-        "time": "10:30",
-        "title": "花艺课视频审核",
-        "kind": "审核",
-        "platform": "小红书",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s14",
         "date": "2026-11-13",
