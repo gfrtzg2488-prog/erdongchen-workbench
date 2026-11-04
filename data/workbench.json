@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T09:36:31.705Z",
+  "updated_at": "2026-11-04T09:36:43.665Z",
   "tables": {
     "content_items": [
       {
@@ -598,20 +598,6 @@
         "title": "下雨天适合做的三件小事"
       },
       {
-        "id": "m10",
-        "date": "2026-11-01",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 35600,
-        "likes": 2640,
-        "comments": 332,
-        "saves": 1730,
-        "shares": 264,
-        "followers": 147,
-        "feedback": "收藏",
-        "title": "北岸民宿｜周末住进山里"
-      },
-      {
         "id": "m11",
         "date": "2026-11-01",
         "platform": "抖音",
@@ -638,20 +624,6 @@
         "followers": 46,
         "feedback": "收藏",
         "title": "今年最后一个月想做的 5 件事"
-      },
-      {
-        "id": "m13",
-        "date": "2026-10-31",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 39700,
-        "likes": 2820,
-        "comments": 356,
-        "saves": 1840,
-        "shares": 282,
-        "followers": 156,
-        "feedback": "咨询",
-        "title": "你会在深夜删掉哪条朋友圈"
       },
       {
         "id": "m14",
@@ -682,20 +654,6 @@
         "title": "下雨天适合做的三件小事"
       },
       {
-        "id": "m16",
-        "date": "2026-10-30",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 43800,
-        "likes": 3000,
-        "comments": 380,
-        "saves": 1950,
-        "shares": 300,
-        "followers": 165,
-        "feedback": "吐槽",
-        "title": "通勤包里到底装了什么"
-      },
-      {
         "id": "m17",
         "date": "2026-10-30",
         "platform": "抖音",
@@ -722,20 +680,6 @@
         "followers": 50,
         "feedback": "吐槽",
         "title": "今年最后一个月想做的 5 件事"
-      },
-      {
-        "id": "m19",
-        "date": "2026-10-29",
-        "platform": "小红书",
-        "content_id": null,
-        "plays": 45200,
-        "likes": 3180,
-        "comments": 404,
-        "saves": 2060,
-        "shares": 318,
-        "followers": 174,
-        "feedback": "无感",
-        "title": "周末两小时房间归零"
       },
       {
         "id": "m20",
