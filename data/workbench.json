@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:26.369Z",
+  "updated_at": "2026-11-04T08:27:29.492Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s11",
-        "date": "2026-11-09",
-        "time": "09:00",
-        "title": "下周选题会",
-        "kind": "复盘",
-        "platform": "",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s12",
         "date": "2026-11-10",
