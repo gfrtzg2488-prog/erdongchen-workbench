@@ -1,25 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:49.585Z",
+  "updated_at": "2026-11-04T08:12:53.684Z",
   "tables": {
     "content_items": [],
     "deals": [
-      {
-        "id": "d4",
-        "brand": "北岸民宿",
-        "title": "周末山居民宿图文",
-        "contact": "舟舟",
-        "type": "组合",
-        "amount": 12000,
-        "received": 7200,
-        "stage": "待发布",
-        "progress": 75,
-        "start_date": "2026-10-25",
-        "deadline": "2026-11-10",
-        "deliverables": "1 条图文\n1 条视频\n1 组 Stories",
-        "brief": "窗景与早餐必须露出。",
-        "notes": "内容已过审，排期周五"
-      },
       {
         "id": "d5",
         "brand": "轻野户外",
