@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:29.492Z",
+  "updated_at": "2026-11-04T08:27:31.909Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s12",
-        "date": "2026-11-10",
-        "time": "13:00",
-        "title": "包里常备小物拍摄",
-        "kind": "拍摄",
-        "platform": "抖音",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s13",
         "date": "2026-11-11",
