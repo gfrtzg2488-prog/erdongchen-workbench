@@ -1,24 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:41:18.426Z",
+  "updated_at": "2026-11-04T08:41:20.762Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m5",
-        "date": "2026-11-03",
-        "platform": "抖音",
-        "content_id": null,
-        "plays": 49000,
-        "likes": 1690,
-        "comments": 192,
-        "saves": 560,
-        "shares": 326,
-        "followers": 225,
-        "feedback": "吐槽"
-      },
       {
         "id": "m6",
         "date": "2026-11-03",
