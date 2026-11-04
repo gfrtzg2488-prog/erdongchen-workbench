@@ -226,25 +226,6 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .sched-leg span{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;color:var(--muted)}
 .sched-leg i{width:6px;height:6px;border-radius:1px;display:block}
 .sched-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
-/* 手机日程：纵向议程 */
-.sched-range{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em}
-.ag{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
-.ag-day{display:grid;grid-template-columns:58px minmax(0,1fr);border-bottom:1px solid var(--line2)}
-.ag-day:last-child{border-bottom:0}
-.ag-day.today .ag-h{background:#FBF1E7}
-.ag-h{padding:11px 9px;background:#F4EFE3;border-right:1px solid var(--line2);display:flex;flex-direction:column;gap:2px;align-items:flex-start;justify-content:center}
-.ag-h b{font-family:var(--serif);font-size:14px;font-weight:600;letter-spacing:.02em}
-.ag-h span{font-family:var(--mono);font-size:11px;color:var(--muted)}
-.ag-h em{font-size:9px;color:var(--accent);font-style:normal;letter-spacing:.1em}
-.ag-b{padding:8px 10px;display:flex;flex-direction:column;gap:5px;min-height:50px;justify-content:center}
-.ag-ev{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:2px;background:#F5F1E6;border-left:3px solid var(--slate);font-size:12.5px;text-align:left;line-height:1.3;min-height:36px}
-.ag-ev .tm{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
-.ag-ev .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ag-ev .kk{font-size:9.5px;color:var(--faint);flex:none;border:1px solid var(--line);padding:1px 5px;border-radius:2px}
-.ag-ev.done{opacity:.55}
-.ag-ev.done .tt{text-decoration:line-through}
-.ag-add{display:flex;align-items:center;gap:5px;padding:6px 9px;border:1px dashed var(--line);border-radius:2px;color:var(--faint);font-size:11px;text-align:left;min-height:30px}
-.ag-add:hover{border-color:#C4BAA6;color:var(--muted)}
 .sched{display:grid;grid-template-columns:46px repeat(7,minmax(0,1fr));min-width:760px}
 .sched .wk{background:#EFE9DC;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);padding:8px 4px;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;color:var(--muted);position:sticky;left:0;z-index:2}
 .sched .dh{padding:8px 6px;border-bottom:1px solid var(--line);border-right:1px solid var(--line2);text-align:center;background:#F6F1E6}
@@ -413,8 +394,24 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .focus-deal{margin-top:0}
   .fd-head h3{font-size:19px}
   .fd-meta{grid-template-columns:1fr 1fr;gap:8px 12px}
-  .sched{min-width:700px}
-  .cell{min-height:96px}
+  /* 手机端：整张月历缩进一屏，七列不横滑 */
+  .sched-scroll{overflow-x:hidden}
+  .sched{min-width:0;grid-template-columns:20px repeat(7,minmax(0,1fr))}
+  .sched .wk{padding:6px 0;font-size:6.5px;letter-spacing:0}
+  .sched .wlab{font-size:7px;letter-spacing:0}
+  .sched .dh{padding:6px 1px}
+  .sched .dh b{font-size:10.5px}
+  .sched .dh span{font-size:7.5px;letter-spacing:0;margin-top:0}
+  .cell{min-height:64px;padding:3px 2px;gap:2px}
+  .cell .dn{font-size:9.5px;min-height:12px}
+  .cell .dn .mm{font-size:7px}
+  .ev{font-size:8px;line-height:1.2;padding:1px 2px;gap:2px;border-left-width:2px;border-radius:1px}
+  .ev .tm{font-size:6.5px}
+  .ev.more{font-size:7.5px;justify-content:center;background:transparent;border-left:0;color:var(--muted)}
+  .ev.add{justify-content:center;background:transparent;border-left:0;opacity:.5}
+  .sched-leg{flex-wrap:nowrap;overflow-x:auto;gap:9px;margin-bottom:0;min-width:0}
+  .sched-leg span{flex:none;font-size:9px}
+  .toolbar .sp{display:none}
   .chart-card .card-b{padding:8px 6px 2px}
   .legend{gap:7px}
   .idea-grid,.suggest{grid-template-columns:1fr}
@@ -1692,66 +1689,33 @@ function renderSchedule(){
     }).join('');
 
   let body = '';
+  const maxShowN = narrowView() ? 1 : 2;
   for(let w=0; w<4; w++){
     const wDate = parseYmd(addDays(base, w*7));
     body += '<div class="wlab">W'+(weekNoOf(ymd(wDate)))+'</div>';
     for(let dj=0; dj<7; dj++){
       const date = addDays(base, w*7+dj);
       const list = byDate[date] || [];
-      const shown = list.slice(0, 2);
+      const shown = list.slice(0, maxShowN);
       body += '<div class="cell'+(date===today?' today':'')+(w===3 && dj>3?' other':'')+'" data-date="'+date+'" data-act="open-day" title="点此查看当天安排">'+
         '<div class="dn"><b>'+parseYmd(date).getDate()+'</b>'+(parseYmd(date).getDate()===1?'<span class="mm">'+(parseYmd(date).getMonth()+1)+'月</span>':'')+'</div>'+
         shown.map(e=>'<div class="ev k-'+esc(e.kind)+(e.status==='完成'?' done':'')+'" draggable="true" data-ev="'+esc(e.id)+'" data-act="edit-event" data-id="'+esc(e.id)+'" title="'+esc(e.title)+'">'+
           (e.time?'<span class="tm">'+esc(e.time)+'</span>':'')+'<span>'+esc(e.title)+'</span></div>').join('')+
-        (list.length > 2 ? '<div class="ev more" data-act="open-day" data-date="'+date+'">+'+(list.length-2)+' 项</div>'
+        (list.length > maxShowN ? '<div class="ev more" data-act="open-day" data-date="'+date+'">+'+(list.length-maxShowN)+' 项</div>'
           : (list.length === 0 ? '<div class="ev add" data-act="new-event" data-date="'+date+'">'+icon('plus',10)+'</div>' : ''))+
       '</div>';
     }
   }
   body += '</div>';
 
-  const nar = narrowView();
-  const toolbar = nar
-    ? '<div class="toolbar"><div class="sched-range">'+(parseYmd(base).getMonth()+1)+'.'+parseYmd(base).getDate()+' – '+(parseYmd(addDays(base,6)).getMonth()+1)+'.'+parseYmd(addDays(base,6)).getDate()+'</div><div class="sp"></div>'+
-        '<button class="btn sm" data-act="sched-shift" data-n="-7">上一周</button>'+
-        '<button class="btn sm" data-act="sched-today">本周</button>'+
-        '<button class="btn sm" data-act="sched-shift" data-n="7">下一周</button>'+
-      '</div>'
-    : '<div class="toolbar"><div class="sched-leg">'+legend+'</div><div class="sp"></div>'+
-        '<button class="btn sm" data-act="sched-shift" data-n="-28">'+icon('arrowL',12)+' 上一组</button>'+
-        '<button class="btn sm" data-act="sched-today">本周</button>'+
-        '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
-      '</div>';
-
-  if(nar){
-    const wkN = ['周一','周二','周三','周四','周五','周六','周日'];
-    let ag = '<div class="ag">';
-    for(let dj=0; dj<7; dj++){
-      const date = addDays(base, dj);
-      const list = byDate[date] || [];
-      const d = parseYmd(date);
-      ag += '<div class="ag-day'+(date===today?' today':'')+'" data-act="open-day" data-date="'+date+'">'+
-        '<div class="ag-h"><b>'+wkN[dj]+'</b><span>'+(d.getMonth()+1)+'/'+d.getDate()+'</span>'+(date===today?'<em>今天</em>':'')+'</div>'+
-        '<div class="ag-b">'+
-          list.map(e=>'<button class="ag-ev k-'+esc(e.kind)+(e.status==='完成'?' done':'')+'" data-act="edit-event" data-id="'+esc(e.id)+'" style="border-left-color:'+KIND_DOT[e.kind]+'">'+
-            (e.time?'<span class="tm">'+esc(e.time)+'</span>':'')+
-            '<span class="tt">'+esc(e.title)+'</span>'+
-            '<span class="kk">'+esc(e.kind)+'</span>'+
-          '</button>').join('')+
-          '<button class="ag-add" data-act="new-event" data-date="'+date+'">'+icon('plus',11)+' 加一条</button>'+
-        '</div>'+
-      '</div>';
-    }
-    ag += '</div>';
-    $('#views .view[data-view="schedule"]').innerHTML = toolbar +
-      '<div class="mobile-only sched-hint">点条目可改期或删除 · 点日期行看当天清单</div>' + ag;
-    return;
-  }
-
-  $('#views .view[data-view="schedule"]').innerHTML = toolbar +
-    '<div class="mobile-only sched-hint">左右滑动看整周 · 点日期格看当天安排</div>'+
-    '<div class="sched-scroll">'+head+body+'</div>'+
-    '<div class="mobile-only" style="margin-top:10px;font-size:10px;color:var(--faint)">拖拽调整排期在桌面端可用；手机端点日期格后可在弹窗里改期或删除。</div>';
+  $('#views .view[data-view="schedule"]').innerHTML =
+    '<div class="toolbar"><div class="sched-leg">'+legend+'</div><div class="sp"></div>'+
+      '<button class="btn sm" data-act="sched-shift" data-n="-28">'+icon('arrowL',12)+' 上一组</button>'+
+      '<button class="btn sm" data-act="sched-today">本周</button>'+
+      '<button class="btn sm" data-act="sched-shift" data-n="28">下一组 '+icon('arrowR',12)+'</button>'+
+    '</div>'+
+    '<div class="mobile-only sched-hint">点日期格看当天安排 · 格中的 + 直接新建</div>'+
+    '<div class="sched-scroll">'+head+body+'</div>';
 }
 
 function eventFields(){
