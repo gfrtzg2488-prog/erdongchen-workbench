@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:12:08.067Z",
+  "updated_at": "2026-11-04T08:12:10.199Z",
   "tables": {
     "content_items": [
       {
@@ -116,25 +116,6 @@
         "shares": 0,
         "published_at": null,
         "notes": "商单 d4"
-      },
-      {
-        "id": "c12",
-        "title": "今年最后一个月想做的 5 件事",
-        "platform": "视频号",
-        "format": "图文",
-        "stage": "审核",
-        "topic": "互动话题",
-        "hook": "你的清单里有什么",
-        "owner": "枕冬",
-        "due_date": "2026-11-11",
-        "priority": 2,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": ""
       }
     ],
     "deals": [
