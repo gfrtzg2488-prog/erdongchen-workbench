@@ -16,6 +16,9 @@
   --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
+html{-webkit-tap-highlight-color:transparent}
+button:focus,button:active,a:focus{outline:none}
+button:focus-visible,a:focus-visible,[data-act]:focus-visible{outline:2px solid rgba(176,74,43,.6);outline-offset:2px}
 html,body{margin:0;padding:0}
 body{background:var(--paper);color:var(--text);font-family:var(--ff);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh}
 ::selection{background:var(--accent);color:#fff}
