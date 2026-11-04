@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:41.285Z",
+  "updated_at": "2026-11-04T08:27:43.708Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s17",
-        "date": "2026-11-21",
-        "time": "15:00",
-        "title": "月度商单对账",
-        "kind": "商单",
-        "platform": "",
-        "status": "待办",
-        "sort": 0
-      },
       {
         "id": "s18",
         "date": "2026-11-26",
