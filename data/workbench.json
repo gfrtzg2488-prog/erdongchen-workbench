@@ -1,24 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:41:56.141Z",
+  "updated_at": "2026-11-04T08:41:58.318Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m12",
-        "date": "2026-11-01",
-        "platform": "视频号",
-        "content_id": null,
-        "plays": 12600,
-        "likes": 510,
-        "comments": 41,
-        "saves": 314,
-        "shares": 75,
-        "followers": 46,
-        "feedback": "收藏"
-      },
       {
         "id": "m13",
         "date": "2026-10-31",
