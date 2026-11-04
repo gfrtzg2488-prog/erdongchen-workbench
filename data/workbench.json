@@ -1,20 +1,10 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T08:27:18.426Z",
+  "updated_at": "2026-11-04T08:27:20.964Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [
-      {
-        "id": "s1",
-        "date": "2026-11-02",
-        "time": "09:30",
-        "title": "整理本周选题",
-        "kind": "复盘",
-        "platform": "",
-        "status": "完成",
-        "sort": 0
-      },
       {
         "id": "s9",
         "date": "2026-11-06",
