@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-04T10:35:49.643Z",
+  "updated_at": "2026-11-05T00:55:40.160Z",
   "tables": {
     "content_items": [
       {
@@ -545,6 +545,118 @@
       }
     ],
     "ideas": [
+      {
+        "id": "imu3qm8hm",
+        "platform": "B站",
+        "tags": "生活感拍照,自动抓取",
+        "heat": 4,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV1a4xK6uEcL",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「生活感拍照」· 播放 36.3万 · UP 主 开心的游乐 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题。原片版权归 UP 主所有，使用画面前请先确认授权",
+        "kind": "素材",
+        "title": "素材·生活感拍照：拍照的时候可以试试～"
+      },
+      {
+        "id": "imu3qm8wg",
+        "platform": "B站",
+        "tags": "生活感拍照,自动抓取",
+        "heat": 4,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV1Ht411t7QG",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「生活感拍照」· 播放 124.2万 · UP 主 不是富婆树 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题。原片版权归 UP 主所有，使用画面前请先确认授权",
+        "kind": "素材",
+        "title": "素材·生活感拍照：【vlog】如果我的生活平平无奇又只有手机那么该如何拍vlog呢？"
+      },
+      {
+        "id": "imu3qm8ia",
+        "platform": "B站",
+        "tags": "手机摄影技巧,自动抓取",
+        "heat": 5,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV1Q64y1T7ox",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「手机摄影技巧」· 播放 666.6万 · UP 主 取景框看世界 · 搜于 B 站。取材方向：借它的机位与光线处理，用于你的日常/物品类图文的前期拍摄。原片版权归 UP 主所有，使用画面前请先确认授权",
+        "kind": "素材",
+        "title": "素材·手机摄影技巧：6分钟让你学会构图，拍照萌新变摄影大师！（手机摄影和相机摄影构图技巧）"
+      },
+      {
+        "id": "iau3qm8no",
+        "platform": "B站",
+        "tags": "出租屋改造,自动抓取",
+        "heat": 3,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV18t411B7pD",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「出租屋改造」· 播放 219.4万 · UP 主 五金少女 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
+        "kind": "选题",
+        "title": "【五金少女】爆改20㎡出租屋贫穷风！朋友们来开轰趴吧！"
+      },
+      {
+        "id": "iau3qm8h2",
+        "platform": "B站",
+        "tags": "打工人的一天,自动抓取",
+        "heat": 3,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV14L4F6jETv",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「打工人的一天」· 播放 23.7万 · UP 主 小岳来了24 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
+        "kind": "选题",
+        "title": "花39块带你感受上海打工人周末一天的快乐"
+      },
+      {
+        "id": "iau3qm869",
+        "platform": "B站",
+        "tags": "通勤日常,自动抓取",
+        "heat": 4,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV1L5411K7zT",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「通勤日常」· 播放 8.8万 · UP 主 眉毛尖儿 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
+        "kind": "选题",
+        "title": "【真·能上班穿】春季旗袍通勤穿搭lookbook"
+      },
+      {
+        "id": "iau3qm8jw",
+        "platform": "B站",
+        "tags": "一人食,自动抓取",
+        "heat": 4,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV1yo4y1v7m1",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「一人食」· 播放 272.5万 · UP 主 泡厨房的顾小胖 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
+        "kind": "选题",
+        "title": "九道下班超省事一锅出料理3.0版，吃饭还是懒点的好"
+      },
+      {
+        "id": "iau3qm79o",
+        "platform": "B站",
+        "tags": "独居生活,自动抓取",
+        "heat": 5,
+        "status": "待选",
+        "url": "https://www.bilibili.com/video/BV11ThX6TE2c",
+        "source": "bilibili-auto",
+        "source_date": "2026-11-05",
+        "created_at": "2026-11-05",
+        "note": "关键词「独居生活」· 播放 13.4万 · UP 主 晚儿纪实 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
+        "kind": "选题",
+        "title": "我独居五六年，跟大家说点实话！不要相信网上的精致独居生活…"
+      },
       {
         "id": "i1",
         "kind": "选题",
