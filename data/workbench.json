@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:44:51.318Z",
+  "updated_at": "2026-11-05T00:44:53.693Z",
   "tables": {
     "content_items": [
       {
@@ -173,25 +173,6 @@
         "shares": 0,
         "published_at": null,
         "notes": "商单 d1"
-      },
-      {
-        "id": "c11",
-        "title": "我的包里常备这 4 样",
-        "platform": "抖音",
-        "format": "视频",
-        "stage": "文案",
-        "topic": "干货清单",
-        "hook": "第 2 样救过我三次",
-        "owner": "枕冬",
-        "due_date": "2026-11-13",
-        "priority": 3,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": ""
       },
       {
         "id": "c12",
