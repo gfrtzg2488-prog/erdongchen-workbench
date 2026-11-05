@@ -1,25 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T01:55:57.741Z",
+  "updated_at": "2026-11-05T01:56:20.773Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m12",
-        "date": "2026-11-01",
-        "platform": "视频号",
-        "content_id": null,
-        "plays": 12600,
-        "likes": 510,
-        "comments": 41,
-        "saves": 314,
-        "shares": 75,
-        "followers": 46,
-        "feedback": "收藏",
-        "title": "今年最后一个月想做的 5 件事"
-      },
       {
         "id": "m14",
         "date": "2026-10-31",
