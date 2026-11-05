@@ -1,25 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T01:55:46.590Z",
+  "updated_at": "2026-11-05T01:55:50.716Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m8",
-        "date": "2026-11-02",
-        "platform": "抖音",
-        "content_id": null,
-        "plays": 56000,
-        "likes": 1780,
-        "comments": 204,
-        "saves": 600,
-        "shares": 352,
-        "followers": 240,
-        "feedback": "无感",
-        "title": "我的包里常备这 4 样"
-      },
       {
         "id": "m9",
         "date": "2026-11-02",
