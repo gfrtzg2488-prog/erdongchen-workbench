@@ -1,25 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:45:55.479Z",
+  "updated_at": "2026-11-05T00:46:17.400Z",
   "tables": {
     "content_items": [],
     "deals": [
-      {
-        "id": "d5",
-        "brand": "轻野户外",
-        "title": "露营装备清单",
-        "contact": "老周",
-        "type": "图文",
-        "amount": 9600,
-        "received": 9600,
-        "stage": "已交付",
-        "progress": 100,
-        "start_date": "2026-10-11",
-        "deadline": "2026-10-31",
-        "deliverables": "1 条图文\n1 条清单长图",
-        "brief": "不夸大参数，标注价格区间。",
-        "notes": "已交付，等待平台数据"
-      },
       {
         "id": "d6",
         "brand": "雾里茶事",
