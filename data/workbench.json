@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:45:45.613Z",
+  "updated_at": "2026-11-05T00:45:49.030Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c6",
-        "title": "这 5 件小物让我少打扫一半",
-        "platform": "小红书",
-        "format": "图文",
-        "stage": "已发布",
-        "topic": "干货清单",
-        "hook": "第 3 个真的后悔没早买",
-        "owner": "枕冬",
-        "due_date": "2026-11-01",
-        "priority": 1,
-        "plays": 128000,
-        "likes": 9400,
-        "comments": 820,
-        "saves": 6100,
-        "shares": 1200,
-        "published_at": "2026-11-01",
-        "notes": ""
-      },
       {
         "id": "c7",
         "title": "下雨天适合做的三件小事",
