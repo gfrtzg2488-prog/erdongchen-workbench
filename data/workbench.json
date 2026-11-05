@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T02:51:16.727Z",
+  "updated_at": "2026-11-05T02:51:20.034Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -148,20 +148,6 @@
         "note": "关键词「vlog拍摄」· 播放 177.8万 · UP 主 影视飓风 · 搜于 B 站。取材方向：借它的机位与光线处理，用于你的日常/物品类图文的前期拍摄。原片版权归 UP 主所有，使用画面前请先确认授权",
         "kind": "素材",
         "title": "素材·vlog拍摄：Vlog拍摄技巧大揭秘：拍好你的第一个Vlog"
-      },
-      {
-        "id": "iaudnnokq",
-        "platform": "B站",
-        "tags": "存钱日常,自动抓取",
-        "heat": 3,
-        "status": "待选",
-        "url": "https://www.bilibili.com/video/BV1Jtxx6gEqU",
-        "source": "bilibili-auto",
-        "source_date": "2026-11-05",
-        "created_at": "2026-11-05",
-        "note": "关键词「存钱日常」· 播放 2186 · UP 主 旋转牛马vlog · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
-        "kind": "选题",
-        "title": "已存7w|人一定要存钱存钱存钱！我将反复练习！"
       },
       {
         "id": "iaudnnoym",
