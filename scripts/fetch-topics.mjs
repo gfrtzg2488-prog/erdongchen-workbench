@@ -159,8 +159,9 @@ async function main(){
     if(push(assetList[i], '素材', assets)) assets++;
   }
 
-  // 自动条目只留最近 10 天，避免选题库无限增长；手动条目一条不动
-  const cutoff = new Date(nowCN.getTime() - 10 * 86400000).toISOString().slice(0, 10);
+  // 自动条目只留最近 3 天，避免选题库无限增长；手动条目一条不动
+  const days = Number(process.env.PRUNE_DAYS || 3);
+  const cutoff = new Date(nowCN.getTime() - days * 86400000).toISOString().slice(0, 10);
   const before = data.tables.ideas.length;
   data.tables.ideas = data.tables.ideas.filter(r => !(r.source === 'bilibili-auto' && r.source_date && r.source_date < cutoff));
 
