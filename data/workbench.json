@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:44:07.445Z",
+  "updated_at": "2026-11-05T00:44:15.501Z",
   "tables": {
     "content_items": [
       {
@@ -314,18 +314,7 @@
         "notes": "尾款到账，合作良好"
       }
     ],
-    "schedule": [
-      {
-        "id": "s18",
-        "date": "2026-11-26",
-        "time": "11:00",
-        "title": "下月内容排期",
-        "kind": "复盘",
-        "platform": "",
-        "status": "待办",
-        "sort": 0
-      }
-    ],
+    "schedule": [],
     "metrics": [
       {
         "id": "m2",
