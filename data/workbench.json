@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:45:43.101Z",
+  "updated_at": "2026-11-05T00:45:45.613Z",
   "tables": {
     "content_items": [
       {
@@ -59,25 +59,6 @@
         "shares": 2100,
         "published_at": "2026-10-30",
         "notes": ""
-      },
-      {
-        "id": "c9",
-        "title": "北岸民宿｜周末住进山里",
-        "platform": "小红书",
-        "format": "图文",
-        "stage": "发布",
-        "topic": "商单",
-        "hook": "推开窗就是雾和树",
-        "owner": "枕冬",
-        "due_date": "2026-11-10",
-        "priority": 1,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "商单 d4"
       }
     ],
     "deals": [
