@@ -1,27 +1,8 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:44:37.482Z",
+  "updated_at": "2026-11-05T00:44:51.318Z",
   "tables": {
     "content_items": [
-      {
-        "id": "c1",
-        "title": "通勤包里到底装了什么",
-        "platform": "小红书",
-        "format": "图文",
-        "stage": "文案",
-        "topic": "日常分享",
-        "hook": "早上 7:20 的包里，有一半是没用的",
-        "owner": "枕冬",
-        "due_date": "2026-11-06",
-        "priority": 1,
-        "plays": 0,
-        "likes": 0,
-        "comments": 0,
-        "saves": 0,
-        "shares": 0,
-        "published_at": null,
-        "notes": "拍 6 张平铺图"
-      },
       {
         "id": "c2",
         "title": "一人食晚餐的 10 分钟公式",
