@@ -1,25 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T01:56:20.773Z",
+  "updated_at": "2026-11-05T01:56:23.797Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m14",
-        "date": "2026-10-31",
-        "platform": "抖音",
-        "content_id": null,
-        "plays": 64600,
-        "likes": 1960,
-        "comments": 228,
-        "saves": 680,
-        "shares": 404,
-        "followers": 270,
-        "feedback": "收藏",
-        "title": "咖啡探店：巷子尽头的 8 平米"
-      },
       {
         "id": "m15",
         "date": "2026-10-31",
