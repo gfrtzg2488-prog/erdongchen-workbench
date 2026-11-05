@@ -164,6 +164,10 @@ async function main(){
   const cutoff = new Date(nowCN.getTime() - days * 86400000).toISOString().slice(0, 10);
   const before = data.tables.ideas.length;
   data.tables.ideas = data.tables.ideas.filter(r => !(r.source === 'bilibili-auto' && r.source_date && r.source_date < cutoff));
+  // 再按条数封顶，自动条目最多 24 条（最新在前），手动条目全留
+  const keepAuto = Number(process.env.KEEP_AUTO || 24);
+  let autoKept = 0;
+  data.tables.ideas = data.tables.ideas.filter(r => r.source === 'bilibili-auto' ? (autoKept++ < keepAuto) : true);
 
   const added = topics + assets;
   log('新增', topics, '条选题 /', assets, '条素材，库内', before, '→', data.tables.ideas.length, '条');
