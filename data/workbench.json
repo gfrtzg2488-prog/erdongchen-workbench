@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:44:28.207Z",
+  "updated_at": "2026-11-05T00:44:33.400Z",
   "tables": {
     "content_items": [
       {
@@ -248,22 +248,6 @@
         "deliverables": "1 条主图文\n2 条日常植入",
         "brief": "书店氛围为主，需出现 3 个书区。",
         "notes": "已收 30% 定金"
-      },
-      {
-        "id": "d3",
-        "brand": "半日花房",
-        "title": "花艺课体验视频",
-        "contact": "林半",
-        "type": "视频",
-        "amount": 8000,
-        "received": 4000,
-        "stage": "制作中",
-        "progress": 55,
-        "start_date": "2026-10-29",
-        "deadline": "2026-11-14",
-        "deliverables": "1 条 90s 视频\n1 条花絮",
-        "brief": "强调零基础可上手。",
-        "notes": "拍摄已完成，剪辑中"
       },
       {
         "id": "d5",
