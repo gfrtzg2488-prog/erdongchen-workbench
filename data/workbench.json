@@ -1,26 +1,9 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:46:17.400Z",
+  "updated_at": "2026-11-05T00:46:24.382Z",
   "tables": {
     "content_items": [],
-    "deals": [
-      {
-        "id": "d6",
-        "brand": "雾里茶事",
-        "title": "秋茶礼盒开箱",
-        "contact": "茶茶",
-        "type": "视频",
-        "amount": 5600,
-        "received": 5600,
-        "stage": "已回款",
-        "progress": 100,
-        "start_date": "2026-10-03",
-        "deadline": "2026-10-23",
-        "deliverables": "1 条 45s 开箱",
-        "brief": "突出礼盒包装与送礼场景。",
-        "notes": "尾款到账，合作良好"
-      }
-    ],
+    "deals": [],
     "schedule": [],
     "metrics": [
       {
