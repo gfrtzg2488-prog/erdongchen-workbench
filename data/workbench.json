@@ -1,25 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T01:55:50.716Z",
+  "updated_at": "2026-11-05T01:55:53.861Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m9",
-        "date": "2026-11-02",
-        "platform": "视频号",
-        "content_id": null,
-        "plays": 11400,
-        "likes": 480,
-        "comments": 38,
-        "saves": 296,
-        "shares": 70,
-        "followers": 44,
-        "feedback": "涨粉",
-        "title": "下雨天适合做的三件小事"
-      },
       {
         "id": "m11",
         "date": "2026-11-01",
