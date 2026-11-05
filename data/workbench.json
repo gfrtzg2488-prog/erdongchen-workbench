@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T00:44:15.501Z",
+  "updated_at": "2026-11-05T00:44:28.207Z",
   "tables": {
     "content_items": [
       {
@@ -264,22 +264,6 @@
         "deliverables": "1 条 90s 视频\n1 条花絮",
         "brief": "强调零基础可上手。",
         "notes": "拍摄已完成，剪辑中"
-      },
-      {
-        "id": "d4",
-        "brand": "北岸民宿",
-        "title": "周末山居民宿图文",
-        "contact": "舟舟",
-        "type": "组合",
-        "amount": 12000,
-        "received": 7200,
-        "stage": "待发布",
-        "progress": 75,
-        "start_date": "2026-10-25",
-        "deadline": "2026-11-10",
-        "deliverables": "1 条图文\n1 条视频\n1 组 Stories",
-        "brief": "窗景与早餐必须露出。",
-        "notes": "内容已过审，排期周五"
       },
       {
         "id": "d5",
