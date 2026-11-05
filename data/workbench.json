@@ -1,25 +1,11 @@
 {
   "v": 1,
-  "updated_at": "2026-11-05T01:55:53.861Z",
+  "updated_at": "2026-11-05T01:55:57.741Z",
   "tables": {
     "content_items": [],
     "deals": [],
     "schedule": [],
     "metrics": [
-      {
-        "id": "m11",
-        "date": "2026-11-01",
-        "platform": "抖音",
-        "content_id": null,
-        "plays": 57600,
-        "likes": 1870,
-        "comments": 216,
-        "saves": 640,
-        "shares": 378,
-        "followers": 255,
-        "feedback": "涨粉",
-        "title": "打工人早起挑战 Day 4"
-      },
       {
         "id": "m12",
         "date": "2026-11-01",
