@@ -84,7 +84,7 @@ async function collect(keywords){
     }catch(e){
       log('关键词「' + kw + '」失败：' + e.message);
     }
-    await sleep(900);
+    await sleep(1600);
   }
   return out;
 }
