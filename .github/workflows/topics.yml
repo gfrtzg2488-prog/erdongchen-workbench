@@ -4,6 +4,11 @@ on:
   schedule:
     # GitHub 用 UTC，这里 23:00 UTC = 北京时间次日 07:00
     - cron: '0 23 * * *'
+  push:
+    # 改了抓取脚本或本文件就立刻跑一次，方便验证
+    paths:
+      - 'scripts/fetch-topics.mjs'
+      - '.github/workflows/topics.yml'
   workflow_dispatch:
     inputs:
       max_topics:
