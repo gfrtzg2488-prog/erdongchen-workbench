@@ -12,9 +12,15 @@ const CN_OFFSET = 8 * 60; // 北京时间
 const nowCN = new Date(Date.now() + (CN_OFFSET + new Date().getTimezoneOffset()) * 60000);
 const ymd = d => d.toISOString().slice(0, 10);
 
-/* 关键词贴着账号定位：「日常分享 + 账号搭建 + 高频互动」 */
-const TOPIC_KEYWORDS = ['独居生活', '一人食', '通勤日常', '打工人的一天', '出租屋改造', '断舍离', '存钱日常', '周末安排', '小红书起号', '个人IP定位'];
-const ASSET_KEYWORDS = ['vlog拍摄', '手机摄影技巧', '剪辑技巧', '生活感拍照'];
+/* 五个内容分类，每个分类每天出一条选题；关键词贴着账号定位 */
+const CATEGORIES = [
+  { name: '玄学分享',   keywords: ['塔罗', '星座运势', '玄学', '转运'] },
+  { name: '日常分享',   keywords: ['日常vlog', '独居生活', '打工日常'] },
+  { name: '穿搭',       keywords: ['通勤穿搭', '秋冬穿搭', '小个子穿搭'] },
+  { name: '小确幸好物', keywords: ['好物分享', '提升幸福感的小物', '生活小物'] },
+  { name: '小配饰',     keywords: ['配饰分享', '项链', '耳环', '手链'] }
+];
+const ASSET_KEYWORDS = ['vlog拍摄', '手机摄影技巧', '剪辑技巧', '好物拍摄'];
 
 const log = (...a) => console.log('[topics]', ...a);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -36,12 +42,12 @@ function getJSON(url){
 
 async function search(keyword){
   const u = 'https://api.bilibili.com/x/web-interface/search/type?search_type=video&page=1&keyword=' + encodeURIComponent(keyword);
-  for(let attempt = 0; attempt < 2; attempt++){
+  for(let attempt = 0; attempt < 3; attempt++){
     try{
       const d = await getJSON(u);
       return (d.result || []).filter(v => v && v.bvid).slice(0, 4);
     }catch(e){
-      if(attempt === 0 && /412|429/.test(e.message)){ await sleep(2500); continue; }
+      if(attempt < 2 && /412|429/.test(e.message)){ await sleep(4000 + attempt * 3000); continue; }
       throw e;
     }
   }
@@ -49,12 +55,21 @@ async function search(keyword){
 }
 
 /* 标题里带这些词的，多半是夸大、诱导或卖课，不进库 */
-const SPAM = /月入|月赚|日入|躺赚|暴富|稳赚|无货源|0粉丝|零粉丝|一夜暴富|必看|速成|秘籍|带货|开店|主播|转行|求职|课程|训练营|全集|自学|面试/;
+const SPAM = /月入|月赚|日入|躺赚|暴富|稳赚|无货源|0粉丝|零粉丝|一夜暴富|必看|速成|秘籍|带货|开店|主播|转行|求职|课程|训练营|全集|自学|面试|保姆级|副业|从零|全套|合集/;
+/* 游戏 / 二次元内容与账号定位无关 */
+const GAME = /原神|崩坏|抽卡|卡池|蛋仔|王者荣耀|星铁|和平精英|第五人格|明日方舟|英雄联盟|永劫|塞尔达|我的世界|游戏实况|攻略解说/;
 
 const clean = s => String(s || '')
   .replace(/<[^>]+>/g, '')
   .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+  .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}\u{2B00}-\u{2BFF}]/gu, '')
+  .replace(/[|｜]{2,}/g, '｜').replace(/[!！‼]{2,}/g, '!')
   .replace(/\s+/g, ' ').trim();
+
+const short = (s, n) => {
+  const t = clean(s);
+  return t.length > n ? t.slice(0, n).replace(/[|｜·,、\s]+$/, '') + '…' : t;
+};
 
 const wan = n => {
   const v = Number(n) || 0;
@@ -68,18 +83,23 @@ function newId(prefix){
 /* 只描述可借鉴的结构，不编造内容与数据 */
 function angle(item){
   const k = item.keyword || '';
-  if(/运营|定位|选题|涨粉|账号/.test(k)) return '借它的「问题 → 拆解 → 可执行步骤」结构，换成你自己账号的真实过程与数据';
+  const cat = item.category || '';
   if(/拍摄|摄影/.test(k)) return '借它的机位与光线处理，用于你的日常/物品类图文的前期拍摄';
   if(/剪辑|后期/.test(k)) return '借它的节奏与转场思路，用于 45–90 秒的日常视频';
+  if(cat === '穿搭') return '借它的「场景 → 三套方案 → 价格区间」结构，换成你的衣柜和身材条件';
+  if(cat === '小配饰') return '借它的「单品特写 + 搭配对比」拍法，做一组 5–7 张的细节图';
+  if(cat === '小确幸好物') return '借它的「痛点 → 使用场景 → 值不值」写法，价格和体验都要写自己的真实感受';
+  if(cat === '玄学分享') return '借它的「现象 → 解释 → 一个小动作」结构，落到可验证的生活建议，不做绝对化断言';
+  if(cat === '日常分享' || /日常|vlog|独居|打工/.test(k)) return '借它的「时间线 + 一个反转」叙事，换成你的真实日常片段';
   return '看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题';
 }
 
-async function collect(keywords){
+async function collect(keywords, category){
   const out = [];
   for(const kw of keywords){
     try{
       const list = await search(kw);
-      list.forEach(v => out.push({ ...v, keyword: kw }));
+      list.forEach(v => out.push({ ...v, keyword: kw, category: category || '' }));
       log('关键词「' + kw + '」命中', list.length, '条');
     }catch(e){
       log('关键词「' + kw + '」失败：' + e.message);
@@ -98,14 +118,17 @@ async function main(){
   const seenUrl = new Set(ideas.map(r => (r.url || '').trim()).filter(Boolean));
   const seenTitle = new Set(ideas.map(r => (r.title || '').trim()));
 
-  const topicPool = await collect(TOPIC_KEYWORDS);
-  const assetPool = await collect(ASSET_KEYWORDS);
-  if(!topicPool.length && !assetPool.length){
+  const pools = [];
+  for(const c of CATEGORIES){
+    pools.push({ cat: c.name, list: await collect(c.keywords, c.name) });
+  }
+  const assetPool = await collect(ASSET_KEYWORDS, '');
+  if(!pools.some(p => p.list.length) && !assetPool.length){
     throw new Error('B 站接口没有返回可用结果');
   }
 
   const sortByPlay = (a, b) => (Number(b.play) || 0) - (Number(a.play) || 0);
-  /* 每个关键词轮流取，避免一整批选题都来自同一个词 */
+  /* 素材按关键词轮流取，避免全来自同一个词 */
   const interleave = pool => {
     const groups = new Map();
     pool.forEach(v => {
@@ -120,31 +143,32 @@ async function main(){
     }
     return out;
   };
-  const topicList = interleave(topicPool);
+  pools.forEach(p => p.list.sort(sortByPlay));
   const assetList = interleave(assetPool);
 
-  const push = (it, kind, idx) => {
+  const push = (it, kind, idx, cat) => {
     const url = 'https://www.bilibili.com/video/' + it.bvid;
-    const title = clean(it.title).slice(0, 46);
-    if(!title || SPAM.test(title) || seenUrl.has(url) || seenTitle.has(title)) return false;
+    const title = short(it.title, 40);
+    if(!title || SPAM.test(title) || GAME.test(title) || seenUrl.has(url) || seenTitle.has(title)) return false;
+    const play = Number(it.play) || 0;
     const base = {
       id: newId(kind === '选题' ? 'ia' : 'im'),
       platform: 'B站',
-      tags: [it.keyword, '自动抓取'].join(','),
-      heat: idx === 0 ? 5 : idx < 3 ? 4 : 3,
+      tags: [cat, it.keyword, '自动抓取'].filter(Boolean).join(','),
+      heat: play >= 1000000 ? 5 : play >= 300000 ? 4 : idx === 0 ? 4 : 3,
       status: '待选',
       url,
       source: 'bilibili-auto',
       source_date: today,
       created_at: today,
-      note: '关键词「' + it.keyword + '」· 播放 ' + wan(it.play) + ' · UP 主 ' + clean(it.author || '-') +
-            ' · 搜于 B 站。取材方向：' + angle(it)
+      note: (cat ? '分类「' + cat + '」· ' : '') + '关键词「' + it.keyword + '」· 播放 ' + wan(play) +
+            ' · UP 主 ' + clean(it.author || '-') + ' · 搜于 B 站。取材方向：' + angle(it)
     };
     if(kind === '素材'){
       ideas.unshift({ ...base, kind, title: ('素材·' + it.keyword + '：' + title).slice(0, 50),
         note: base.note + '。原片版权归 UP 主所有，使用画面前请先确认授权' });
     }else{
-      ideas.unshift({ ...base, kind, title });
+      ideas.unshift({ ...base, kind, category: cat, title });
     }
     seenUrl.add(url);
     seenTitle.add(title);
@@ -152,11 +176,15 @@ async function main(){
   };
 
   let topics = 0, assets = 0;
-  for(let i = 0; i < topicList.length && topics < MAX_TOPICS; i++){
-    if(push(topicList[i], '选题', topics)) topics++;
+  /* 每个分类出一条，凑不够再看下一个分类 */
+  for(const p of pools){
+    for(const it of p.list){
+      if(topics >= MAX_TOPICS) break;
+      if(push(it, '选题', topics, p.cat)){ topics++; break; }
+    }
   }
   for(let i = 0; i < assetList.length && assets < MAX_ASSETS; i++){
-    if(push(assetList[i], '素材', assets)) assets++;
+    if(push(assetList[i], '素材', assets, '')) assets++;
   }
 
   // 自动条目只留最近 3 天，避免选题库无限增长；手动条目一条不动
