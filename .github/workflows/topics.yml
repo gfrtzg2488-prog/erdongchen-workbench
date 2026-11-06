@@ -49,7 +49,7 @@ jobs:
         run: |
           git config user.name "topics-bot"
           git config user.email "topics-bot@users.noreply.github.com"
-          git add data/workbench.json scripts/fetch-topics.mjs
+          git add data/workbench.json
           if git diff --cached --quiet; then
             echo "无改动，跳过提交"
             exit 0
@@ -57,7 +57,12 @@ jobs:
           git commit -m "chore: 自动抓取 B 站热门选题 $(date -u -d '+8 hours' +%Y-%m-%d)"
           for i in 1 2 3; do
             if git push; then exit 0; fi
-            git pull --rebase origin main
+            echo "推送被拒，重置到最新 main 后重抓"
+            git fetch origin main
+            git reset --hard origin/main
+            node scripts/fetch-topics.mjs
+            git add data/workbench.json
+            git commit -m "chore: 自动抓取 B 站热门选题 $(date -u -d '+8 hours' +%Y-%m-%d)" || exit 0
             sleep 5
           done
           echo "推送失败" >&2
