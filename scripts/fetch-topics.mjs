@@ -151,11 +151,16 @@ async function main(){
   const push = (it, kind, idx, cat) => {
     const url = 'https://www.bilibili.com/video/' + it.bvid;
     const title = short(it.title, 40);
-    if(!title || SPAM.test(title) || GAME.test(title) || seenUrl.has(url) || seenTitle.has(title)) return false;
+    if(!title || SPAM.test(title) || GAME.test(title)) return false;
     if(cat === '玄学分享' && XUAN_CLAIM.test(title)) return false;
+    const isAsset = kind === '素材';
+    const finalTitle = isAsset ? ('素材·' + it.keyword + '：' + title).slice(0, 50) : title;
+    if(seenTitle.has(finalTitle)) return false;
     const play = Number(it.play) || 0;
     const base = {
-      id: newId(kind === '选题' ? 'ia' : 'im'),
+      id: newId(isAsset ? 'im' : 'ia'),
+      kind,
+      title: finalTitle,
       platform: 'B站',
       tags: [cat, it.keyword, '自动抓取'].filter(Boolean).join(','),
       heat: play >= 1000000 ? 5 : play >= 300000 ? 4 : idx === 0 ? 4 : 3,
@@ -165,16 +170,22 @@ async function main(){
       source_date: today,
       created_at: today,
       note: (cat ? '分类「' + cat + '」· ' : '') + '关键词「' + it.keyword + '」· 播放 ' + wan(play) +
-            ' · UP 主 ' + clean(it.author || '-') + ' · 搜于 B 站。取材方向：' + angle(it)
+            ' · UP 主 ' + clean(it.author || '-') + ' · 搜于 B 站。取材方向：' + angle(it) +
+            (isAsset ? '。原片版权归 UP 主所有，使用画面前请先确认授权' : '')
     };
-    if(kind === '素材'){
-      ideas.unshift({ ...base, kind, title: ('素材·' + it.keyword + '：' + title).slice(0, 50),
-        note: base.note + '。原片版权归 UP 主所有，使用画面前请先确认授权' });
-    }else{
-      ideas.unshift({ ...base, kind, category: cat, title });
+    if(cat) base.category = cat;
+    /* 同一条视频已在库里：只刷新说明与热度，不重复入库，也不覆盖你的状态 */
+    const prev = ideas.find(r => r.source === 'bilibili-auto' && r.kind === kind && r.title === finalTitle);
+    if(prev){
+      Object.assign(prev, { note: base.note, heat: base.heat, tags: base.tags, url });
+      if(cat) prev.category = cat;
+      seenTitle.add(finalTitle);
+      seenUrl.add(url);
+      return false;
     }
+    ideas.unshift(base);
     seenUrl.add(url);
-    seenTitle.add(title);
+    seenTitle.add(finalTitle);
     return true;
   };
 
