@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T03:12:21.814Z",
+  "updated_at": "2026-11-06T03:12:41.819Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -399,9 +399,10 @@
         "platform": "小红书",
         "tags": "改造,租房,干货",
         "heat": 4,
-        "status": "采纳",
+        "status": "待选",
         "url": "",
-        "note": "需拍 before/after"
+        "note": "需拍 before/after",
+        "updated_at": "2026-11-06T03:12:39.745Z"
       },
       {
         "id": "i5",
