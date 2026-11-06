@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T03:24:46.918Z",
+  "updated_at": "2026-11-06T03:24:50.099Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -442,17 +442,6 @@
         "status": "采纳",
         "url": "https://example.com/palette",
         "note": "米白 #F3EFE6 / 赤陶 #B04A2B"
-      },
-      {
-        "id": "i12",
-        "kind": "素材",
-        "title": "剪辑卡点 BGM 清单",
-        "platform": "抖音",
-        "tags": "音乐,剪辑",
-        "heat": 3,
-        "status": "待选",
-        "url": "https://example.com/bgm",
-        "note": "10 首轻鼓点"
       },
       {
         "id": "i13",
