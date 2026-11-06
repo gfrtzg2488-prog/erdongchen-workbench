@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T06:47:00.331Z",
+  "updated_at": "2026-11-06T08:41:10.424Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -322,9 +322,10 @@
         "platform": "小红书",
         "tags": "图片,书店,商单",
         "heat": 3,
-        "status": "采纳",
+        "status": "待选",
         "url": "https://example.com/bookstore",
-        "note": "有理书店商单参考"
+        "note": "有理书店商单参考",
+        "updated_at": "2026-11-06T08:41:08.205Z"
       }
     ]
   }
