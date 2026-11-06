@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T03:13:02.107Z",
+  "updated_at": "2026-11-06T03:13:09.864Z",
   "tables": {
     "content_items": [
       {
@@ -498,9 +498,10 @@
         "platform": "小红书",
         "tags": "图片,民宿,商单",
         "heat": 3,
-        "status": "已用",
+        "status": "待选",
         "url": "https://example.com/minsu",
-        "note": "北岸民宿商单用"
+        "note": "北岸民宿商单用",
+        "updated_at": "2026-11-06T03:13:07.876Z"
       },
       {
         "id": "i10",
