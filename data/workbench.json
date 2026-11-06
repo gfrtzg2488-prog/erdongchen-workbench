@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T06:46:27.739Z",
+  "updated_at": "2026-11-06T06:46:32.451Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -156,20 +156,6 @@
         "kind": "选题",
         "category": "玄学分享",
         "title": "霉运清除 你即将开始转运"
-      },
-      {
-        "id": "imenn9bsf",
-        "platform": "B站",
-        "tags": "剪辑技巧,自动抓取",
-        "heat": 3,
-        "status": "待选",
-        "url": "https://www.bilibili.com/video/BV1bSxZ6LEDc",
-        "source": "bilibili-auto",
-        "source_date": "2026-11-06",
-        "created_at": "2026-11-06",
-        "note": "关键词「剪辑技巧」· 播放 115 · UP 主 跟着沐阳学剪辑 · 搜于 B 站。取材方向：借它的节奏与转场思路，用于 45–90 秒的日常视频。原片版权归 UP 主所有，使用画面前请先确认授权",
-        "kind": "素材",
-        "title": "素材·剪辑技巧：剪辑教程 | 打关键帧的小技巧，这一招很实用！"
       },
       {
         "id": "imenn9bdw",
