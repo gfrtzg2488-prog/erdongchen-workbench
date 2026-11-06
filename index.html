@@ -529,6 +529,7 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
     <div class="tb-r">
       <div class="clock" id="clock"></div>
       <button class="btn ghost sm" id="dataBtn" title="数据连接与备份">数据</button>
+      <button class="btn ghost sm" id="aiBtn" title="AI 写作设置">AI</button>
       <span class="sync" id="sync"><i></i><span>连接中</span></span>
       <button class="btn primary" id="newBtn"></button>
     </div>
@@ -688,7 +689,8 @@ const ICON_PATHS = {
   sparkle:'<path d="M12 3.5 13.8 9l5.2 1.8-5.2 1.8L12 18l-1.8-5.4L5 10.8 10.2 9 12 3.5Z"/>',
   clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   grip:'<circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/>',
-  tag:'<path d="M4 11.2V4.6h6.6L20 13.8 13.8 20 4 11.2Z"/><circle cx="8" cy="8" r="1.2"/>'
+  tag:'<path d="M4 11.2V4.6h6.6L20 13.8 13.8 20 4 11.2Z"/><circle cx="8" cy="8" r="1.2"/>',
+  ai:'<path d="M11 4.5 12.4 8.8 16.7 10.2 12.4 11.6 11 15.9 9.6 11.6 5.3 10.2 9.6 8.8 11 4.5Z"/><path d="M18 15.4 18.7 17.5 20.8 18.2 18.7 18.9 18 21 17.3 18.9 15.2 18.2 17.3 17.5 18 15.4Z"/>'
 };
 function icon(name, size){
   return '<svg viewBox="0 0 24 24" width="'+(size||16)+'" height="'+(size||16)+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICON_PATHS[name]||'')+'</svg>';
@@ -2091,6 +2093,7 @@ function renderLibrary(){
         '<div class="icf">'+heatDots(x.heat)+statusBadge(x.status)+
           (x.url?'<a class="link" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+
           '<div class="acts">'+
+            '<button class="iconbtn" data-act="idea-draft" data-id="'+esc(x.id)+'" aria-label="AI 写初稿">'+icon('ai',12)+'</button>'+
             '<button class="iconbtn" data-act="swap-status" data-id="'+esc(x.id)+'" aria-label="改状态">'+icon('check',12)+'</button>'+
             '<button class="iconbtn" data-act="swap-tags" data-id="'+esc(x.id)+'" aria-label="换标签">'+icon('tag',12)+'</button>'+
             '<button class="iconbtn" data-act="idea-to-content" data-id="'+esc(x.id)+'" aria-label="转内容">'+icon('sparkle',12)+'</button>'+
@@ -2151,7 +2154,8 @@ function openIdeaPreview(id){
         '<div class="brief">'+(fullNote ? esc(fullNote) : '暂无备注')+'</div>'+
         (x.url ? '<div class="sec-t">参考原片</div><a class="link" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url)+'</a>' : '')+
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:16px">'+
-          '<button class="btn primary" data-act="idea-to-content" data-id="'+esc(x.id)+'">转内容</button>'+
+          '<button class="btn primary" data-act="idea-draft" data-id="'+esc(x.id)+'">'+icon('ai',12)+' AI 写初稿</button>'+
+          '<button class="btn" data-act="idea-to-content" data-id="'+esc(x.id)+'">转内容</button>'+
           '<button class="btn" data-act="swap-tags" data-id="'+esc(x.id)+'">换标签</button>'+
           '<button class="btn" data-act="edit-idea" data-id="'+esc(x.id)+'">编辑</button>'+
         '</div>'+
@@ -2223,6 +2227,289 @@ function openStatusSwap(id){
       closeModal(); renderAll(); toast('状态已改为「'+b.dataset.s+'」');
     }catch(err){ toast((err&&err.message)||'保存失败', true); busy = false; }
   });
+}
+
+/* ================= AI 写初稿 ================= */
+/* 浏览器直连兼容 OpenAI 格式的接口；Key 存在本机 localStorage，不进仓库、不上线。
+   已确认这些接口允许跨域直连；没填 Key 时自动降级成本地模板。 */
+const AI_PROVIDER_LS = 'zd_ai_provider';
+const AI_KEY_LS = 'zd_ai_key';
+const AI_MODEL_LS = 'zd_ai_model';
+const AI_URL_LS = 'zd_ai_url';
+const AI_PRESET = {
+  dashscope:  { label:'通义千问',  url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', model:'qwen-turbo', note:'阿里云百炼，新用户有免费额度' },
+  siliconflow:{ label:'硅基流动',  url:'https://api.siliconflow.cn/v1/chat/completions', model:'Qwen/Qwen2.5-7B-Instruct', note:'注册送额度，有无免费小模型可直接用' },
+  deepseek:   { label:'DeepSeek',  url:'https://api.deepseek.com/chat/completions', model:'deepseek-chat', note:'按量付费，中文写作质量好' },
+  moonshot:   { label:'Kimi',      url:'https://api.moonshot.cn/v1/chat/completions', model:'moonshot-v1-8k', note:'按量付费' },
+  custom:     { label:'自定义',    url:'', model:'', note:'填任意兼容 OpenAI 的 /chat/completions 地址' }
+};
+function aiLS(k, d){ try{ return localStorage.getItem(k) || d; }catch(e){ return d; } }
+function aiProvider(){ const p = aiLS(AI_PROVIDER_LS, 'dashscope'); return AI_PRESET[p] ? p : 'dashscope'; }
+function aiCfg(){
+  const p = aiProvider();
+  const pre = AI_PRESET[p];
+  return {
+    provider: p,
+    url: p === 'custom' ? aiLS(AI_URL_LS, '') : pre.url,
+    model: aiLS(AI_MODEL_LS, '') || pre.model,
+    key: aiLS(AI_KEY_LS, '')
+  };
+}
+function aiKey(){ return aiCfg().key; }
+function aiModel(){ return aiCfg().model; }
+
+function aiKindOf(x){
+  const cat = (x.category || '') + ',' + (x.tags || '');
+  if(x.kind === '素材') return '拍摄素材清单';
+  if(/穿搭|配饰/.test(cat)) return '小红书图文';
+  if(/日常|好物|玄学/.test(cat)) return '短视频口播';
+  return '小红书图文';
+}
+
+function aiPrompt(x, kind, extra){
+  const shape = kind === '短视频口播'
+    ? '【开场 3 秒】一句钩子\n【分镜】3-4 个镜头，每个写「画面 + 口播」\n【结尾】一句互动提问'
+    : kind === '拍摄素材清单'
+    ? '【必拍画面】6-8 条，写清拍什么\n【机位与光线】3 条\n【道具】清单\n【注意】版权与肖像提示'
+    : '【标题备选】3 条，每条不超过 20 字\n【正文】300-500 字，分 3-5 段，第一句是钩子\n【标签】3-5 个，用 # 开头\n【互动】一句提问，放在正文最后';
+  return '你是自媒体账号「枕冬」的写作助手。账号定位：日常分享 + 高频互动话题，语气像朋友聊天。\n' +
+    '选题：' + (x.title || '') + '\n' +
+    '类型：' + (x.kind || '选题') + '｜分类：' + (x.category || '未分类') + '｜平台：' + (x.platform || '小红书') + '\n' +
+    '标签：' + (x.tags || '无') + '\n' +
+    '参考备注：' + (x.note || '无') + '\n' +
+    '稿件类型：' + kind + '\n' +
+    (extra ? '额外要求：' + extra + '\n' : '') +
+    '\n输出结构：\n' + shape + '\n\n' +
+    '硬性要求：\n' +
+    '1. 简体中文，短句，口语化，避免书面腔和空洞形容词\n' +
+    '2. 不虚构销量、库存、粉丝数、平台数据、他人评价\n' +
+    '3. 不使用「最」「第一」「绝对」「全网最低」「顶级」等绝对化用语\n' +
+    '4. 不承诺任何效果，不做健康、财运、感情方面的指导\n' +
+    '5. 不编造具体品牌、价格、地址\n' +
+    '6. 最后单独一行写「（草稿，待人工确认）」\n' +
+    '只输出稿件正文，不要解释思路。';
+}
+
+function localDraft(x, kind, extra){
+  const t = x.title || '未命名选题';
+  const tg = (x.tags || '').split(',').map(s=>s.trim()).filter(Boolean);
+  const tail = '\n\n' + (tg.length ? '# ' + tg.map(s=>'#'+s).join(' ') + '\n\n' : '') +
+    (extra ? '（你的额外要求：' + extra + '）\n\n' : '') + '（草稿，待人工确认）';
+  if(kind === '短视频口播'){
+    return '【开场 3 秒】\n（写一句让人停下来的话，围绕「' + t + '」）\n\n' +
+      '【分镜】\n1. 画面：…　口播：…\n2. 画面：…　口播：…\n3. 画面：…　口播：…\n\n' +
+      '【结尾】\n（一句提问，引导评论）' + tail;
+  }
+  if(kind === '拍摄素材清单'){
+    return '【必拍画面】\n1. …\n2. …\n3. …\n4. …\n5. …\n6. …\n\n' +
+      '【机位与光线】\n1. …\n2. …\n3. …\n\n' +
+      '【道具】\n- …\n- …\n\n' +
+      '【注意】画面前请确认授权，避免出现他人正脸与可识别的私人空间' + tail;
+  }
+  return '【标题备选】\n1. …\n2. …\n3. …\n\n' +
+    '【正文】\n（第一段：钩子，围绕「' + t + '」）\n\n（第二段：具体场景和细节）\n\n（第三段：一点自己的感受或反转）\n\n【互动】\n（一句提问，引导评论）' + tail;
+}
+
+async function callAI(prompt, opt){
+  const cfg = aiCfg();
+  const key = (opt && opt.key) || cfg.key;
+  const model = (opt && opt.model) || cfg.model;
+  const url = (opt && opt.url) || cfg.url;
+  if(!url) throw new Error('接口地址为空');
+  let res;
+  try{
+    res = await fetch(url, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + key },
+      body: JSON.stringify({
+        model,
+        messages:[{ role:'user', content: prompt }],
+        temperature: 0.8,
+        max_tokens: 1200
+      })
+    });
+  }catch(err){
+    throw new Error('网络或跨域失败，检查网络或换一个服务商');
+  }
+  if(!res.ok){
+    let msg = '接口返回 ' + res.status;
+    try{
+      const j = await res.json();
+      msg = (j && j.error && j.error.message) || (j && j.message) || msg;
+    }catch(e){}
+    if(res.status === 401) msg = 'Key 无效或已过期';
+    if(res.status === 429) msg = '调用太频繁或免费额度用完，稍后再试';
+    throw new Error(msg);
+  }
+  const j = await res.json();
+  const txt = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '').trim();
+  if(!txt) throw new Error('模型没有返回内容');
+  return txt;
+}
+
+function openAIPanel(){
+  const cfg = aiCfg();
+  const provOpts = Object.keys(AI_PRESET).map(p=>
+    '<option value="'+p+'"'+(p===cfg.provider?' selected':'')+'>'+esc(AI_PRESET[p].label)+'</option>').join('');
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">AI / 写初稿</span><h3>AI 写作设置</h3>' +
+      '<p class="sub">用自己的模型 Key，只存在这台设备的浏览器里</p></div>' +
+      '<button class="m-close" data-close aria-label="关闭">' + icon('x') + '</button></div>' +
+    '<div class="m-body">' +
+      '<div class="form-grid">' +
+        '<div class="f"><label>服务商</label><select id="aiProv">' + provOpts + '</select>' +
+          '<span class="hint" id="aiProvNote">' + esc(AI_PRESET[cfg.provider].note) + '</span></div>' +
+        '<div class="f"><label>模型</label>' +
+          '<input id="aiModelIn" value="' + esc(cfg.model) + '" placeholder="模型名"></div>' +
+        '<div class="f full"><label>API Key</label>' +
+          '<input id="aiKeyIn" type="password" autocomplete="off" placeholder="粘贴 Key" value="' + esc(cfg.key) + '">' +
+          '<span class="hint">只保存在本机浏览器，不会写进代码或仓库</span></div>' +
+        '<div class="f full" id="aiUrlWrap" style="display:' + (cfg.provider === 'custom' ? 'block' : 'none') + '">' +
+          '<label>接口地址</label><input id="aiUrlIn" value="' + esc(aiLS(AI_URL_LS, '')) + '" placeholder="https://…/v1/chat/completions"></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap">' +
+        '<button class="btn" id="aiTest">测试连接</button>' +
+        (cfg.key ? '<button class="btn danger" id="aiClear">清除 Key</button>' : '') +
+      '</div>' +
+      '<p class="hint" id="aiState" style="margin-top:10px">没填 Key 也能用，会降级成本地模板框架。</p>' +
+    '</div>' +
+    '<div class="m-foot"><button class="btn" data-close>取消</button>' +
+      '<button class="btn primary" id="aiSave">保存</button></div>', true);
+  const state = $('#aiState');
+  const provSel = $('#aiProv');
+  const modelIn = $('#aiModelIn');
+  provSel.onchange = ()=>{
+    const p = provSel.value;
+    const pre = AI_PRESET[p];
+    $('#aiProvNote').textContent = pre.note;
+    modelIn.value = pre.model;
+    $('#aiUrlWrap').style.display = p === 'custom' ? 'block' : 'none';
+    state.textContent = '';
+  };
+  $('#aiTest').onclick = async ()=>{
+    const p = provSel.value;
+    const key = ($('#aiKeyIn').value || '').trim();
+    const model = (modelIn.value || '').trim() || AI_PRESET[p].model;
+    const url = p === 'custom' ? ($('#aiUrlIn').value || '').trim() : AI_PRESET[p].url;
+    if(!key){ state.textContent = '先填 Key 再测试'; return; }
+    if(!url){ state.textContent = '填一下接口地址'; return; }
+    const b = $('#aiTest');
+    b.disabled = true;
+    state.textContent = '正在连接 ' + model + '…';
+    try{
+      const r = await callAI('只回复「连接正常」四个字。', { key, model, url });
+      state.textContent = '连接正常：' + r.slice(0, 40);
+    }catch(err){
+      state.textContent = '连接失败：' + ((err && err.message) || '未知错误');
+    }finally{ b.disabled = false; }
+  };
+  $('#aiSave').onclick = ()=>{
+    const p = provSel.value;
+    try{
+      localStorage.setItem(AI_PROVIDER_LS, p);
+      localStorage.setItem(AI_KEY_LS, ($('#aiKeyIn').value || '').trim());
+      localStorage.setItem(AI_MODEL_LS, ($('#aiModelIn').value || '').trim() || AI_PRESET[p].model);
+      if(p === 'custom') localStorage.setItem(AI_URL_LS, ($('#aiUrlIn').value || '').trim());
+      closeModal();
+      toast('AI 设置已保存');
+    }catch(e){ toast('保存失败', true); }
+  };
+  const clr = $('#aiClear');
+  if(clr) clr.onclick = ()=>{
+    try{
+      localStorage.removeItem(AI_KEY_LS);
+      localStorage.removeItem(AI_MODEL_LS);
+      localStorage.removeItem(AI_URL_LS);
+    }catch(e){}
+    closeModal();
+    toast('已清除 Key，将使用本地模板');
+  };
+}
+
+function openIdeaDraft(id){
+  const x = Store.data.ideas.find(i=>i.id===id);
+  if(!x) return;
+  const kind = aiKindOf(x);
+  const hasKey = !!aiKey();
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">AI / 写初稿</span><h3>' + esc(x.title) + '</h3>' +
+      '<div class="sub">生成后可逐句修改，再存入内容库</div></div>' +
+      '<button class="m-close" data-close aria-label="关闭">' + icon('x') + '</button></div>' +
+    '<div class="m-body">' +
+      '<div class="form-grid">' +
+        '<div class="f"><label>稿件类型</label><select id="dKind">' +
+          ['小红书图文','短视频口播','拍摄素材清单'].map(k=>'<option'+(k===kind?' selected':'')+'>'+esc(k)+'</option>').join('') +
+        '</select></div>' +
+        '<div class="f"><label>额外要求（可留空）</label>' +
+          '<input id="dExtra" placeholder="例如：更克制一点 / 加一段自嘲"></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap">' +
+        '<button class="btn primary" id="dGen">' + icon('ai',12) + ' AI 生成初稿</button>' +
+        '<span class="hint" id="dTip">' + (hasKey ? '将调用 ' + esc(aiModel()) + '，生成后可直接改' : '未配置 Key，将用本地模板生成框架') + '</span>' +
+      '</div>' +
+      '<div class="f" style="margin-top:14px"><label>初稿（可直接修改）</label>' +
+        '<textarea id="dOut" rows="12" placeholder="点上面的按钮生成，或自己先写"></textarea></div>' +
+      '<p class="hint" style="margin-top:8px">AI 只提供结构参考，事实、价格、体验请自己核实；对外发送前标注「待人工确认」。</p>' +
+    '</div>' +
+    '<div class="m-foot"><button class="btn" data-close>取消</button>' +
+      '<button class="btn primary" id="dSave">存入内容库</button></div>', true);
+  const g = $('#dGen');
+  const out = $('#dOut');
+  const tip = $('#dTip');
+  g.onclick = async ()=>{
+    const k = $('#dKind').value;
+    const extra = ($('#dExtra').value || '').trim();
+    if(!aiKey()){
+      out.value = localDraft(x, k, extra);
+      tip.textContent = '已用本地模板生成，可直接在下面改写';
+      out.focus();
+      return;
+    }
+    g.disabled = true;
+    const old = g.innerHTML;
+    g.textContent = '生成中…';
+    tip.textContent = '正在调用 ' + aiModel() + '…';
+    try{
+      out.value = await callAI(aiPrompt(x, k, extra));
+      tip.textContent = '已生成，按自己的语气改完再存';
+    }catch(err){
+      tip.textContent = '生成失败：' + ((err && err.message) || '未知错误') + '；可先用本地模板';
+      toast('AI 生成失败：' + ((err && err.message) || '未知错误'), true);
+      g.innerHTML = old;
+      g.disabled = false;
+      return;
+    }
+    g.innerHTML = old;
+    g.disabled = false;
+  };
+  $('#dSave').onclick = async ()=>{
+    const txt = (out.value || '').trim();
+    if(!txt){ toast('先写点内容再保存', true); return; }
+    const b = $('#dSave');
+    b.disabled = true;
+    try{
+      await createRow('content_items', {
+        title: x.title,
+        platform: x.platform || '小红书',
+        format: $('#dKind').value === '短视频口播' ? '视频' : '图文',
+        stage:'文案',
+        topic: x.kind === '话题' ? '互动话题' : '日常分享',
+        hook:'',
+        owner:'枕冬',
+        due_date: addDays(todayStr(), 5),
+        priority: 2,
+        plays:0, likes:0, comments:0, saves:0, shares:0,
+        notes: txt
+      });
+      await updateRow('ideas', id, { status:'已用' });
+      closeModal();
+      renderAll();
+      toast('已存入内容库的「文案」列');
+    }catch(err){
+      toast((err && err.message) || '保存失败', true);
+      b.disabled = false;
+    }
+  };
 }
 
 function openIdeaForm(row){
@@ -2456,6 +2743,11 @@ document.addEventListener('click', async e=>{
         openIdeaPreview(id);
         break;
       }
+      case 'idea-draft': {
+        const it = Store.data.ideas.find(x=>x.id===id);
+        if(it) openIdeaDraft(id);
+        break;
+      }
       case 'swap-status': {
         const it = Store.data.ideas.find(x=>x.id===id);
         if(it) openStatusSwap(id);
@@ -2499,6 +2791,7 @@ $('#newBtn').addEventListener('click', ()=>{
 });
 
 $('#dataBtn').addEventListener('click', openDataPanel);
+$('#aiBtn').addEventListener('click', openAIPanel);
 $('#sync').addEventListener('click', ()=>{
   if(Store.mode === 'cloud') syncNow(true);
   else openDataPanel();
