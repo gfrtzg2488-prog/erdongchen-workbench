@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T03:24:43.191Z",
+  "updated_at": "2026-11-06T03:24:46.918Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -431,17 +431,6 @@
         "url": "",
         "note": "已转为内容",
         "updated_at": "2026-11-06T03:12:14.046Z"
-      },
-      {
-        "id": "i10",
-        "kind": "素材",
-        "title": "手冲咖啡分镜参考",
-        "platform": "抖音",
-        "tags": "视频,分镜,商单",
-        "heat": 4,
-        "status": "采纳",
-        "url": "https://example.com/coffee",
-        "note": "山也咖啡商单参考"
       },
       {
         "id": "i11",
