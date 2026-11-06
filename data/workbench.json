@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T02:43:13.499Z",
+  "updated_at": "2026-11-06T02:43:16.650Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -106,20 +106,6 @@
         "note": "关键词「打工人的一天」· 播放 4.6万 · UP 主 深漂小洁vlog · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
         "kind": "选题",
         "title": "23岁打工女孩独居生活 | 花💰22元囤了好多菜，应该够吃两三天了叭～晚餐•番茄鸡蛋面 |"
-      },
-      {
-        "id": "ianpuqa0o",
-        "platform": "B站",
-        "tags": "一人食,自动抓取",
-        "heat": 5,
-        "status": "待选",
-        "url": "https://www.bilibili.com/video/BV15d4b6kEbi",
-        "source": "bilibili-auto",
-        "source_date": "2026-11-05",
-        "created_at": "2026-11-05",
-        "note": "关键词「一人食」· 播放 837 · UP 主 咯咯哒没吃饱 · 搜于 B 站。取材方向：看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题",
-        "kind": "选题",
-        "title": "独居一人食｜煲仔饭&三鲜汤"
       },
       {
         "id": "imvulsf3t",
