@@ -58,6 +58,8 @@ async function search(keyword){
 const SPAM = /月入|月赚|日入|躺赚|暴富|稳赚|无货源|0粉丝|零粉丝|一夜暴富|必看|速成|秘籍|带货|开店|主播|转行|求职|课程|训练营|全集|自学|面试|保姆级|副业|从零|全套|合集/;
 /* 游戏 / 二次元内容与账号定位无关 */
 const GAME = /原神|崩坏|抽卡|卡池|蛋仔|王者荣耀|星铁|和平精英|第五人格|明日方舟|英雄联盟|永劫|塞尔达|我的世界|游戏实况|攻略解说/;
+/* 玄学类只收克制的分享，预测结果、承诺效果、卖符卖课的一律不收 */
+const XUAN_CLAIM = /必中|准到|改命|消灾|化解|开光|招财|大师|算命|预言|灵验|必灵|转运符|许愿|因果|报应|命中注定/;
 
 const clean = s => String(s || '')
   .replace(/<[^>]+>/g, '')
@@ -89,7 +91,7 @@ function angle(item){
   if(cat === '穿搭') return '借它的「场景 → 三套方案 → 价格区间」结构，换成你的衣柜和身材条件';
   if(cat === '小配饰') return '借它的「单品特写 + 搭配对比」拍法，做一组 5–7 张的细节图';
   if(cat === '小确幸好物') return '借它的「痛点 → 使用场景 → 值不值」写法，价格和体验都要写自己的真实感受';
-  if(cat === '玄学分享') return '借它的「现象 → 解释 → 一个小动作」结构，落到可验证的生活建议，不做绝对化断言';
+  if(cat === '玄学分享') return '只从民俗/心理视角聊由来和不同说法，标注「仅供娱乐」，不预测具体结果、不承诺效果，也不做健康、财运、感情方面的指导';
   if(cat === '日常分享' || /日常|vlog|独居|打工/.test(k)) return '借它的「时间线 + 一个反转」叙事，换成你的真实日常片段';
   return '看它的前 3 秒钩子和评论区高频疑问，改成你的标题与互动话题';
 }
@@ -150,6 +152,7 @@ async function main(){
     const url = 'https://www.bilibili.com/video/' + it.bvid;
     const title = short(it.title, 40);
     if(!title || SPAM.test(title) || GAME.test(title) || seenUrl.has(url) || seenTitle.has(title)) return false;
+    if(cat === '玄学分享' && XUAN_CLAIM.test(title)) return false;
     const play = Number(it.play) || 0;
     const base = {
       id: newId(kind === '选题' ? 'ia' : 'im'),
