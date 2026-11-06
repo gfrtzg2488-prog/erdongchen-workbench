@@ -2,8 +2,8 @@ name: 抽取选题与素材
 
 on:
   schedule:
-    # GitHub 用 UTC，这里 14:00 UTC = 北京时间 22:00
-    - cron: '0 14 * * *'
+    # GitHub 用 UTC，这里 00:00 UTC = 北京时间 08:00
+    - cron: '0 0 * * *'
   push:
     # 改了抓取脚本或本文件就立刻跑一次，方便验证
     paths:
