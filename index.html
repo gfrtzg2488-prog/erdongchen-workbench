@@ -2091,6 +2091,7 @@ function renderLibrary(){
         '<div class="icf">'+heatDots(x.heat)+statusBadge(x.status)+
           (x.url?'<a class="link" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+
           '<div class="acts">'+
+            '<button class="iconbtn" data-act="swap-status" data-id="'+esc(x.id)+'" aria-label="改状态">'+icon('check',12)+'</button>'+
             '<button class="iconbtn" data-act="swap-tags" data-id="'+esc(x.id)+'" aria-label="换标签">'+icon('tag',12)+'</button>'+
             '<button class="iconbtn" data-act="idea-to-content" data-id="'+esc(x.id)+'" aria-label="转内容">'+icon('sparkle',12)+'</button>'+
             '<button class="iconbtn" data-act="edit-idea" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
@@ -2195,6 +2196,32 @@ function openTagSwap(id){
       await updateRow('ideas', id, { tags: merged.join(','), category: sel[0] || x.category || '' });
       closeModal(); renderAll(); toast('标签已更新');
     }catch(err){ toast((err&&err.message)||'保存失败', true); b.disabled = false; }
+  });
+}
+
+/* 状态快捷切换：只改 status，不动已有标签 */
+function openStatusSwap(id){
+  const x = Store.data.ideas.find(i=>i.id===id);
+  if(!x) return;
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">STATUS / 改状态</span><h3>'+esc(x.title)+'</h3>'+
+      '<div class="sub">点一下立即写回云端，已有标签保持不动</div></div>'+
+      '<button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<div class="m-body">'+
+      '<div class="chips" id="stChips">'+IDEA_STATUS.map(s=>
+        '<button class="chip'+(x.status===s?' on':'')+'" data-s="'+esc(s)+'">'+esc(s)+'</button>').join('')+'</div>'+
+      '<div style="font-size:9.5px;color:var(--faint);line-height:1.7;margin-top:12px">'+
+        '待选 = 还没决定 · 采纳 = 准备做 · 已用 = 已出内容 · 归档 = 暂时不做<br>状态只影响这里的筛选，不会改标签。</div>'+
+    '</div>');
+  let busy = false;
+  $('#stChips').addEventListener('click', async ev=>{
+    const b = ev.target.closest('.chip');
+    if(!b || busy || b.dataset.s === (x.status||'')) return;
+    busy = true;
+    try{
+      await updateRow('ideas', id, { status: b.dataset.s });
+      closeModal(); renderAll(); toast('状态已改为「'+b.dataset.s+'」');
+    }catch(err){ toast((err&&err.message)||'保存失败', true); busy = false; }
   });
 }
 
@@ -2427,6 +2454,11 @@ document.addEventListener('click', async e=>{
       case 'idea-preview': {
         if(e.target.closest('a')) break;
         openIdeaPreview(id);
+        break;
+      }
+      case 'swap-status': {
+        const it = Store.data.ideas.find(x=>x.id===id);
+        if(it) openStatusSwap(id);
         break;
       }
       case 'swap-tags': {
