@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T08:41:10.424Z",
+  "updated_at": "2026-11-06T08:41:15.062Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -300,9 +300,10 @@
         "platform": "小红书",
         "tags": "设计,封面",
         "heat": 4,
-        "status": "采纳",
+        "status": "待选",
         "url": "https://example.com/palette",
-        "note": "米白 #F3EFE6 / 赤陶 #B04A2B"
+        "note": "米白 #F3EFE6 / 赤陶 #B04A2B",
+        "updated_at": "2026-11-06T08:41:13.170Z"
       },
       {
         "id": "i13",
