@@ -2332,14 +2332,13 @@ async function callAI(prompt, opt){
     throw new Error('网络或跨域失败，检查网络或换一个服务商');
   }
   if(!res.ok){
-    let msg = '接口返回 ' + res.status;
+    let raw = '';
     try{
       const j = await res.json();
-      msg = (j && j.error && j.error.message) || (j && j.message) || msg;
+      raw = (j && j.error && j.error.message) || (j && j.message) || '';
     }catch(e){}
-    if(res.status === 401) msg = 'Key 无效或已过期';
-    if(res.status === 429) msg = '调用太频繁或免费额度用完，稍后再试';
-    throw new Error(msg);
+    if(res.status === 401) throw new Error('Key 无效或已过期（HTTP 401）');
+    throw new Error('HTTP ' + res.status + (raw ? ' · ' + raw : ''));
   }
   const j = await res.json();
   const txt = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '').trim();
