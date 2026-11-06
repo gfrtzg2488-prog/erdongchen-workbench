@@ -278,6 +278,12 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .lib-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px}
 .lib-tabs button{padding:8px 13px;font-size:11.5px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
 .lib-tabs button.on{color:var(--text);border-bottom-color:var(--accent);font-weight:500}
+.mobile-more{display:none}
+.more-wrap{position:relative}
+.more-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:140px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 10px 22px rgba(23,24,27,.14);padding:4px;display:none;z-index:40}
+.more-menu.open{display:block}
+.more-menu button{display:block;width:100%;text-align:left;padding:9px 10px;font-size:11.5px;border-radius:2px;color:var(--text)}
+.more-menu button svg{width:12px;height:12px;margin-right:5px;opacity:.7;vertical-align:-1px}
 .suggest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
 .sg{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#F1ECE0;border:1px solid var(--line);border-radius:var(--r)}
 .sg .no{font-family:var(--mono);font-size:9px;color:var(--faint);flex:none}
@@ -443,9 +449,25 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .toolbar .sp{display:none}
   .chart-card .card-b{padding:8px 6px 2px}
   .legend{gap:7px}
-  .idea-grid,.suggest{grid-template-columns:1fr}
-  .lib-tabs button{flex:1;text-align:center}
-  .ic .acts{opacity:1}
+  .idea-grid{grid-template-columns:1fr}
+  /* 手机端去掉与卡片重复的推荐列表 */
+  .suggest{display:none}
+  /* 类型 tab / 状态筛选改为横滑，不再换行挤压 */
+  .lib-tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
+  .lib-tabs::-webkit-scrollbar{display:none}
+  .lib-tabs button{flex:0 0 auto;text-align:center;white-space:nowrap}
+  .filters{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain;padding-bottom:2px}
+  .filters::-webkit-scrollbar{display:none}
+  .filters .chip{flex:none}
+  /* 卡片只留三个高频动作，其余进详情弹窗 */
+  .ic .acts .act2{display:none}
+  .ic .icf .acts{opacity:1}
+  /* 顶栏收起次要入口 */
+  #dataBtn,#aiBtn{display:none}
+  .mobile-more{display:block}
+  .tb-r{position:relative}
+  .more-wrap{position:static}
+  .more-menu{right:0}
   .form-grid{grid-template-columns:1fr}
   .f.full{grid-column:auto}
   dialog{width:calc(100% - 20px);max-height:92vh;max-height:92dvh;margin:auto}
@@ -530,6 +552,13 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
       <div class="clock" id="clock"></div>
       <button class="btn ghost sm" id="dataBtn" title="数据连接与备份">数据</button>
       <button class="btn ghost sm" id="aiBtn" title="AI 写作设置">AI</button>
+      <div class="more-wrap mobile-more">
+        <button class="btn ghost sm" id="moreBtn" aria-label="更多设置">···</button>
+        <div class="more-menu" id="moreMenu">
+          <button id="mAI">AI 写作设置</button>
+          <button id="mData">数据与备份</button>
+        </div>
+      </div>
       <span class="sync" id="sync"><i></i><span>连接中</span></span>
       <button class="btn primary" id="newBtn"></button>
     </div>
@@ -597,6 +626,11 @@ function esc(v){
   return String(v==null?'':v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function pad2(n){ return String(n).padStart(2,'0'); }
+/* 卡片标题超过 30 字截断，完整标题在详情里看 */
+function clip(s, n){
+  const t = String(s==null ? '' : s);
+  return t.length > n ? t.slice(0, n) + '…' : t;
+}
 function ymd(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
 function todayStr(){ return ymd(new Date()); }
 function parseYmd(s){
@@ -2088,17 +2122,17 @@ function renderLibrary(){
     (list.length? '<div class="idea-grid">'+list.map(x=>{
       const tags = (x.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
       return '<div class="ic" data-act="idea-preview" data-id="'+esc(x.id)+'">'+
-        '<div class="ich"><b>'+esc(x.title)+'</b><span class="badge">'+esc(x.kind)+'</span></div>'+
+        '<div class="ich"><b>'+esc(clip(x.title, 30))+'</b><span class="badge">'+esc(x.kind)+'</span></div>'+
         '<div class="tags">'+(tags.length? tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('') : '<span class="tag">未打标签</span>')+'</div>'+
         '<div class="icf">'+heatDots(x.heat)+statusBadge(x.status)+
           (x.url?'<a class="link" href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+
           '<div class="acts">'+
             '<button class="iconbtn" data-act="idea-draft" data-id="'+esc(x.id)+'" aria-label="AI 写初稿">'+icon('ai',12)+'</button>'+
             '<button class="iconbtn" data-act="swap-status" data-id="'+esc(x.id)+'" aria-label="改状态">'+icon('check',12)+'</button>'+
-            '<button class="iconbtn" data-act="swap-tags" data-id="'+esc(x.id)+'" aria-label="换标签">'+icon('tag',12)+'</button>'+
+            '<button class="iconbtn act2" data-act="swap-tags" data-id="'+esc(x.id)+'" aria-label="换标签">'+icon('tag',12)+'</button>'+
             '<button class="iconbtn" data-act="idea-to-content" data-id="'+esc(x.id)+'" aria-label="转内容">'+icon('sparkle',12)+'</button>'+
-            '<button class="iconbtn" data-act="edit-idea" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
-            '<button class="iconbtn del" data-act="del-idea" data-id="'+esc(x.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
+            '<button class="iconbtn act2" data-act="edit-idea" data-id="'+esc(x.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
+            '<button class="iconbtn del act2" data-act="del-idea" data-id="'+esc(x.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
           '</div></div>'+
       '</div>';
     }).join('')+'</div>' : '<div class="card"><div class="empty">这个筛选下还没有选题，换一个标签或新建</div></div>');
@@ -2158,6 +2192,7 @@ function openIdeaPreview(id){
           '<button class="btn" data-act="idea-to-content" data-id="'+esc(x.id)+'">转内容</button>'+
           '<button class="btn" data-act="swap-tags" data-id="'+esc(x.id)+'">换标签</button>'+
           '<button class="btn" data-act="edit-idea" data-id="'+esc(x.id)+'">编辑</button>'+
+          '<button class="btn danger" data-act="del-idea" data-id="'+esc(x.id)+'">删除</button>'+
         '</div>'+
         '<div class="sec-t" style="margin-top:14px">说明</div>'+
         '<div style="font-size:9.5px;color:var(--faint);line-height:1.6">左侧是手机上大致的长相，只做观感参考，不是平台真实排版。</div>'+
@@ -2791,6 +2826,15 @@ $('#newBtn').addEventListener('click', ()=>{
 
 $('#dataBtn').addEventListener('click', openDataPanel);
 $('#aiBtn').addEventListener('click', openAIPanel);
+$('#mAI').addEventListener('click', ()=>{ $('#moreMenu').classList.remove('open'); openAIPanel(); });
+$('#mData').addEventListener('click', ()=>{ $('#moreMenu').classList.remove('open'); openDataPanel(); });
+$('#moreBtn').addEventListener('click', ev=>{
+  ev.stopPropagation();
+  $('#moreMenu').classList.toggle('open');
+});
+document.addEventListener('click', ev=>{
+  if(!ev.target.closest('.more-wrap')) $('#moreMenu').classList.remove('open');
+});
 $('#sync').addEventListener('click', ()=>{
   if(Store.mode === 'cloud') syncNow(true);
   else openDataPanel();
