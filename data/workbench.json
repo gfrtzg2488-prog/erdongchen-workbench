@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T03:06:54.875Z",
+  "updated_at": "2026-11-06T03:12:16.612Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -443,9 +443,10 @@
         "platform": "视频号",
         "tags": "美食,一人食,挑战",
         "heat": 4,
-        "status": "已用",
+        "status": "待选",
         "url": "",
-        "note": "已转为内容"
+        "note": "已转为内容",
+        "updated_at": "2026-11-06T03:12:14.046Z"
       },
       {
         "id": "i9",
