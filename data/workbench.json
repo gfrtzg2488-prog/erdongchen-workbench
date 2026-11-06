@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated_at": "2026-11-06T08:41:15.062Z",
+  "updated_at": "2026-11-06T08:41:20.316Z",
   "tables": {
     "content_items": [],
     "deals": [],
@@ -255,9 +255,10 @@
         "platform": "小红书",
         "tags": "话题,独居",
         "heat": 5,
-        "status": "采纳",
+        "status": "待选",
         "url": "",
-        "note": "话题页已建"
+        "note": "话题页已建",
+        "updated_at": "2026-11-06T08:41:18.334Z"
       },
       {
         "id": "i6",
