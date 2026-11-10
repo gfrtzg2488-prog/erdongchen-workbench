@@ -6,7 +6,8 @@ import path from 'node:path';
 
 const FILE = path.resolve('data/workbench.json');
 const MAX_TOPICS = Number(process.env.MAX_TOPICS || 5);
-const MAX_ASSETS = Number(process.env.MAX_ASSETS || 3);
+/* 素材抓取已停用，默认 0；如需恢复，把下面的 0 改回 3 */
+const MAX_ASSETS = Number(process.env.MAX_ASSETS || 0);
 
 const CN_OFFSET = 8 * 60; // 北京时间
 const nowCN = new Date(Date.now() + (CN_OFFSET + new Date().getTimezoneOffset()) * 60000);
@@ -124,7 +125,7 @@ async function main(){
   for(const c of CATEGORIES){
     pools.push({ cat: c.name, list: await collect(c.keywords, c.name) });
   }
-  const assetPool = await collect(ASSET_KEYWORDS, '');
+  const assetPool = MAX_ASSETS > 0 ? await collect(ASSET_KEYWORDS, '') : [];
   if(!pools.some(p => p.list.length) && !assetPool.length){
     throw new Error('B 站接口没有返回可用结果');
   }

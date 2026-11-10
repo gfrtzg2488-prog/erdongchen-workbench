@@ -18,7 +18,7 @@ on:
       max_assets:
         description: '本次抓取的素材条数'
         required: false
-        default: '3'
+        default: '0'
 
 permissions:
   contents: write
@@ -42,7 +42,7 @@ jobs:
       - name: 抓取 B 站热门并写入选题库
         env:
           MAX_TOPICS: ${{ github.event.inputs.max_topics || '5' }}
-          MAX_ASSETS: ${{ github.event.inputs.max_assets || '3' }}
+          MAX_ASSETS: ${{ github.event.inputs.max_assets || '0' }}
         run: node scripts/fetch-topics.mjs
 
       - name: 提交改动
