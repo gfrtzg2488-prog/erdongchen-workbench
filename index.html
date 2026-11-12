@@ -57,6 +57,7 @@ main{min-width:0;padding:0 30px 56px;display:flex;flex-direction:column}
 .sync{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);padding:5px 9px;border-radius:20px;background:var(--card)}
 .sync i{width:5px;height:5px;border-radius:50%;background:var(--sage);display:block}
 .sync.warn i{background:var(--amber)}.sync.err i{background:var(--accent)}
+.sync.local i{background:var(--faint)}.sync.demo i{background:var(--plum)}
 .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 11px;border-radius:var(--r);font-size:11.5px;transition:.14s;white-space:nowrap}
 .btn:hover{border-color:#BDB4A0;background:var(--card2)}
 .btn svg{width:13px;height:13px}
@@ -372,6 +373,11 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 .offline-strip{display:flex;align-items:flex-start;gap:8px;font-size:10px;color:#7A5326;background:#F7EEDE;border:1px solid #E4D2B4;border-left:3px solid var(--amber);padding:7px 11px;border-radius:2px;margin-bottom:12px;cursor:pointer;line-height:1.55}
 .offline-strip b{font-weight:500}
 .offline-strip svg{flex:none;width:13px;height:13px;margin-top:2px}
+.quick{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--sage);border-radius:var(--r);padding:7px 11px;margin-bottom:12px}
+.quick .eyebrow{flex:none}
+.quick input{flex:1;min-width:140px;border:0;background:transparent;font-size:12px;padding:3px 2px;outline:none}
+.quick input::placeholder{color:var(--faint)}
+.quick .qbtns{display:flex;gap:4px;flex:none}
 .mobile-only{display:none}
 
 /* ---------- 响应式 ---------- */
@@ -576,21 +582,28 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 <div id="toast" class="toast"></div>
 <script>
 /* ================= 配置 ================= */
-/* 云端不依赖任何新服务：数据直接读写你自己的 GitHub 仓库里的 data/workbench.json。
-   首次使用：页面右上角「数据」→ 粘贴一次 GitHub 令牌（只存本机浏览器）。 */
+/* 代码放公开仓库（GitHub Pages），真实数据放「私有」数据仓库，外人读不到。
+   首次使用：右上角「数据」→ 粘贴一次只授权数据仓库的令牌（只存本机浏览器）。 */
 const WB_CONFIG = {
-  OWNER: 'gfrtzg2488-prog',
+  OWNER: 'gfrtzg2488-prog',        // 页面仓库（public，只放代码）
   REPO:  'erdongchen-workbench',
   BRANCH:'main',
-  PATH:  'data/workbench.json'
+  PATH:  'data/workbench.json',    // 旧位置，仅用于首次把老数据迁到私有仓库
+  DATA_OWNER: 'gfrtzg2488-prog',   // 数据仓库（必须是 private）
+  DATA_REPO:  'erdongchen-data',
+  DATA_BRANCH:'main',
+  DATA_PATH:  'workbench.json'
 };
 const TOKEN_KEY = 'zd_gh_token';
+const BACKUP_KEY = 'zd_last_backup';
+const LOCAL_NOTICE_KEY = 'zd_local_notice_v1';
 function ghToken(){
   try{ return localStorage.getItem(TOKEN_KEY) || ''; }catch(e){ return ''; }
 }
-let CLOUD = !!ghToken();
+const DEMO = /[?&]demo=1/.test(location.search);
+let CLOUD = !DEMO && !!ghToken();
 const LOCAL_ONLY = /[?&]local=1/.test(location.search);
-if(LOCAL_ONLY) CLOUD = false;
+if(LOCAL_ONLY){ CLOUD = false; }
 
 /* ================= 常量 ================= */
 const STAGES = ['文案','剪辑','审核','发布','已发布'];
@@ -821,19 +834,40 @@ function seedData(){
 }
 /* ================= 数据层 ================= */
 const TABLES = ['content_items','deals','schedule','metrics','ideas'];
-const LS_KEY = 'zd_workbench_v1';
+const LS_KEY = 'zd_workbench_v2';
 
 const Store = {
-  mode: CLOUD ? 'cloud' : 'local',
+  mode: DEMO ? 'demo' : (CLOUD ? 'cloud' : 'local'),
   data: { content_items:[], deals:[], schedule:[], metrics:[], ideas:[] },
   fp: '',
   sha: '',
   lastSync: null
 };
 
-/* ---------- GitHub 数据盘 ---------- */
+function emptyData(){
+  return { content_items:[], deals:[], schedule:[], metrics:[], ideas:[] };
+}
+function normalizeTables(t){
+  const d = emptyData();
+  TABLES.forEach(k=>{ d[k] = Array.isArray(t && t[k]) ? t[k] : []; });
+  return d;
+}
+
+/* ---------- GitHub 数据盘（私有数据仓库） ---------- */
 const GH_API  = 'https://api.github.com';
-const GH_FILE = '/repos/' + WB_CONFIG.OWNER + '/' + WB_CONFIG.REPO + '/contents/' + WB_CONFIG.PATH;
+const GH_FILE = '/repos/' + WB_CONFIG.DATA_OWNER + '/' + WB_CONFIG.DATA_REPO + '/contents/' + WB_CONFIG.DATA_PATH;
+const LEGACY_URL = 'https://raw.githubusercontent.com/' + WB_CONFIG.OWNER + '/' + WB_CONFIG.REPO + '/' + WB_CONFIG.BRANCH + '/' + WB_CONFIG.PATH;
+/* 只读一次旧公开仓库，用于首次把已有数据搬进私有仓库 */
+async function readLegacyDoc(){
+  try{
+    const res = await fetch(LEGACY_URL + '?t=' + Date.now());
+    if(!res.ok) return null;
+    const j = JSON.parse(await res.text());
+    return j && j.tables ? j : null;
+  }catch(e){
+    return null;
+  }
+}
 
 function ghHeaders(extra){
   return Object.assign({
@@ -903,6 +937,9 @@ async function ghWriteDoc(doc){
     if(fresh.sha) body.sha = fresh.sha; else delete body.sha;
     r = await ghFetch(GH_FILE, { method:'PUT', body:JSON.stringify(body) });
   }
+  if(r && r.__notfound){
+    throw new Error('找不到数据仓库 ' + WB_CONFIG.DATA_OWNER + '/' + WB_CONFIG.DATA_REPO + '，请先创建这个私有仓库再连接');
+  }
   Store.sha = (r && r.content && r.content.sha) || Store.sha;
 }
 function lsRead(){
@@ -910,10 +947,11 @@ function lsRead(){
     const raw = localStorage.getItem(LS_KEY);
     if(raw){
       const d = JSON.parse(raw);
-      if(d && d.content_items) return d;
+      if(d && d.content_items) return normalizeTables(d);
     }
   }catch(e){}
-  const s = seedData();
+  /* 正常使用不再灌演示数据；只有 ?demo=1 才生成示例 */
+  const s = DEMO ? seedData() : emptyData();
   lsWrite(s);
   return s;
 }
@@ -969,7 +1007,7 @@ async function pushNow(){
 async function createRow(table, row){
   const rec = Object.assign({ id:uid(), created_at:new Date().toISOString(), updated_at:new Date().toISOString() }, row);
   Store.data[table] = (Store.data[table] || []).concat(rec);
-  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
+  if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
   return rec;
 }
@@ -978,29 +1016,36 @@ async function updateRow(table, id, patch){
   const i = (Store.data[table] || []).findIndex(r => r.id === id);
   if(i < 0) return null;
   Store.data[table][i] = Object.assign({}, Store.data[table][i], patch, { updated_at:new Date().toISOString() });
-  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
+  if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
   return Store.data[table][i];
 }
 
 async function deleteRow(table, id){
   Store.data[table] = (Store.data[table] || []).filter(r => r.id !== id);
-  if(Store.mode === 'cloud') schedulePush(); else lsWrite(Store.data);
+  if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
 }
 
 async function loadAll(){
   if(Store.mode === 'cloud'){
     const { doc, sha } = await ghReadDoc();
-    if(doc && doc.tables){
-      Store.data = doc.tables;
-      Store.sha = sha;
-    }else{
-      const d = seedData();
-      Store.data = d;
-      Store.sha = '';
-      await ghWriteDoc(docOf(d));
+    let d = doc && doc.tables ? normalizeTables(doc.tables) : emptyData();
+    let migrated = false;
+    Store.sha = sha || '';
+    /* 私有仓库为空时，尝试沿用旧公开仓库的数据，避免换存储后丢历史 */
+    if(sum(TABLES, t=>d[t].length) === 0){
+      const legacy = await readLegacyDoc();
+      if(legacy && sum(TABLES, t=>(legacy.tables[t] || []).length) > 0){
+        d = normalizeTables(legacy.tables);
+        migrated = true;
+        toast('已把旧仓库的数据迁移到私有数据仓库');
+      }
     }
+    Store.data = d;
+    if(migrated || !(doc && doc.tables)) await ghWriteDoc(docOf(d));
+  }else if(Store.mode === 'demo'){
+    Store.data = seedData();
   }else{
     Store.data = lsRead();
   }
@@ -1009,6 +1054,7 @@ async function loadAll(){
 }
 
 async function syncNow(announce){
+  if(Store.mode === 'demo') return;
   try{
     if(Store.mode === 'cloud'){
       const { doc, sha } = await ghReadDoc();
@@ -1049,14 +1095,17 @@ function setSyncState(state, msg){
   const chip = $('#sync');
   const lab = chip.querySelector('span');
   const cloud = Store.mode === 'cloud';
-  chip.className = 'sync' + (state === 'err' ? ' err' : state === 'warn' ? ' warn' : '');
+  const demo = Store.mode === 'demo';
+  chip.className = 'sync' + (demo ? ' demo' : cloud ? '' : ' local') + (state === 'err' ? ' err' : state === 'warn' ? ' warn' : '');
   if(state === 'ok' || state === 'warn'){
-    lab.textContent = cloud ? '在线同步' : '本地存储';
-    chip.title = cloud
-      ? '数据存在 GitHub 仓库 ' + WB_CONFIG.OWNER + '/' + WB_CONFIG.REPO + '，点击立即拉取'
-      : '数据只存在本机浏览器，点「数据」可连接云端';
-    $('#railData').innerHTML = '<span class="dot-live"' + (state === 'warn' ? ' style="background:#B07A3C"' : '') + '></span>' +
-      (cloud ? 'GITHUB · 在线' : 'LOCAL · 本机存储');
+    lab.textContent = demo ? '演示数据' : cloud ? '在线同步' : '本地存储';
+    chip.title = demo
+      ? '当前是演示数据，不会写入任何仓库'
+      : cloud
+        ? '数据存在私有仓库 ' + WB_CONFIG.DATA_OWNER + '/' + WB_CONFIG.DATA_REPO + '，点击立即拉取'
+        : '数据只存在本机浏览器，点「数据」可连接云端';
+    $('#railData').innerHTML = '<span class="dot-live" style="' + (demo ? 'background:#8A6EA8' : cloud ? '' : 'background:#A39B8C') + '"></span>' +
+      (demo ? 'DEMO · 演示数据' : cloud ? 'GITHUB · 在线' : 'LOCAL · 本机存储');
     if(state === 'warn' && msg) chip.title = msg;
   }else{
     lab.textContent = '离线';
@@ -1073,7 +1122,31 @@ function exportJSON(){
   a.download = 'zhidong-workbench-' + todayStr() + '.json';
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  try{ localStorage.setItem(BACKUP_KEY, String(Date.now())); }catch(e){}
   toast('已导出 JSON 备份');
+}
+/* 占位符模板：只给结构，不含任何真实客户、金额与联系方式 */
+function downloadTemplate(){
+  const t = {
+    content_items: [{ title:'{选题标题}', platform:'小红书', format:'图文', stage:'文案', topic:'日常分享', hook:'{开场钩子}', owner:'枕冬', due_date:'{日期-YYYY-MM-DD}', priority:2, notes:'{备注}' }],
+    deals: [{ brand:'{客户名}', title:'{项目名}', contact:'{联系人}', type:'图文合作', amount:'{报价金额}', received:0, stage:'已签约', progress:0, start_date:'{日期-YYYY-MM-DD}', deadline:'{货期日期}', deliverables:'1. {交付物一}\n2. {交付物二}', brief:'{需求要点}', notes:'{备注}' }],
+    schedule: [{ date:'{日期-YYYY-MM-DD}', time:'10:00', title:'{待办事项}', kind:'发布', platform:'小红书', status:'待办' }],
+    metrics: [{ date:'{日期-YYYY-MM-DD}', platform:'小红书', title:'{内容标题}', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' }],
+    ideas: [{ kind:'选题', title:'{选题标题}', platform:'小红书', tags:'{标签}', heat:3, status:'待选', url:'', note:'{备注}' }]
+  };
+  const doc = {
+    v: 1,
+    _readme: '把 {…} 占位符替换成真实内容，示例行整行删掉或替换成真实记录，再用「导入备份」写入。金额填数字，日期用 YYYY-MM-DD。注意：导入备份是整体覆盖，会替换当前所有数据，请先导出一次当前备份。',
+    updated_at: new Date().toISOString(),
+    tables: t
+  };
+  const blob = new Blob([JSON.stringify(doc, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'zhidong-template.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast('模板已下载：填好后用「导入备份」写入，导入会整体覆盖，先导出一次当前数据');
 }
 const XL_SHEETS = [
   { name:'内容', key:'content_items', cols:[['标题','title'],['平台','platform'],['形式','format'],['阶段','stage'],['选题','topic'],['钩子','hook'],['负责人','owner'],['截止日','due_date'],['优先级','priority'],['播放','plays'],['点赞','likes'],['评论','comments'],['收藏','saves'],['转发','shares'],['发布日','published_at'],['备注','notes']] },
@@ -1115,7 +1188,7 @@ function importJSON(file){
       TABLES.forEach(t=>{ if(!Array.isArray(d[t])) d[t] = []; });
       Store.data = d;
       Store.fp = fpOf(d);
-      if(Store.mode === 'cloud') schedulePush(); else lsWrite(d);
+      if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(d);
       renderAll();
       toast('已导入 ' + sum(TABLES, t=>d[t].length) + ' 条记录');
     }catch(e){ toast('导入失败：' + e.message, true); }
@@ -1123,22 +1196,28 @@ function importJSON(file){
   fr.readAsText(file);
 }
 async function connectCloud(tok){
+  const prevMode = Store.mode;
   localStorage.setItem(TOKEN_KEY, tok);
   Store.mode = 'cloud';
   Store.sha = '';
-  const { doc, sha } = await ghReadDoc();
-  if(doc && doc.tables){
-    Store.data = doc.tables;
-    Store.sha = sha;
-  }else{
-    await ghWriteDoc(docOf(Store.data));
+  try{
+    await loadAll();
+  }catch(err){
+    localStorage.removeItem(TOKEN_KEY);
+    Store.mode = prevMode === 'demo' ? 'demo' : 'local';
+    Store.sha = '';
+    const msg = String((err && err.message) || '');
+    if(/not found|404/i.test(msg)){
+      throw new Error('读不到私有数据仓库 ' + WB_CONFIG.DATA_OWNER + '/' + WB_CONFIG.DATA_REPO + '，请先创建它，并让令牌拥有该仓库的 Contents 读写权限');
+    }
+    throw err;
   }
   CLOUD = true;
   Store.fp = fpOf(Store.data);
   Store.lastSync = Date.now();
   setSyncState('ok');
   renderAll();
-  toast('已连接云端，数据开始在线同步');
+  toast('已连接云端，数据写入私有仓库 ' + WB_CONFIG.DATA_REPO);
 }
 function disconnectCloud(){
   localStorage.removeItem(TOKEN_KEY);
@@ -1154,8 +1233,10 @@ function openDataPanel(){
   const linked = Store.mode === 'cloud';
   const html = '<div class="m-head"><div><span class="eyebrow">DATA / 数据</span><h3>数据连接与备份</h3>' +
     '<p class="sub">' + (linked
-      ? '已连接 GitHub 仓库，手机与电脑共用同一份数据。'
-      : '当前是本地模式：数据只存在这台设备的浏览器里。') + '</p></div>' +
+      ? '已连接私有数据仓库，手机与电脑共用同一份数据。'
+      : Store.mode === 'demo'
+        ? '演示模式：当前是示例数据，不会写入任何仓库。'
+        : '当前是本地模式：数据只存在这台设备的浏览器里，不会上传。') + '</p></div>' +
     '<button class="m-close" data-close aria-label="关闭">' + icon('x') + '</button></div>' +
     '<div class="m-body">' +
       '<div class="form-grid"><div class="f full"><label>GitHub 令牌</label>' +
@@ -1163,14 +1244,16 @@ function openDataPanel(){
         '<span class="hint">只保存在本机浏览器，不写进页面代码，也不会发到别处。</span>' +
       '</div></div>' +
       '<p class="hint" style="margin-top:12px;line-height:1.9">' +
-        '1. 打开 <a href="https://github.com/settings/tokens/new?scopes=repo&description=zhidong-workbench" target="_blank" rel="noopener">github.com/settings/tokens/new</a>（已预勾 repo 权限）<br>' +
-        '2. 填名字、有效期，滑到底点 Generate token，复制 <b>ghp_</b> 开头那串<br>' +
-        '3. 粘到上面，点「连接云端」。另一台设备重复一次即可同步' +
+        '数据存放在私有仓库 <b>' + WB_CONFIG.DATA_OWNER + '/' + WB_CONFIG.DATA_REPO + '</b>，代码仓库公开、数据仓库私密。<br>' +
+        '1. 先在 GitHub 建一个 <b>Private</b> 仓库，名字填 <b>' + WB_CONFIG.DATA_REPO + '</b>（不用放文件）<br>' +
+        '2. 打开 <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Fine-grained tokens</a>，Repository access 只选这个私有仓库，权限只勾 <b>Contents: Read and write</b><br>' +
+        '3. 复制令牌粘到上面，点「连接云端」。首次连接会自动把旧仓库的数据迁过来' +
       '</p>' +
     '</div>' +
     '<div class="m-foot">' +
       (linked ? '<button type="button" class="btn danger" id="unlinkBtn">断开云端</button>' : '') +
       '<button type="button" class="btn" id="xlsBtn">导出表格</button>' +
+      '<button type="button" class="btn" id="tplBtn">导入模板</button>' +
       '<button type="button" class="btn" id="expBtn">导出备份</button>' +
       '<button type="button" class="btn" id="impBtn">导入备份</button>' +
       '<button type="button" class="btn primary" id="linkBtn">' + (linked ? '重新连接' : '连接云端') + '</button>' +
@@ -1193,6 +1276,7 @@ function openDataPanel(){
     }
   };
   $('#xlsBtn').onclick = exportXLSX;
+  $('#tplBtn').onclick = downloadTemplate;
   $('#expBtn').onclick = exportJSON;
   $('#impBtn').onclick = ()=>$('#impFile').click();
   $('#impFile').onchange = e=>{
@@ -1227,6 +1311,13 @@ function fitDialog(){
 
 modalEl.addEventListener('click', e => {
   if(e.target === modalEl) closeModal();
+});
+/* 今日页快速录入：回车直接记成待办 */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && e.target && e.target.id === 'qkInput'){
+    e.preventDefault();
+    quickAddTodo();
+  }
 });
 document.addEventListener('click', e => {
   const c = e.target.closest('[data-close]');
@@ -1368,6 +1459,69 @@ function tickClock(){
   $('#clock').innerHTML = '<div>'+(d.getMonth()+1)+'月'+d.getDate()+'日 · 周'+wk+'</div><div>'+pad2(d.getHours())+':'+pad2(d.getMinutes())+'</div>';
 }
 
+/* ---------- 快速记一条（今日页顶部） ---------- */
+function quickText(){
+  const el = $('#qkInput');
+  return el ? String(el.value || '').trim() : '';
+}
+function openQuickTodo(prefill){
+  openForm({
+    eyebrow:'QUICK / 待办', title:'快速记一条待办', sub:'只填事项就能存，时间可以后补',
+    fields:[
+      { key:'title', label:'事项', type:'text', full:true, required:true, placeholder:'例如：把本周脚本写完' },
+      { key:'time', label:'时间', type:'time', hint:'可不填' }
+    ],
+    values:{ title:prefill || '', time:'' },
+    submitText:'记下来',
+    onSubmit: async v => {
+      await createRow('schedule', Object.assign({ date:todayStr(), kind:'发布', platform:'', status:'待办', sort:0 }, v));
+      renderAll();
+      toast('已记到今天的待办');
+    }
+  });
+}
+async function quickAddTodo(){
+  const t = quickText();
+  if(!t){ openQuickTodo(''); return; }
+  await createRow('schedule', { date:todayStr(), time:'', title:t, kind:'发布', platform:'', status:'待办', sort:0 });
+  renderAll();
+  toast('已记到今天的待办');
+}
+function openQuickContent(prefill){
+  openForm({
+    eyebrow:'QUICK / 内容', title:'快速记一条内容', sub:'只填标题就能存，其余到内容页再补',
+    fields:[
+      { key:'title', label:'标题', type:'text', full:true, required:true, placeholder:'例如：通勤包里到底装了什么' },
+      { key:'platform', label:'平台', type:'select', options:PLATFORMS },
+      { key:'due_date', label:'截止日', type:'date' }
+    ],
+    values:{ title:prefill || '', platform:'小红书', due_date:addDays(todayStr(), 2) },
+    submitText:'记下来',
+    onSubmit: async v => {
+      await createRow('content_items', Object.assign({ format:'图文', stage:'文案', topic:'日常分享', priority:2, owner:'枕冬', hook:'', notes:'' }, v));
+      renderAll();
+      toast('内容已记下');
+    }
+  });
+}
+function openQuickDeal(prefill){
+  openForm({
+    eyebrow:'QUICK / 商单', title:'快速记一单', sub:'品牌和金额先记下，简报后面补',
+    fields:[
+      { key:'brand', label:'品牌 / 客户', type:'text', full:true, required:true, placeholder:'{客户名}' },
+      { key:'amount', label:'报价金额', type:'number', min:0 },
+      { key:'deadline', label:'交付日', type:'date' }
+    ],
+    values:{ brand:prefill || '', amount:0, deadline:addDays(todayStr(), 7) },
+    submitText:'记下来',
+    onSubmit: async v => {
+      await createRow('deals', Object.assign({ title:'', contact:'', type:'图文合作', received:0, stage:'洽谈', progress:0, start_date:todayStr(), deliverables:'', brief:'', notes:'' }, v));
+      renderAll();
+      toast('商单已记下');
+    }
+  });
+}
+
 /* ================= 今日 ================= */
 function renderToday(){
   const d = Store.data;
@@ -1386,10 +1540,27 @@ function renderToday(){
   const h = new Date().getHours();
   const greet = h<6?'夜深了':h<11?'早上好':h<14?'午间好':h<18?'下午好':'晚上好';
 
-  const strip = CLOUD ? '' :
-    '<div class="offline-strip" data-act="open-data" role="button" tabindex="0">'+icon('sparkle',13)+'<span><b>本地模式</b>：数据只存在这台设备的浏览器里。点这里粘贴一次 GitHub 令牌，即可把数据存进你的仓库，手机电脑自动同步。</span></div>';
+  let strip = '';
+  if(Store.mode === 'demo'){
+    strip = '<div class="offline-strip" data-act="open-data" role="button" tabindex="0">'+icon('sparkle',13)+'<span><b>演示模式</b>：当前展示的是示例数据，不会写入任何仓库。点这里连接你自己的数据仓库。</span></div>';
+  }else if(Store.mode !== 'cloud'){
+    strip = '<div class="offline-strip" data-act="open-data" role="button" tabindex="0">'+icon('sparkle',13)+'<span><b>本地模式</b>：数据只存在这台设备的浏览器里，不会上传。换设备前先「导出备份」，或点这里连接私有数据仓库。</span></div>';
+  }
+  const totalRows = sum(TABLES, t=>(Store.data[t]||[]).length);
+  const lastBackup = Number(localStorage.getItem(BACKUP_KEY) || 0);
+  if(Store.mode !== 'demo' && totalRows > 0 && (!lastBackup || Date.now() - lastBackup > 14 * 86400000)){
+    const days = lastBackup ? Math.floor((Date.now() - lastBackup) / 86400000) : 0;
+    strip += '<div class="offline-strip" style="cursor:default"><span><b>已有 ' + (lastBackup ? days + ' 天' : '很久') + '没备份</b>：导出一次 JSON，误删或换设备时能一键还原。</span>' +
+      '<button class="btn sm" data-act="backup-now" style="margin-left:auto;flex:none">导出备份</button></div>';
+  }
 
-  $('#views .view[data-view="today"]').innerHTML = strip +
+  const quickBar = '<div class="quick"><span class="eyebrow">QUICK / 快速记一条</span>'+
+    '<input id="qkInput" autocomplete="off" placeholder="想到什么先敲这里，回车记成今天的待办">'+
+    '<div class="qbtns"><button class="chip" data-act="quick-todo">待办</button>'+
+    '<button class="chip" data-act="quick-content">内容</button>'+
+    '<button class="chip" data-act="quick-deal">商单</button></div></div>';
+
+  $('#views .view[data-view="today"]').innerHTML = strip + quickBar +
     '<div class="today-hero"><span class="line">'+greet+'，今天还有 <em>'+undone+'</em> 件事要做</span><span class="rule"></span><span class="eyebrow">'+esc(fmtCN(today))+'</span></div>'+
     '<div class="today-stats">'+
       '<div class="stat accent"><span class="eyebrow">TODAY / 今日待办</span><b>'+undone+'<small>/ '+todos.length+'</small></b><div class="sub">'+(todos.length? '下一件：'+esc((todos.find(t=>t.status!=='完成')||todos[0]).title) : '今天还没有安排')+'</div></div>'+
@@ -1406,7 +1577,7 @@ function renderToday(){
               (t.time?'<span class="time">'+esc(t.time)+'</span>':'')+
               kindBadge(t.kind)+(t.platform?'<span class="time">'+esc(t.platform)+'</span>':'')+
             '</div></div></li>';
-        }).join('')+'</ul>' : '<div class="empty">今天还没有待办</div>')+
+        }).join('')+'</ul>' : '<div class="empty">今天还没有待办<br><button class="btn sm" data-act="new-event" data-date="'+esc(today)+'" style="margin-top:8px">'+icon('plus',10)+' 新建待办</button></div>')+
       '</div></div>'+
       '<div class="card"><div class="card-h"><h3>内容流</h3><span class="eyebrow">'+d.content_items.length+' 条 · 按截止日</span></div><div class="card-b">'+
         (feed.length? '<ul class="feed">'+feed.map((c,i)=>{
@@ -1414,7 +1585,7 @@ function renderToday(){
             '<span class="idx">'+pad2(i+1)+'</span>'+
             '<div class="ft"><b>'+esc(c.title)+'</b><span>'+esc(c.platform)+' · '+esc(c.format)+' · '+relDay(c.due_date)+'</span></div>'+
             stageBadge(c.stage)+'</li>';
-        }).join('')+'</ul>' : '<div class="empty">还没有内容</div>')+
+        }).join('')+'</ul>' : '<div class="empty">还没有内容<br><button class="btn sm" data-act="new-content" data-stage="文案" style="margin-top:8px">'+icon('plus',10)+' 新建第一条</button></div>')+
       '</div></div>'+
       '<div class="card"><div class="card-h"><h3>商单预览</h3><span class="eyebrow">'+activeDeals.length+' 个在途</span></div><div class="card-b">'+
         (previewDeals.length? previewDeals.map(x=>{
@@ -1422,7 +1593,7 @@ function renderToday(){
             '<span class="md-b">'+esc((x.brand||'?').slice(0,1))+'</span>'+
             '<div class="md-t"><b>'+esc(x.brand)+'</b><span>'+esc(x.stage)+' · '+relDay(x.deadline)+'</span></div>'+
             '<div class="md-a">'+fmtMoney(x.amount)+'</div></div>';
-        }).join('') : '<div class="empty">暂无在途商单</div>')+
+        }).join('') : '<div class="empty">暂无在途商单<br><button class="btn sm" data-act="new-deal" style="margin-top:8px">'+icon('plus',10)+' 记录第一单</button></div>')+
       '</div></div>'+
     '</div>';
 }
@@ -2012,6 +2183,7 @@ function renderInsights(){
       [7,30,0].map(r=>'<button class="chip'+(range===r?' on':'')+'" data-act="ins-range" data-v="'+r+'">'+(r?('近 '+r+' 天'):'全部')+'</button>').join('')+
       '<span style="width:10px"></span>'+
       [ALL].concat(PLATFORMS).map(p=>'<button class="chip'+(plat===p?' on':'')+'" data-act="ins-plat" data-v="'+esc(p)+'">'+esc(p===ALL?'全平台':p)+'</button>').join('')+
+      '<span class="sp"></span><button class="btn sm" data-act="csv-import">粘贴导入</button>'+
     '</div>';
 
   if(!m.length){
@@ -2090,6 +2262,134 @@ function openMetricForm(row){
       toast(row ? '数据已更新' : '数据已记录');
     }
   });
+}
+
+/* ---------- 指标 CSV 粘贴导入（纯本机解析，不联网、不上传） ---------- */
+const CSV_COLS = [
+  ['date', ['日期','时间','date']],
+  ['platform', ['平台','渠道','platform']],
+  ['title', ['标题','内容标题','作品标题','笔记标题','title']],
+  ['plays', ['播放','播放量','浏览量','曝光','曝光量','阅读','阅读量','plays','views']],
+  ['likes', ['点赞','点赞数','赞','likes']],
+  ['comments', ['评论','评论数','comments']],
+  ['saves', ['收藏','收藏数','saves']],
+  ['shares', ['转发','分享','转发数','shares']],
+  ['followers', ['涨粉','新增关注','新增粉丝','followers']],
+  ['feedback', ['反馈','feedback']]
+];
+function csvNum(v){
+  const s = String(v == null ? '' : v).replace(/[,\s]/g, '');
+  const m = s.match(/^(\d+(?:\.\d+)?)([万wW亿]?)/);
+  if(!m) return 0;
+  const n = Number(m[1]);
+  if(!isFinite(n)) return 0;
+  return Math.round(m[2] === '亿' ? n * 1e8 : (m[2] ? n * 1e4 : n));
+}
+function csvDate(v){
+  const m = String(v || '').trim().match(/^(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
+  if(!m) return '';
+  return m[1] + '-' + pad2(Number(m[2])) + '-' + pad2(Number(m[3]));
+}
+function csvPlatform(v){
+  const s = String(v || '');
+  if(/小红书|红书|RED/i.test(s)) return '小红书';
+  if(/抖音|douyin/i.test(s)) return '抖音';
+  if(/视频号/.test(s)) return '视频号';
+  if(/公众号/.test(s)) return '公众号';
+  return '';
+}
+function parseCSVText(text){
+  const rows = [];
+  let row = [], cell = '', q = false;
+  const src = String(text || '').replace(/^\ufeff/, '');
+  for(let i = 0; i < src.length; i++){
+    const ch = src[i];
+    if(q){
+      if(ch === '"'){ if(src[i+1] === '"'){ cell += '"'; i++; } else q = false; }
+      else cell += ch;
+    }else if(ch === '"'){ q = true; }
+    else if(ch === ',' || ch === '\t' || ch === ';'){ row.push(cell); cell = ''; }
+    else if(ch === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if(ch !== '\r'){ cell += ch; }
+  }
+  if(cell || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+function parseMetricsCSV(text){
+  const rows = parseCSVText(text);
+  if(!rows.length) return { recs:[], bad:0 };
+  const head = rows[0].map(s => String(s).trim().toLowerCase());
+  const hasHeader = CSV_COLS.some(c => c[1].some(k => head.indexOf(k.toLowerCase()) > -1));
+  const colOf = {};
+  let start = 0;
+  if(hasHeader){
+    CSV_COLS.forEach(c => {
+      const i = head.findIndex(h => c[1].some(k => k.toLowerCase() === h));
+      if(i > -1) colOf[c[0]] = i;
+    });
+    start = 1;
+  }else{
+    /* 无表头时按固定顺序：日期,平台,标题,播放,点赞,评论,收藏,转发,涨粉 */
+    ['date','platform','title','plays','likes','comments','saves','shares','followers'].forEach((k, i)=>{ colOf[k] = i; });
+  }
+  const recs = [];
+  let bad = 0;
+  for(let r = start; r < rows.length; r++){
+    const cells = rows[r];
+    const get = k => (colOf[k] == null ? '' : String(cells[colOf[k]] == null ? '' : cells[colOf[k]]).trim());
+    const date = csvDate(get('date'));
+    if(!date){ bad++; continue; }
+    const fb = get('feedback');
+    recs.push({
+      date,
+      platform: csvPlatform(get('platform')) || '小红书',
+      title: get('title'),
+      plays: csvNum(get('plays')),
+      likes: csvNum(get('likes')),
+      comments: csvNum(get('comments')),
+      saves: csvNum(get('saves')),
+      shares: csvNum(get('shares')),
+      followers: csvNum(get('followers')),
+      feedback: FEEDBACKS.indexOf(fb) > -1 ? fb : '无感'
+    });
+  }
+  return { recs, bad };
+}
+function openMetricsImport(){
+  openModal(
+    '<div class="m-head"><div><span class="eyebrow">IMPORT / 指标导入</span><h3>粘贴后台数据</h3>'+
+      '<p class="sub">把小红书 / 抖音后台导出的 CSV 整段粘进来。只在本机浏览器解析，不上传。</p></div>'+
+      '<button class="m-close" data-close aria-label="关闭">'+icon('x')+'</button></div>'+
+    '<div class="m-body">'+
+      '<textarea id="csvBox" rows="9" placeholder="日期,平台,标题,播放,点赞,评论,收藏,转发,涨粉&#10;2026-11-01,小红书,示例标题,12800,860,42,310,26,18" '+
+        'style="width:100%;resize:vertical;border:1px solid var(--line);background:var(--card2);border-radius:3px;padding:9px 10px;font-family:var(--mono);font-size:11px;line-height:1.7;outline:none"></textarea>'+
+      '<p class="hint" style="margin-top:10px;line-height:1.9">支持逗号 / 制表符 / 分号分隔，带不带表头都行，数字可写 1.2万。'+
+        '日期、平台、标题都相同的记录会跳过，不会重复入库。</p>'+
+    '</div>'+
+    '<div class="m-foot"><button class="btn" data-close>取消</button>'+
+      '<button class="btn primary" id="csvOk">解析并导入</button></div>', true);
+  $('#csvOk').onclick = ()=>{
+    const { recs, bad } = parseMetricsCSV($('#csvBox').value || '');
+    if(!recs.length){ toast('没解析到有效行，检查一下日期列', true); return; }
+    const seen = new Set(Store.data.metrics.map(x => (x.date||'') + '|' + (x.platform||'') + '|' + (x.title||'')));
+    const fresh = recs.filter(r=>{
+      const k = r.date + '|' + r.platform + '|' + r.title;
+      if(seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+    if(!fresh.length){ toast('这些记录都已经在库里了'); return; }
+    const now = new Date().toISOString();
+    Store.data.metrics = Store.data.metrics.concat(fresh.map(r => Object.assign({ id:uid(), created_at:now, updated_at:now }, r)));
+    if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
+    Store.fp = fpOf(Store.data);
+    renderAll();
+    closeModal();
+    toast('已导入 ' + fresh.length + ' 条' +
+      (recs.length - fresh.length ? '，跳过 ' + (recs.length - fresh.length) + ' 条重复' : '') +
+      (bad ? '，' + bad + ' 行日期无法识别' : ''));
+  };
+  setTimeout(()=>{ const t = $('#csvBox'); if(t && window.innerWidth > 820) t.focus(); }, 40);
 }
 
 /* ================= 选题库 ================= */
@@ -2740,6 +3040,13 @@ document.addEventListener('click', async e=>{
         break;
       }
       case 'open-data': { openDataPanel(); break; }
+      case 'new-deal': { openDealForm(null); break; }
+      case 'backup-now': { exportJSON(); break; }
+      case 'tpl-download': { downloadTemplate(); break; }
+      case 'csv-import': { openMetricsImport(); break; }
+      case 'quick-todo': { openQuickTodo(quickText()); break; }
+      case 'quick-content': { openQuickContent(quickText()); break; }
+      case 'quick-deal': { openQuickDeal(quickText()); break; }
       case 'ins-range': {
         ui.insRange = Number(el.dataset.v);
         renderInsights();
@@ -2862,6 +3169,15 @@ async function init(){
     toast('云端连接失败，已切回本地数据（可点右上角「数据」重连）', true);
   }
   renderAll();
+
+  if(Store.mode === 'local'){
+    try{
+      if(!localStorage.getItem(LOCAL_NOTICE_KEY)){
+        localStorage.setItem(LOCAL_NOTICE_KEY, '1');
+        setTimeout(()=>toast('本地模式：数据只在这台设备，换设备前请先导出备份'), 900);
+      }
+    }catch(e){}
+  }
 
   setInterval(()=>{
     if(!document.hidden) syncNow(false);
