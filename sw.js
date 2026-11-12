@@ -1,6 +1,6 @@
 /* 枕冬工作台 · Service Worker
    只缓存页面外壳，接口请求（GitHub API）一律不缓存，避免读到旧数据。 */
-const CACHE = 'zd-shell-v1';
+const CACHE = 'zd-shell-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e=>{

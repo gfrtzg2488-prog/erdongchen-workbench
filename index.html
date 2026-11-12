@@ -50,6 +50,21 @@ h1,h2,h3,h4,p{margin:0}
 .nav .count{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:#7E7A70;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:20px}
 .rail-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);font-family:var(--mono);font-size:9.5px;line-height:1.9;color:#807B70;letter-spacing:.04em}
 .rail-foot b{color:#C9C3B4;font-weight:500}
+/* ---------- 星球黑洞入口 ---------- */
+.bh-entry{display:flex;align-items:center;gap:11px;padding:10px;border-radius:var(--r);color:#B9B3A5;font-size:12.5px;text-align:left;border:1px solid rgba(255,255,255,.07);background:linear-gradient(120deg,rgba(224,138,76,.12),rgba(90,120,255,.1));transition:background .16s,color .16s,border-color .16s}
+.bh-entry:hover{color:#fff;border-color:rgba(224,138,76,.45);background:linear-gradient(120deg,rgba(224,138,76,.2),rgba(90,120,255,.16))}
+.bh-orb{width:15px;height:15px;border-radius:50%;flex:none;background:radial-gradient(circle,#05060A 0 34%,#E08A4C 50%,#9FC4FF 72%,rgba(159,196,255,0) 78%);box-shadow:0 0 10px rgba(224,138,76,.45)}
+.bh-entry .bh-tag{margin-left:auto;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:#E0A87C;border:1px solid rgba(224,138,76,.35);padding:1px 5px;border-radius:2px}
+/* ---------- 黑洞全屏层 ---------- */
+.bh-overlay{position:fixed;inset:0;z-index:80;background:#05060A;display:flex;flex-direction:column}
+.bh-overlay[hidden]{display:none}
+.bh-chrome{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#0A0C12;border-bottom:1px solid rgba(255,255,255,.08);color:#E8E4DA;flex:none}
+.bh-chrome b{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:.06em}
+.bh-chrome span{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:#7A828E}
+.bh-chrome .bh-close{margin-left:auto;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#E8E4DA;padding:5px 10px;border-radius:3px;font-size:11px}
+.bh-chrome .bh-close:hover{background:rgba(255,255,255,.12)}
+#bhFrame{flex:1;width:100%;border:0;background:#05060A}
+body.bh-open{overflow:hidden}
 .dot-live{display:inline-block;width:5px;height:5px;border-radius:50%;background:#7E9A63;margin-right:5px;vertical-align:1px}
 
 /* ---------- 主区 ---------- */
@@ -414,6 +429,13 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .nav button.on{border-left-color:transparent;border-bottom-color:var(--accent);background:transparent}
   .nav button svg{width:15px;height:15px}
   .nav .count{display:none}
+  .nav{flex:1;width:auto}
+  .bh-entry{flex:none;flex-direction:column;gap:4px;padding:6px 5px;font-size:10px;border:0;background:none;min-width:52px}
+  .bh-entry:hover{background:none;color:#fff}
+  .bh-orb{width:15px;height:15px;box-shadow:0 0 7px rgba(224,138,76,.4)}
+  .bh-entry .bh-tag{display:none}
+  .bh-chrome{padding:7px 10px}
+  .bh-chrome span{display:none}
   main{padding:0 13px calc(64px + env(safe-area-inset-bottom))}
   .toast{bottom:calc(74px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px);padding:10px 14px}
   .toast .ta{min-height:28px;padding:2px 8px}
@@ -552,6 +574,11 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 <aside class="rail">
   <div class="brand"><b>枕冬</b><span>ZHENDONG · STUDIO</span></div>
   <nav class="nav" id="nav"></nav>
+  <button class="bh-entry" id="bhEntry" type="button" title="打开星球黑洞 3D 场景">
+    <span class="bh-orb" aria-hidden="true"></span>
+    <span>星球黑洞</span>
+    <span class="bh-tag">3D</span>
+  </button>
   <div class="rail-foot">
     <div><b id="railWeek">W—</b> · <span id="railDate">—</span></div>
     <div id="railData"><span class="dot-live"></span>正在连接数据</div>
@@ -588,6 +615,13 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
     <section class="view" data-view="library"></section>
   </div>
 </main>
+<div id="bhOverlay" class="bh-overlay" hidden>
+  <div class="bh-chrome">
+    <b>星球黑洞</b><span>ACCRETION DISK · 3D</span>
+    <button class="bh-close" id="bhClose" type="button">返回工作台</button>
+  </div>
+  <iframe id="bhFrame" title="星球黑洞 3D 场景"></iframe>
+</div>
 <dialog id="modal"></dialog>
 <div id="toast" class="toast"></div>
 <script>
@@ -3214,6 +3248,30 @@ $('#newBtn').addEventListener('click', ()=>{
 
 $('#dataBtn').addEventListener('click', openDataPanel);
 $('#aiBtn').addEventListener('click', openAIPanel);
+
+/* ---------- 星球黑洞：点击后才加载 three.js，关闭即卸载 ---------- */
+(function initBlackhole(){
+  const overlay = $('#bhOverlay'), frame = $('#bhFrame');
+  const entry = $('#bhEntry'), closeBtn = $('#bhClose');
+  if(!overlay || !frame || !entry || !closeBtn) return;
+  function show(){
+    if(!frame.getAttribute('src')) frame.src = './blackhole/index.html';
+    overlay.hidden = false;
+    document.body.classList.add('bh-open');
+    closeBtn.focus();
+  }
+  function hide(){
+    overlay.hidden = true;
+    document.body.classList.remove('bh-open');
+    frame.src = 'about:blank';
+    entry.focus();
+  }
+  entry.addEventListener('click', show);
+  closeBtn.addEventListener('click', hide);
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && !overlay.hidden) hide();
+  });
+})();
 $('#mAI').addEventListener('click', ()=>{ $('#moreMenu').classList.remove('open'); openAIPanel(); });
 $('#mData').addEventListener('click', ()=>{ $('#moreMenu').classList.remove('open'); openDataPanel(); });
 $('#moreBtn').addEventListener('click', ev=>{
