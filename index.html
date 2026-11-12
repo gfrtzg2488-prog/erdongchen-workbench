@@ -619,7 +619,7 @@ if(LOCAL_ONLY){ CLOUD = false; }
 const STAGES = ['文案','剪辑','审核','发布','已发布'];
 const PLATFORMS = ['小红书','抖音','视频号','公众号'];
 const FORMATS = ['图文','视频','长文'];
-const TOPICS = ['日常分享','互动话题','干货清单','商单','复盘'];
+const TOPICS = ['日常','玄学短句','小确幸好物'];
 const DEAL_STAGES = ['洽谈','已签约','制作中','待发布','已交付','已回款'];
 const EVENT_KINDS = ['发布','拍摄','剪辑','审核','商单','复盘'];
 const EVENT_STATUS = ['待办','进行中','完成'];
@@ -1199,7 +1199,7 @@ function exportJSON(){
 /* 占位符模板：只给结构，不含任何真实客户、金额与联系方式 */
 function downloadTemplate(){
   const t = {
-    content_items: [{ title:'{选题标题}', platform:'小红书', format:'图文', stage:'文案', topic:'日常分享', hook:'{开场钩子}', owner:'枕冬', due_date:'{日期-YYYY-MM-DD}', priority:2, notes:'{备注}' }],
+    content_items: [{ title:'{选题标题}', platform:'小红书', format:'图文', stage:'文案', topic:'日常', hook:'{开场钩子}', owner:'枕冬', due_date:'{日期-YYYY-MM-DD}', priority:2, notes:'{备注}' }],
     deals: [{ brand:'{客户名}', title:'{项目名}', contact:'{联系人}', type:'图文合作', amount:'{报价金额}', received:0, stage:'已签约', progress:0, start_date:'{日期-YYYY-MM-DD}', deadline:'{货期日期}', deliverables:'1. {交付物一}\n2. {交付物二}', brief:'{需求要点}', notes:'{备注}' }],
     schedule: [{ date:'{日期-YYYY-MM-DD}', time:'10:00', title:'{待办事项}', kind:'发布', platform:'小红书', status:'待办' }],
     metrics: [{ date:'{日期-YYYY-MM-DD}', platform:'小红书', title:'{内容标题}', plays:0, likes:0, comments:0, saves:0, shares:0, followers:0, feedback:'无感' }],
@@ -1569,7 +1569,7 @@ function openQuickContent(prefill){
     values:{ title:prefill || '', platform:'小红书', due_date:addDays(todayStr(), 2) },
     submitText:'记下来',
     onSubmit: async v => {
-      await createRow('content_items', Object.assign({ format:'图文', stage:'文案', topic:'日常分享', priority:2, owner:'枕冬', hook:'', notes:'' }, v));
+      await createRow('content_items', Object.assign({ format:'图文', stage:'文案', topic:'日常', priority:2, owner:'枕冬', hook:'', notes:'' }, v));
       renderAll();
       toast('内容已记下');
     }
@@ -1736,7 +1736,7 @@ function contentFields(){
 
 function openContentForm(row, presetStage){
   const base = row || {
-    platform:'小红书', format:'图文', stage: presetStage || '文案', topic:'日常分享',
+    platform:'小红书', format:'图文', stage: presetStage || '文案', topic:'日常',
     priority:2, due_date:addDays(todayStr(),3), owner:'枕冬', hook:'', notes:''
   };
   openForm({
@@ -2577,7 +2577,7 @@ function openIdeaPreview(id){
     true);
 }
 
-const TAG_PRESETS = ['玄学分享','日常分享','穿搭','小确幸好物','小配饰','干货清单','互动话题','商单','素材'];
+const TAG_PRESETS = ['日常','玄学短句','小确幸好物','小物件','互动'];
 
 function openTagSwap(id){
   const x = Store.data.ideas.find(i=>i.id===id);
@@ -2683,7 +2683,7 @@ function aiPrompt(x, kind, extra){
     : kind === '拍摄素材清单'
     ? '【必拍画面】6-8 条，写清拍什么\n【机位与光线】3 条\n【道具】清单\n【注意】版权与肖像提示'
     : '【标题备选】3 条，每条不超过 20 字\n【正文】300-500 字，分 3-5 段，第一句是钩子\n【标签】3-5 个，用 # 开头\n【互动】一句提问，放在正文最后';
-  return '你是自媒体账号「枕冬」的写作助手。账号定位：日常分享 + 高频互动话题，语气像朋友聊天。\n' +
+  return '你是自媒体账号「枕冬」的写作助手。账号定位：日常、玄学短句、小确幸好物（小物件）三类，语气像朋友聊天。\n' +
     '选题：' + (x.title || '') + '\n' +
     '类型：' + (x.kind || '选题') + '｜分类：' + (x.category || '未分类') + '｜平台：' + (x.platform || '小红书') + '\n' +
     '标签：' + (x.tags || '无') + '\n' +
@@ -2903,7 +2903,7 @@ function openIdeaDraft(id){
         platform: x.platform || '小红书',
         format: $('#dKind').value === '短视频口播' ? '视频' : '图文',
         stage:'文案',
-        topic: x.kind === '话题' ? '互动话题' : '日常分享',
+        topic: x.kind === '玄学' ? '玄学短句' : (x.kind === '好物' ? '小确幸好物' : '日常'),
         hook:'',
         owner:'枕冬',
         due_date: addDays(todayStr(), 5),
@@ -2947,7 +2947,7 @@ async function ideaToContent(id){
     platform: it.platform || '小红书',
     format: '图文',
     stage: '文案',
-    topic: it.kind === '话题' ? '互动话题' : '日常分享',
+    topic: it.kind === '玄学' ? '玄学短句' : (it.kind === '好物' ? '小确幸好物' : '日常'),
     hook:'',
     owner:'枕冬',
     due_date: addDays(todayStr(), 5),
