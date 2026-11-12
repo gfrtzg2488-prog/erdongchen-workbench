@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <title>枕冬 · 自媒体工作台</title>
 <meta name="theme-color" content="#17181B">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="枕冬">
+<link rel="icon" href="icon-192.png">
 <style>
 :root{
   --paper:#F3EFE6;--card:#FBF8F1;--card2:#FFFCF5;--ink:#17181B;--ink2:#1F2023;
@@ -368,7 +374,9 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
 .sec-t{font-size:9.5px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase;margin:14px 0 6px}
 .brief{font-size:11.5px;color:var(--muted);line-height:1.6;background:#F7F3EA;border-left:2px solid var(--line);padding:9px 11px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);background:var(--ink);color:#F0EBE0;font-size:11.5px;padding:9px 14px;border-radius:3px;opacity:0;pointer-events:none;transition:.22s;z-index:60;max-width:80vw;text-align:center}
-.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast .ta{margin-left:10px;padding:2px 6px;border-bottom:1px solid rgba(255,255,255,.5);color:#F2CDB0;font-size:11.5px}
+.toast .ta:hover{color:#fff;border-bottom-color:#fff}
 .toast.err{background:#8E3320}
 .offline-strip{display:flex;align-items:flex-start;gap:8px;font-size:10px;color:#7A5326;background:#F7EEDE;border:1px solid #E4D2B4;border-left:3px solid var(--amber);padding:7px 11px;border-radius:2px;margin-bottom:12px;cursor:pointer;line-height:1.55}
 .offline-strip b{font-weight:500}
@@ -407,6 +415,8 @@ dialog::backdrop{background:rgba(23,24,27,.44);backdrop-filter:blur(1px)}
   .nav button svg{width:15px;height:15px}
   .nav .count{display:none}
   main{padding:0 13px calc(64px + env(safe-area-inset-bottom))}
+  .toast{bottom:calc(74px + env(safe-area-inset-bottom));max-width:calc(100vw - 24px);padding:10px 14px}
+  .toast .ta{min-height:28px;padding:2px 8px}
   .topbar{padding:14px 0 11px;gap:9px}
   .tb-l h1{font-size:21px}
   .tb-l p{display:none}
@@ -708,13 +718,29 @@ function sum(arr, fn){ return arr.reduce((a,x)=>a+(Number(fn(x))||0),0); }
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 
 let toastTimer = null;
-function toast(msg, isErr){
+let toastAction = null;
+function toast(msg, isErr, action){
   const t = $('#toast');
-  t.textContent = msg;
+  toastAction = (action && typeof action.fn === 'function') ? action : null;
+  if(toastAction){
+    t.innerHTML = '<span class="tm"></span><button class="ta" type="button"></button>';
+    t.querySelector('.tm').textContent = msg;
+    t.querySelector('.ta').textContent = toastAction.label || '撤销';
+  }else{
+    t.textContent = msg;
+  }
   t.className = 'toast on' + (isErr ? ' err' : '');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ t.className = 'toast'; }, 2400);
+  toastTimer = setTimeout(()=>{ t.className = 'toast'; toastAction = null; }, toastAction ? 6000 : 2400);
 }
+$('#toast').addEventListener('click', e=>{
+  if(!e.target.closest('.ta') || !toastAction) return;
+  const fn = toastAction.fn;
+  toastAction = null;
+  clearTimeout(toastTimer);
+  e.currentTarget.className = 'toast';
+  fn();
+});
 
 /* ================= 图标 ================= */
 const ICON_PATHS = {
@@ -1021,10 +1047,26 @@ async function updateRow(table, id, patch){
   return Store.data[table][i];
 }
 
-async function deleteRow(table, id){
-  Store.data[table] = (Store.data[table] || []).filter(r => r.id !== id);
+async function deleteRow(table, id, label){
+  const arr = Store.data[table] || [];
+  const idx = arr.findIndex(r => r.id === id);
+  if(idx < 0) return;
+  const row = arr[idx];
+  const name = label || '记录';
+  Store.data[table] = arr.slice(0, idx).concat(arr.slice(idx + 1));
   if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
   Store.fp = fpOf(Store.data);
+  toast(name + '已删除', false, { label:'撤销', fn: ()=>restoreRow(table, row, idx, name) });
+}
+
+async function restoreRow(table, row, idx, label){
+  const arr = (Store.data[table] || []).slice();
+  arr.splice(clamp(idx, 0, arr.length), 0, row);
+  Store.data[table] = arr;
+  if(Store.mode === 'cloud') schedulePush(); else if(Store.mode === 'local') lsWrite(Store.data);
+  Store.fp = fpOf(Store.data);
+  renderAll();
+  toast((label || '记录') + '已恢复');
 }
 
 async function loadAll(){
@@ -1978,7 +2020,7 @@ function openEventForm(row, presetDate){
       confirmAction({
         title:'删除这项安排？',
         body:'将删除「' + row.title + '」的排期，删除后不可恢复。',
-        onOk: async ()=>{ await deleteRow('schedule', row.id); renderAll(); toast('安排已删除'); }
+        onOk: async ()=>{ await deleteRow('schedule', row.id, '安排'); renderAll(); }
       });
     } : null,
     onSubmit: async v => {
@@ -2252,7 +2294,7 @@ function openMetricForm(row){
       confirmAction({
         title:'删除这条数据？',
         body:'将删除 ' + row.date + ' · ' + (row.title ? row.title : row.platform) + ' 的记录，删除后不可恢复。',
-        onOk: async ()=>{ await deleteRow('metrics', row.id); renderAll(); toast('记录已删除'); }
+        onOk: async ()=>{ await deleteRow('metrics', row.id, '记录'); renderAll(); }
       });
     } : null,
     onSubmit: async v => {
@@ -2966,7 +3008,7 @@ document.addEventListener('click', async e=>{
         confirmAction({
           title:'删除这条内容？',
           body:'将删除「' + (c ? c.title : '') + '」。此操作同步写回数据表，删除后无法在页面恢复。',
-          onOk: async ()=>{ await deleteRow('content_items', id); renderAll(); toast('内容已删除'); }
+          onOk: async ()=>{ await deleteRow('content_items', id, '内容'); renderAll(); }
         });
         break;
       }
@@ -3007,7 +3049,7 @@ document.addEventListener('click', async e=>{
         confirmAction({
           title:'删除这个商单？',
           body:'将删除「' + (d ? d.brand : '') + '」及其金额、交付记录。该操作不可撤销。',
-          onOk: async ()=>{ await deleteRow('deals', id); renderAll(); toast('商单已删除'); }
+          onOk: async ()=>{ await deleteRow('deals', id, '商单'); renderAll(); }
         });
         break;
       }
@@ -3035,7 +3077,7 @@ document.addEventListener('click', async e=>{
         confirmAction({
           title:'删除这项安排？',
           body:'将删除「' + (ev ? ev.title : '') + '」的排期，删除后不可恢复。',
-          onOk: async ()=>{ await deleteRow('schedule', id); renderAll(); toast('安排已删除'); }
+          onOk: async ()=>{ await deleteRow('schedule', id, '安排'); renderAll(); }
         });
         break;
       }
@@ -3067,7 +3109,7 @@ document.addEventListener('click', async e=>{
         confirmAction({
           title:'删除这条数据？',
           body:'将删除 ' + (mt ? mt.date + ' · ' + mt.platform : '该记录') + '，删除后不可恢复。',
-          onOk: async ()=>{ await deleteRow('metrics', id); renderAll(); toast('记录已删除'); }
+          onOk: async ()=>{ await deleteRow('metrics', id, '记录'); renderAll(); }
         });
         break;
       }
@@ -3112,7 +3154,7 @@ document.addEventListener('click', async e=>{
         confirmAction({
           title:'删除这条选题？',
           body:'将删除「' + (it ? it.title : '') + '」。该操作不可撤销。',
-          onOk: async ()=>{ await deleteRow('ideas', id); renderAll(); toast('选题已删除'); }
+          onOk: async ()=>{ await deleteRow('ideas', id, '选题'); renderAll(); }
         });
         break;
       }
@@ -3148,6 +3190,13 @@ $('#sync').addEventListener('click', ()=>{
 });
 
 /* ================= 启动 ================= */
+function registerSW(){
+  if(!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+
 async function init(){
   const initial = location.hash.replace(/^#\/?/, '');
   if(NAV.some(n=>n.key===initial)) ui.view = initial;
@@ -3239,6 +3288,7 @@ async function init(){
   }
   document.addEventListener('focusin', e=>{ if(e.target.closest('dialog')) setTimeout(fitDialog, 120); });
   document.addEventListener('focusout', e=>{ if(e.target.closest('dialog')) setTimeout(fitDialog, 120); });
+  registerSW();
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
