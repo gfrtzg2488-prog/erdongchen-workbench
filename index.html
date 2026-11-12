@@ -742,6 +742,35 @@ $('#toast').addEventListener('click', e=>{
   fn();
 });
 
+/* 复制成稿：优先用剪贴板 API，失败时退回复制隐藏文本框（iOS/老浏览器） */
+function contentText(c){
+  return [c.title, c.body, c.tags].filter(Boolean).join('\n\n');
+}
+function legacyCopy(text, done, fail){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    ok ? done() : fail();
+  }catch(e){ fail(); }
+}
+function copyText(text, okMsg){
+  if(!text){ toast('这条还没有正文', true); return; }
+  const done = ()=>toast(okMsg || '已复制，去小红书粘贴就能发');
+  const fail = ()=>toast('复制失败，长按文字手动选择', true);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>legacyCopy(text, done, fail));
+  }else{
+    legacyCopy(text, done, fail);
+  }
+}
+
 /* ================= 图标 ================= */
 const ICON_PATHS = {
   home:'<path d="M3 10.6 12 3l9 7.6"/><path d="M5.6 9.6V20h12.8V9.6"/><path d="M9.6 20v-5.4h4.8V20"/>',
@@ -1653,6 +1682,7 @@ function contentCardHTML(c){
     '<div class="cf">'+prioTag(c.priority)+
       '<span class="due'+(overdue?' priority p1':'')+'" style="font-family:var(--mono);font-size:9px;'+(overdue?'color:var(--accent);':'')+'">'+relDay(c.due_date)+'</span>'+
       '<div class="acts">'+
+        (c.body?'<button class="advance" data-act="copy-content" data-id="'+esc(c.id)+'">复制</button>':'')+
         (next?'<button class="advance" data-act="advance-content" data-id="'+esc(c.id)+'">'+esc(next)+' →</button>':'')+
         '<button class="iconbtn" data-act="edit-content" data-id="'+esc(c.id)+'" aria-label="编辑">'+icon('edit',12)+'</button>'+
         '<button class="iconbtn del" data-act="del-content" data-id="'+esc(c.id)+'" aria-label="删除">'+icon('trash',12)+'</button>'+
@@ -1696,6 +1726,10 @@ function contentFields(){
     { key:'due_date', label:'截止日', type:'date' },
     { key:'owner', label:'负责人', type:'text', placeholder:'枕冬' },
     { key:'hook', label:'开场钩子', type:'text', full:true, placeholder:'前三秒/首图的一句话' },
+    { key:'alts', label:'备选标题', type:'textarea', full:true, rows:2, placeholder:'一行一个，发布时挑一个（≤20 字/条）' },
+    { key:'cover', label:'封面文字', type:'text', full:true, placeholder:'首图上的字，控制在 10 字内' },
+    { key:'body', label:'正文（复制即可发布）', type:'textarea', full:true, rows:10, placeholder:'标题以下的完整笔记文案' },
+    { key:'tags', label:'话题标签', type:'text', full:true, placeholder:'#独居 #出租屋 用空格分隔' },
     { key:'notes', label:'备注', type:'textarea', full:true, rows:3, placeholder:'拍摄要求、参考链接（不要填客户隐私信息）' }
   ];
 }
@@ -2995,6 +3029,11 @@ document.addEventListener('click', async e=>{
       case 'new-content':
         openContentForm(null, el.dataset.stage || '文案');
         break;
+      case 'copy-content': {
+        const c = Store.data.content_items.find(x=>x.id===id);
+        if(c) copyText(contentText(c));
+        break;
+      }
       case 'edit-content': {
         const c = Store.data.content_items.find(x=>x.id===id);
         if(c) openContentForm(c);
