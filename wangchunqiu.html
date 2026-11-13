@@ -488,6 +488,18 @@ main::before{
 .empty-hud{padding:24px 14px;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);line-height:2;border-bottom:1px dashed rgba(255,255,255,.07)}
 .empty-hud b{display:block;color:var(--dim);font-weight:400;font-size:9px;letter-spacing:.22em;margin-bottom:4px}
 .todo li .m{flex-wrap:wrap;gap:6px}
+/* 卡片交互：点击抬头跳转 / 右上角放大 */
+.card[data-card] .card-h,.card.stat[data-card]{cursor:pointer}
+.card[data-card] .card-h:hover h3{color:var(--cyan)}
+.czoom{position:absolute;top:7px;right:7px;z-index:6;width:19px;height:19px;display:grid;place-items:center;font-family:var(--mono);font-size:10px;line-height:1;color:var(--faint);border:1px solid rgba(255,255,255,.14);background:rgba(8,10,10,.72);opacity:.45;transition:.16s}
+.card:hover .czoom,.card:focus-within .czoom{opacity:1}
+.czoom:hover{color:var(--ink);border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.09)}
+.card.stat .czoom{top:auto;bottom:7px;right:7px}
+.card-h .czoom{position:static;flex:none;margin-left:8px}
+.card.flash{animation:cardflash 1.05s ease}
+@keyframes cardflash{0%{box-shadow:0 0 0 1px rgba(230,233,233,.9),0 0 30px -6px rgba(230,233,233,.55)}100%{box-shadow:0 0 0 1px transparent}}
+.modal-b .zoomed .card-h{cursor:default}
+.modal-b .zoomed .czoom{display:none}
 #toast{position:fixed;left:50%;bottom:26px;z-index:140;transform:translateX(-50%) translateY(12px);opacity:0;pointer-events:none;transition:.22s;background:rgba(10,12,13,.96);border:1px solid var(--cyan-line);color:var(--ink);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;padding:9px 16px;box-shadow:0 18px 50px -22px #000;max-width:88vw}
 #toast.on{opacity:1;transform:translateX(-50%)}
 #toast.err{border-color:rgba(224,138,76,.6);color:#F0AE86}
@@ -552,7 +564,7 @@ main::before{
   <!-- 今日 -->
   <section class="view on" id="v-today">
     <div class="grid g3">
-      <div class="card stat">
+      <div class="card stat" data-card="queue">
         <div class="lb">
           <span class="eyebrow">QUEUE / TODAY</span>
           <b><span data-r="q-done">0</span><small>/ <span data-r="q-total">0</span></small></b>
@@ -562,8 +574,9 @@ main::before{
           <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="queue" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
           <div class="pct" data-r="q-pct">0%</div>
         </div>
+        <button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button>
       </div>
-      <div class="card stat">
+      <div class="card stat" data-card="week">
         <div class="lb">
           <span class="eyebrow">OUTPUT / WEEK</span>
           <b><span data-r="w-made">0</span><small>/ 5</small></b>
@@ -573,8 +586,9 @@ main::before{
           <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="week" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
           <div class="pct" data-r="w-pct">0%</div>
         </div>
+        <button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button>
       </div>
-      <div class="card stat">
+      <div class="card stat" data-card="pool">
         <div class="lb">
           <span class="eyebrow">POOL / IDEAS</span>
           <b><span data-r="i-total">0</span><small>条</small></b>
@@ -584,6 +598,7 @@ main::before{
           <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="pool" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
           <div class="pct" data-r="i-pct">0%</div>
         </div>
+        <button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button>
       </div>
     </div>
 
@@ -622,16 +637,16 @@ main::before{
     </div>
 
     <div class="today">
-      <div class="card">
-        <div class="card-h"><span class="no">02</span><h3>待办队列</h3><span class="meta"><span data-r="todo-count">0</span> ITEMS</span></div>
+      <div class="card" data-card="todo">
+        <div class="card-h"><span class="no">02</span><h3>待办队列</h3><span class="meta"><span data-r="todo-count">0</span> ITEMS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
         <div class="card-b">
           <button class="add-btn" data-add="schedule">+ 新建待办</button>
           <ul class="todo" data-r="today-todo"></ul>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-h"><span class="no">03</span><h3>成稿待发</h3><span class="meta"><span data-r="draft-count">0</span> DRAFTS</span></div>
+      <div class="card" data-card="drafts">
+        <div class="card-h"><span class="no">03</span><h3>成稿待发</h3><span class="meta"><span data-r="draft-count">0</span> DRAFTS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
         <div class="card-b" style="padding:0" data-r="today-drafts"></div>
       </div>
     </div>
@@ -640,12 +655,12 @@ main::before{
   <!-- 内容 -->
   <section class="view" id="v-content">
     <div class="grid g2">
-      <div class="card">
-        <div class="card-h"><span class="no">01</span><h3>成稿库</h3><span class="hadd" data-add="content_items">+ 新建成稿</span><span class="meta"><span data-r="content-count">0</span> ITEMS</span></div>
+      <div class="card" data-card="content">
+        <div class="card-h"><span class="no">01</span><h3>成稿库</h3><span class="hadd" data-add="content_items">+ 新建成稿</span><span class="meta"><span data-r="content-count">0</span> ITEMS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
         <div class="card-b" style="padding:0" data-r="content-list"></div>
       </div>
-      <div class="card">
-        <div class="card-h"><span class="no">02</span><h3>发布节奏</h3><span class="meta">NEXT 7D</span></div>
+      <div class="card" data-card="sched">
+        <div class="card-h"><span class="no">02</span><h3>发布节奏</h3><span class="meta">NEXT 7D</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
         <div class="card-b">
           <table class="tbl">
             <thead><tr><th>DATE</th><th>TOPIC</th><th>STATE</th></tr></thead>
@@ -661,8 +676,8 @@ main::before{
 
   <!-- 选题 -->
   <section class="view" id="v-ideas">
-    <div class="card">
-      <div class="card-h"><span class="no">01</span><h3>选题池</h3><span class="hadd" data-add="ideas">+ 新建选题</span><span class="meta"><span data-r="ideas-count">0</span> ITEMS</span></div>
+    <div class="card" data-card="ideas">
+      <div class="card-h"><span class="no">01</span><h3>选题池</h3><span class="hadd" data-add="ideas">+ 新建选题</span><span class="meta"><span data-r="ideas-count">0</span> ITEMS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
       <div class="card-b" style="padding:0;overflow-x:auto">
         <table class="tbl">
           <thead><tr><th>ID</th><th>选题</th><th>分类</th><th>平台</th><th>状态</th><th>ACTIONS</th></tr></thead>
@@ -823,12 +838,68 @@ main::before{
       if(lastFocus&&lastFocus.focus)try{lastFocus.focus({preventScroll:true})}catch(err){}
     },240);
   }
+  /* ---- 卡片交互：抬头点击跳转 / 右上角放大 ---- */
+  var CARD_NAV={queue:{v:'today',t:'todo'},week:{v:'content',t:'content'},pool:{v:'ideas',t:'ideas'},
+                todo:{v:'today',t:'todo'},drafts:{v:'content',t:'content'},content:{v:'content',t:'content'},
+                sched:{v:'content',t:'sched'},ideas:{v:'ideas',t:'ideas'}};
+  function flashCard(el){
+    if(!el)return;
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    setTimeout(function(){el.classList.remove('flash')},1200);
+  }
+  function jumpCard(card){
+    var key=card.getAttribute('data-card'); if(!key)return;
+    var nav=CARD_NAV[key]||{v:'today',t:key};
+    var live=document.getElementById('v-'+nav.v);
+    if(live&&live.classList.contains('on')&&!modal.classList.contains('on')){
+      var t=live.querySelector('[data-card="'+nav.t+'"]');
+      if(t){ t.scrollIntoView({behavior:'smooth',block:'center'}); flashCard(t); }
+      return;
+    }
+    openModal(nav.v);
+    var tc=mBody.querySelector('[data-card="'+nav.t+'"]');
+    if(tc){ mBody.scrollTop=Math.max(0,tc.offsetTop-14); flashCard(tc); }
+  }
+  function zoomCard(card){
+    if(!card)return;
+    var h=card.querySelector('.card-h h3')||card.querySelector('.eyebrow');
+    var title=h?h.textContent.trim():'DETAIL';
+    mMeta.textContent='CARD VIEW / '+String(card.getAttribute('data-card')||'').toUpperCase();
+    mTitle.textContent=title;
+    mSub.textContent='点击空白或 ✕ 关闭';
+    var box=document.createElement('div');
+    box.className='zoomed';
+    var clone=card.cloneNode(true);
+    var zb=clone.querySelectorAll('.czoom');
+    [].forEach.call(zb,function(x){ x.parentNode.removeChild(x); });
+    [].forEach.call(clone.querySelectorAll('[data-card]'),function(x){ x.removeAttribute('data-card'); });
+    clone.removeAttribute('data-card');
+    box.appendChild(clone);
+    mBody.innerHTML='';
+    mBody.appendChild(box);
+    mBody.scrollTop=0;
+    if(window.ZD_REFRESH)try{window.ZD_REFRESH(mBody)}catch(err){}
+    if(window.ZD_DASH)try{window.ZD_DASH(mBody)}catch(err){}
+    lastFocus=document.activeElement;
+    if(closeTimer){clearTimeout(closeTimer);closeTimer=0;}
+    modal.classList.remove('closing');
+    modal.classList.add('on');
+    document.body.classList.add('modal-open');
+    var x=modal.querySelector('.modal-x');
+    if(x)try{x.focus({preventScroll:true})}catch(err){x.focus()}
+  }
   window.ZD_OPEN=openModal;
 
   document.addEventListener('click',function(e){
     if(e.target.closest('[data-close]')){ closeModal(); return; }
-    var b=e.target.closest('[data-go]'); if(!b)return;
-    openModal(b.getAttribute('data-go'));
+    var z=e.target.closest('[data-zoom]');
+    if(z){ e.preventDefault(); zoomCard(z.closest('.card')); return; }
+    var b=e.target.closest('[data-go]');
+    if(b){ openModal(b.getAttribute('data-go')); return; }
+    var card=e.target.closest('.card[data-card]');
+    if(!card)return;
+    if(e.target.closest('button,a,input,select,textarea,[data-add],[data-edit],[data-del],[data-ai-idea],[data-tgl]'))return;
+    if(e.target.closest('.card-h')||e.target.closest('.stat')) jumpCard(card);
   });
   document.addEventListener('keydown',function(e){
     if(e.key==='Escape'||e.keyCode===27) closeModal();
