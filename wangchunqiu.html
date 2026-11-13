@@ -174,6 +174,13 @@ h1#title{font-size:24px;font-weight:500;letter-spacing:.14em;color:var(--ink);li
   background:radial-gradient(58% 58% at 50% 50%,rgba(255,255,255,.04),transparent 72%)}
 .globe-stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 .globe-stage.drag canvas{cursor:grabbing}
+/* 首页运行域：铺满视口 */
+#v-home.on{display:flex;flex-direction:column;height:var(--home-h,auto)}
+#v-home>.card{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:12px}
+#v-home .globe-body{flex:1;min-height:0}
+#v-home .globe-stage{min-height:0}
+#v-home .globe-side.right{overflow:auto}
+body.home-full main{padding-bottom:14px}
 .globe-tip{position:absolute;left:0;top:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .15s;
   font-family:var(--mono);font-size:7.5px;letter-spacing:.15em;color:var(--ink);
   background:rgba(5,6,7,.92);border:1px solid rgba(255,255,255,.3);padding:4px 7px;transform:translate(12px,-30px);white-space:nowrap}
@@ -449,7 +456,9 @@ main::before{
   .topbar{padding:14px 0 10px}
   h1#title{font-size:20px}
   #subtitle{font-size:10.5px}
-  .tb-r{width:100%;margin-left:0;justify-content:space-between}
+  .tb-r{width:100%;margin-left:0;justify-content:space-between;gap:8px}
+  .tb-r .btn{padding:6px 9px;font-size:9px;letter-spacing:.1em}
+  .status{font-size:8px;padding:5px 8px}
   .readout{display:none}
   .ruler,.ruler-row{display:none}
   .g3,.g2,.today,.dash-r1{grid-template-columns:1fr}
@@ -466,6 +475,10 @@ main::before{
   .modal-h{padding:15px 16px 12px}
   .modal-h h2{font-size:19px}
   .modal-b{padding:14px 14px 22px}
+}
+@media (max-width:560px){
+  .tb-r{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start}
+  .tb-r .status{width:100%}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -623,20 +636,20 @@ main::before{
   <!-- 首页：只保留运行域 -->
   <section class="view on" id="v-home">
     <div class="card" style="margin-top:12px">
-      <div class="card-h"><span class="no">01</span><h3>运行域</h3><span class="meta">OPERATION ORB / 5 MODULES</span></div>
+      <div class="card-h"><span class="no">01</span><h3>运行域</h3><span class="meta">运行域总览 / 5 个模块</span></div>
       <div class="card-b globe-body">
         <div class="globe-stage" id="gstage">
           <canvas id="globe"></canvas>
           <div class="globe-hud"><i></i><i></i><i></i><i></i></div>
           <div class="globe-tip" id="gtip"></div>
-          <div class="globe-legend"><span>DRAG <b>ROTATE</b></span><span>CLICK NODE <b>OPEN</b></span><span><b>5</b> MODULES</span></div>
+          <div class="globe-legend"><span>拖拽 <b>旋转</b></span><span>点击节点 <b>打开</b></span><span><b>5</b> 个模块</span></div>
         </div>
         <div class="globe-side right">
-          <div class="gs-hd">TELEMETRY</div>
-          <div class="gr-row"><span>LAT</span><b id="g-lat">--</b></div>
-          <div class="gr-row"><span>LON</span><b id="g-lon">--</b></div>
-          <div class="gr-row"><span>ROT</span><b id="g-rot">AUTO</b></div>
-          <div class="gr-row"><span>RES</span><b>110M</b></div>
+          <div class="gs-hd">遥测</div>
+          <div class="gr-row"><span>纬度</span><b id="g-lat">--</b></div>
+          <div class="gr-row"><span>经度</span><b id="g-lon">--</b></div>
+          <div class="gr-row"><span>旋转</span><b id="g-rot">自动</b></div>
+          <div class="gr-row"><span>精度</span><b>110M</b></div>
           <div class="sig-list" data-r="sig-list">
             <div class="sig-row"><span class="k">SIG</span><span class="t">暂无临期事项</span><span class="v">IDLE</span></div>
           </div>
@@ -758,7 +771,7 @@ main::before{
   <div class="modal-panel">
     <div class="modal-h">
       <div class="modal-hl">
-        <span class="idx" id="mMeta">MODULE 01 / 05</span>
+        <span class="idx" id="mMeta">模块 01 / 05</span>
         <h2 id="mTitle">望春秋</h2>
         <span class="mm" id="mSub">运行域总览 · 点击球体模块进入</span>
       </div>
@@ -819,7 +832,7 @@ main::before{
     if(!modal||!src||!INFO[v])return;
     [].forEach.call(mods,function(x){x.classList.toggle('on',x.getAttribute('data-go')===v)});
     var i=ORDER.indexOf(v);
-    mMeta.textContent='MODULE 0'+(i+1)+' / 0'+ORDER.length+' — '+v.toUpperCase();
+    mMeta.textContent='模块 0'+(i+1)+' / 0'+ORDER.length+' — '+INFO[v][0];
     mTitle.textContent=INFO[v][0];
     mSub.textContent=INFO[v][1];
     mBody.innerHTML=src.innerHTML;
@@ -964,11 +977,11 @@ main::before{
     var KV={};
     function kOf(v){
       function g(k){ var e=document.querySelector('[data-r="'+k+'"]'); return e?e.textContent.trim():'0'; }
-      if(v==='today') return 'QUEUE '+g('q-total');
-      if(v==='content') return 'DRAFT '+g('draft-count');
-      if(v==='ideas') return 'POOL '+g('ideas-count');
-      if(v==='data') return 'SAVES '+g('d-saves');
-      if(v==='entry') return 'REC '+g('metrics-count');
+      if(v==='today') return '待办 '+g('q-total');
+      if(v==='content') return '成稿 '+g('draft-count');
+      if(v==='ideas') return g('ideas-count')+' 条';
+      if(v==='data') return '收藏 '+g('d-saves');
+      if(v==='entry') return '记录 '+g('metrics-count');
       return '';
     }
     MODS.forEach(function(m){ KV[m.v]=kOf(m.v); });
@@ -982,6 +995,8 @@ main::before{
       ready=W>0&&H>0;
     }
     window.addEventListener('resize',resize);
+    window.ZD_GLOBE_RESIZE=resize;
+    if(window.ResizeObserver){ new ResizeObserver(function(){ resize(); }).observe(stage); }
     resize();
 
     function proj(lon,lat,cx,cy,R){
@@ -995,7 +1010,7 @@ main::before{
 
     function draw(t){
       if(!ready)return;
-      var cx=W/2, cy=H/2, R=Math.max(60,Math.min(W,H)/2-26);
+      var cx=W/2, cy=H/2, R=Math.max(60,Math.min(W/2-52,H/2-26));
       var ph=t/1000;
       ctx.clearRect(0,0,W,H);
 
@@ -1080,17 +1095,21 @@ main::before{
         ctx.beginPath(); ctx.arc(x,y,hot?2.6:2,0,Math.PI*2);
         ctx.fillStyle=hot?'#fff':'rgba(255,255,255,.88)'; ctx.fill();
 
-        var dir=x<cx?-1:1, lx1=x+dir*pr*0.72, lx2=x+dir*24;
+        var dir=x<cx?-1:1;
+        if(dir>0&&x+120>W)dir=-1;
+        if(dir<0&&x-120<0)dir=1;
+        var lx1=x+dir*pr*0.72, lx2=x+dir*24;
         ctx.strokeStyle=hot?'rgba(255,255,255,.8)':'rgba(255,255,255,.32)';
         ctx.beginPath(); ctx.moveTo(lx1,y); ctx.lineTo(lx2,y); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(lx2,y-4); ctx.lineTo(lx2,y+4); ctx.stroke();
 
         ctx.textAlign=dir>0?'left':'right';
         var tx=lx2+dir*6;
-        ctx.font='7.5px ui-monospace,"Cascadia Mono",Consolas,monospace';
+        var fs=Math.max(7.5,Math.min(10.5,R/38));
+        ctx.font=fs+'px ui-monospace,"Cascadia Mono",Consolas,monospace';
         ctx.fillStyle=hot?'#fff':'rgba(255,255,255,.78)';
         ctx.fillText(md.name+'  '+(KV[md.v]||''), tx, y-4);
-        ctx.font='6.5px ui-monospace,"Cascadia Mono",Consolas,monospace';
+        ctx.font=(fs-1)+'px ui-monospace,"Cascadia Mono",Consolas,monospace';
         ctx.fillStyle='rgba(255,255,255,.38)';
         ctx.fillText(md.lon.toFixed(1)+' / '+md.lat.toFixed(1), tx, y+5);
         ctx.restore();
@@ -1118,7 +1137,7 @@ main::before{
       var a=document.getElementById('g-lat'), b=document.getElementById('g-lon'), c=document.getElementById('g-rot');
       if(a)a.textContent=ROT.lat.toFixed(1)+'°';
       if(b)b.textContent=normLon(ROT.lon).toFixed(1)+'°';
-      if(c)c.textContent=AUTO?'AUTO':'MANUAL';
+      if(c)c.textContent=AUTO?'自动':'手动';
     },220);
 
     function localXY(e){
@@ -1151,7 +1170,7 @@ main::before{
       hover=h;
       if(h>=0&&hits[h]){
         if(tip){
-          tip.textContent=MODS[h].name+(KV[MODS[h].v]?' · '+KV[MODS[h].v]:'')+' · CLICK TO OPEN';
+          tip.textContent=MODS[h].name+(KV[MODS[h].v]?' · '+KV[MODS[h].v]:'')+' · 点击打开';
           tip.style.left=hits[h][0]+'px';
           tip.style.top=hits[h][1]+'px';
           tip.classList.add('on');
@@ -1174,6 +1193,24 @@ main::before{
       if(hover>=0&&MODS[hover]&&window.ZD_OPEN) window.ZD_OPEN(MODS[hover].v);
     });
   })();
+})();
+
+/* 首页运行域铺满视口 */
+(function(){
+  var home=document.getElementById('v-home');
+  if(!home)return;
+  function fit(){
+    var tb=document.querySelector('.topbar');
+    var top=tb?tb.getBoundingClientRect().bottom:0;
+    var h=Math.max(420,window.innerHeight-top-26);
+    home.style.setProperty('--home-h',h+'px');
+    document.body.classList.add('home-full');
+    if(window.ZD_GLOBE_RESIZE)window.ZD_GLOBE_RESIZE();
+  }
+  window.addEventListener('resize',fit);
+  window.addEventListener('orientationchange',fit);
+  if(document.readyState==='complete')fit();else window.addEventListener('load',fit);
+  fit();
 })();
 
 </script>
