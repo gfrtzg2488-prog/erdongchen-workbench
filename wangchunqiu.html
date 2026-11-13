@@ -146,7 +146,9 @@ h1#title{font-size:24px;font-weight:500;letter-spacing:.14em;color:var(--ink);li
 .gauge .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:9.5px;color:var(--cyan)}
 
 /* ================= 地球仪 ================= */
-.globe-body{display:grid;grid-template-columns:206px minmax(0,1fr) 214px;align-items:stretch}
+.globe-body{display:grid;grid-template-columns:minmax(0,1fr) 214px;align-items:stretch}
+.globe-legend{position:absolute;left:14px;bottom:11px;z-index:3;display:flex;gap:16px;pointer-events:none;font-family:var(--mono);font-size:7px;letter-spacing:.16em;color:var(--faint)}
+.globe-legend b{font-weight:400;color:var(--dim)}
 .globe-side{padding:13px 14px 10px;font-family:var(--mono);min-width:0}
 .globe-side.left{border-right:1px solid var(--cyan-line)}
 .globe-side.right{border-left:1px solid var(--cyan-line)}
@@ -544,8 +546,8 @@ main::before{
   <header class="topbar">
     <div class="tb-l">
       <div class="crumb"><i></i>WORKBENCH / CONSOLE / 01</div>
-      <h1 id="title">今日</h1>
-      <p id="subtitle">三条内容在排队，先把今天的做完。</p>
+      <h1 id="title">望春秋</h1>
+      <p id="subtitle">运行域总览 · 点击球体模块进入</p>
     </div>
     <div class="tb-r">
       <div class="readout">
@@ -562,7 +564,7 @@ main::before{
   <div class="ruler-row"><span>000</span><span>025</span><span>050</span><span>075</span><span>100</span></div>
 
   <!-- 今日 -->
-  <section class="view on" id="v-today">
+  <section class="view" id="v-today">
     <div class="grid g3">
       <div class="card stat" data-card="queue">
         <div class="lb">
@@ -602,40 +604,6 @@ main::before{
       </div>
     </div>
 
-    <div class="card" style="margin-top:12px">
-      <div class="card-h"><span class="no">01</span><h3>运行域</h3><span class="meta">OPERATION ORB / 4 MODULES</span></div>
-      <div class="card-b globe-body">
-        <div class="globe-side left">
-          <div class="gs-hd">MODULES / 模块</div>
-          <button class="gmod on" data-go="today"><span class="mk"></span><span class="nm">今日</span><span class="dt" data-r="mod-today">QUEUE 0 · 0 DONE</span></button>
-          <button class="gmod" data-go="content"><span class="mk"></span><span class="nm">内容</span><span class="dt" data-r="mod-content">DRAFTS 0 · SCHEDULED 0</span></button>
-          <button class="gmod" data-go="ideas"><span class="mk"></span><span class="nm">选题</span><span class="dt" data-r="mod-ideas">POOL 0 · READY 0</span></button>
-          <button class="gmod" data-go="data"><span class="mk"></span><span class="nm">数据看板</span><span class="dt">SAVES 187 · CTR 8.4%</span></button>
-          <div class="globe-hint">DRAG TO ROTATE<br>CLICK NODE TO JUMP</div>
-          <div class="glegend">
-            <div><span class="sw l"></span>COASTLINE</div>
-            <div><span class="sw d"></span>ZONE / 10.5°</div>
-            <div><span class="sw r"></span>MODULE NODE</div>
-          </div>
-        </div>
-        <div class="globe-stage" id="gstage">
-          <canvas id="globe"></canvas>
-          <div class="globe-hud"><i></i><i></i><i></i><i></i></div>
-          <div class="globe-tip" id="gtip"></div>
-        </div>
-        <div class="globe-side right">
-          <div class="gs-hd">TELEMETRY</div>
-          <div class="gr-row"><span>LAT</span><b id="g-lat">--</b></div>
-          <div class="gr-row"><span>LON</span><b id="g-lon">--</b></div>
-          <div class="gr-row"><span>ROT</span><b id="g-rot">AUTO</b></div>
-          <div class="gr-row"><span>RES</span><b>110M</b></div>
-          <div class="sig-list" data-r="sig-list">
-            <div class="sig-row"><span class="k">SIG</span><span class="t">暂无临期事项</span><span class="v">IDLE</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="today">
       <div class="card" data-card="todo">
         <div class="card-h"><span class="no">02</span><h3>待办队列</h3><span class="meta"><span data-r="todo-count">0</span> ITEMS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
@@ -648,6 +616,31 @@ main::before{
       <div class="card" data-card="drafts">
         <div class="card-h"><span class="no">03</span><h3>成稿待发</h3><span class="meta"><span data-r="draft-count">0</span> DRAFTS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
         <div class="card-b" style="padding:0" data-r="today-drafts"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 首页：只保留运行域 -->
+  <section class="view on" id="v-home">
+    <div class="card" style="margin-top:12px">
+      <div class="card-h"><span class="no">01</span><h3>运行域</h3><span class="meta">OPERATION ORB / 5 MODULES</span></div>
+      <div class="card-b globe-body">
+        <div class="globe-stage" id="gstage">
+          <canvas id="globe"></canvas>
+          <div class="globe-hud"><i></i><i></i><i></i><i></i></div>
+          <div class="globe-tip" id="gtip"></div>
+          <div class="globe-legend"><span>DRAG <b>ROTATE</b></span><span>CLICK NODE <b>OPEN</b></span><span><b>5</b> MODULES</span></div>
+        </div>
+        <div class="globe-side right">
+          <div class="gs-hd">TELEMETRY</div>
+          <div class="gr-row"><span>LAT</span><b id="g-lat">--</b></div>
+          <div class="gr-row"><span>LON</span><b id="g-lon">--</b></div>
+          <div class="gr-row"><span>ROT</span><b id="g-rot">AUTO</b></div>
+          <div class="gr-row"><span>RES</span><b>110M</b></div>
+          <div class="sig-list" data-r="sig-list">
+            <div class="sig-row"><span class="k">SIG</span><span class="t">暂无临期事项</span><span class="v">IDLE</span></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -742,6 +735,22 @@ main::before{
       </div>
     </div>
   </section>
+
+  <!-- 数据录入 -->
+  <section class="view" id="v-entry">
+    <div class="card" data-card="metrics">
+      <div class="card-h"><span class="no">01</span><h3>数据录入</h3><span class="hadd" data-add="metrics">+ 新增数据</span><span class="meta"><span data-r="metrics-count">0</span> RECORDS</span><button class="czoom" type="button" data-zoom aria-label="放大" title="放大查看">⤢</button></div>
+      <div class="card-b" style="padding:0;overflow-x:auto">
+        <table class="tbl">
+          <thead><tr><th>DATE</th><th>PLATFORM</th><th>TITLE</th><th>PLAYS</th><th>SAVES</th><th>FANS</th><th></th></tr></thead>
+          <tbody data-r="metrics-body"></tbody>
+        </table>
+        <div style="padding:12px 14px;border-top:1px dashed rgba(255,255,255,.1)">
+          <div class="legend"><span>录入提示</span><span>标题与成稿库一致，分类占比才准确</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
@@ -749,9 +758,9 @@ main::before{
   <div class="modal-panel">
     <div class="modal-h">
       <div class="modal-hl">
-        <span class="idx" id="mMeta">MODULE 01 / 04</span>
-        <h2 id="mTitle">今日</h2>
-        <span class="mm" id="mSub">三条内容在排队，先把今天的做完。</span>
+        <span class="idx" id="mMeta">MODULE 01 / 05</span>
+        <h2 id="mTitle">望春秋</h2>
+        <span class="mm" id="mSub">运行域总览 · 点击球体模块进入</span>
       </div>
       <button class="modal-x" type="button" data-close aria-label="关闭">✕</button>
     </div>
@@ -790,11 +799,12 @@ main::before{
 <script src="globe-land.js"></script>
 <script>
 (function(){
-  var INFO={today:['今日','三条内容在排队，先把今天的做完。'],
+  var INFO={today:['今日','待办、成稿待发与本周产出。'],
             content:['内容','成稿、排期、发布节奏。'],
-            ideas:['选题','九条选题，三类方向。'],
-            data:['数据看板','趋势、分类、转化，一屏看完。']};
-  var ORDER=['today','content','ideas','data'];
+            ideas:['选题','选题池与三类方向。'],
+            data:['数据看板','趋势、分类、转化，一屏看完。'],
+            entry:['数据录入','手动录入平台数据，看板即时汇总。']};
+  var ORDER=['today','content','ideas','data','entry'];
   var modal=document.getElementById('modal');
   var mBody=document.getElementById('modalBody');
   var mTitle=document.getElementById('mTitle');
@@ -808,7 +818,6 @@ main::before{
     var src=document.getElementById('v-'+v);
     if(!modal||!src||!INFO[v])return;
     [].forEach.call(mods,function(x){x.classList.toggle('on',x.getAttribute('data-go')===v)});
-    if(v==='today'){ closeModal(); window.scrollTo({top:0,behavior:'smooth'}); return; }
     var i=ORDER.indexOf(v);
     mMeta.textContent='MODULE 0'+(i+1)+' / 0'+ORDER.length+' — '+v.toUpperCase();
     mTitle.textContent=INFO[v][0];
@@ -840,7 +849,7 @@ main::before{
   /* ---- 卡片交互：抬头点击跳转 / 右上角放大 ---- */
   var CARD_NAV={queue:{v:'today',t:'todo'},week:{v:'content',t:'content'},pool:{v:'ideas',t:'ideas'},
                 todo:{v:'today',t:'todo'},drafts:{v:'content',t:'content'},content:{v:'content',t:'content'},
-                sched:{v:'content',t:'sched'},ideas:{v:'ideas',t:'ideas'}};
+                sched:{v:'content',t:'sched'},ideas:{v:'ideas',t:'ideas'},metrics:{v:'entry',t:'metrics'}};
   function flashCard(el){
     if(!el)return;
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
@@ -946,11 +955,24 @@ main::before{
     var hits=[];
 
     var MODS=[
-      {v:'today',  name:'今日', lon:-28, lat:34,  k:'QUEUE 6'},
-      {v:'content',name:'内容', lon:-92, lat:12,  k:'DRAFT 3'},
-      {v:'ideas',  name:'选题', lon:24,  lat:50,  k:'POOL 9'},
-      {v:'data',   name:'看板', lon:-58, lat:-26, k:'SAVES 187'}
+      {v:'today',  name:'今日', lon:-30, lat:36},
+      {v:'content',name:'内容', lon:-95, lat:8},
+      {v:'ideas',  name:'选题', lon:-62, lat:58},
+      {v:'data',   name:'看板', lon:-55, lat:-30},
+      {v:'entry',  name:'录入', lon:-18, lat:-10}
     ];
+    var KV={};
+    function kOf(v){
+      function g(k){ var e=document.querySelector('[data-r="'+k+'"]'); return e?e.textContent.trim():'0'; }
+      if(v==='today') return 'QUEUE '+g('q-total');
+      if(v==='content') return 'DRAFT '+g('draft-count');
+      if(v==='ideas') return 'POOL '+g('ideas-count');
+      if(v==='data') return 'SAVES '+g('d-saves');
+      if(v==='entry') return 'REC '+g('metrics-count');
+      return '';
+    }
+    MODS.forEach(function(m){ KV[m.v]=kOf(m.v); });
+    setInterval(function(){ MODS.forEach(function(m){ KV[m.v]=kOf(m.v); }); },1500);
 
     function resize(){
       DPR=Math.min(window.devicePixelRatio||1,2);
@@ -1067,7 +1089,7 @@ main::before{
         var tx=lx2+dir*6;
         ctx.font='7.5px ui-monospace,"Cascadia Mono",Consolas,monospace';
         ctx.fillStyle=hot?'#fff':'rgba(255,255,255,.78)';
-        ctx.fillText(md.name+'  '+md.k, tx, y-4);
+        ctx.fillText(md.name+'  '+(KV[md.v]||''), tx, y-4);
         ctx.font='6.5px ui-monospace,"Cascadia Mono",Consolas,monospace';
         ctx.fillStyle='rgba(255,255,255,.38)';
         ctx.fillText(md.lon.toFixed(1)+' / '+md.lat.toFixed(1), tx, y+5);
@@ -1129,7 +1151,7 @@ main::before{
       hover=h;
       if(h>=0&&hits[h]){
         if(tip){
-          tip.textContent=MODS[h].name+' · '+MODS[h].k+' · CLICK TO JUMP';
+          tip.textContent=MODS[h].name+(KV[MODS[h].v]?' · '+KV[MODS[h].v]:'')+' · CLICK TO OPEN';
           tip.style.left=hits[h][0]+'px';
           tip.style.top=hits[h][1]+'px';
           tip.classList.add('on');
@@ -1966,6 +1988,27 @@ function renderSync(){
   }
   if(Store.err) chip.classList.add('warn');
 }
+function renderMetrics(root){
+  var all=rows('metrics');
+  var list=all.slice().sort(function(a,b){
+    return String(b.date||'').localeCompare(String(a.date||''))||
+           String(b.updated_at||b.created_at||'').localeCompare(String(a.updated_at||a.created_at||''));
+  }).slice(0,80);
+  each('[data-r="metrics-body"]',function(el){
+    el.innerHTML=list.length?list.map(function(r){
+      return '<tr><td class="id">'+esc(mmdd(r.date))+'</td>'+
+        '<td class="dim">'+esc(r.platform||'—')+'</td>'+
+        '<td>'+esc(r.title||'未命名')+'</td>'+
+        '<td class="dim">'+(Number(r.plays)||0)+'</td>'+
+        '<td class="dim">'+(Number(r.saves)||0)+'</td>'+
+        '<td class="dim">'+(Number(r.followers)||0)+'</td>'+
+        '<td><button class="row-act" data-edit="metrics|'+esc(r.id)+'">EDIT</button>'+
+        '<button class="row-act del" data-del="metrics|'+esc(r.id)+'">DEL</button></td></tr>';
+    }).join(''):'<tr><td colspan="7"><div class="empty-hud" style="border:0"><b>NO DATA</b>点「+ 新增数据」录入第一条平台数据</div></td></tr>';
+  },root);
+  txt('[data-r="metrics-count"]',all.length,root);
+}
+
 function renderAll(root){
   renderStats(root);
   renderMods(root);
@@ -1975,6 +2018,7 @@ function renderAll(root){
   renderContent(root);
   renderUpcoming(root);
   renderIdeas(root);
+  renderMetrics(root);
   renderDash(root);
   renderSync();
 }
@@ -2013,6 +2057,7 @@ function openNewMenu(){
       '<button data-add="schedule"><span class="nm">待办</span><span class="dt">SCHEDULE</span></button>'+
       '<button data-add="content_items"><span class="nm">成稿</span><span class="dt">CONTENT</span></button>'+
       '<button data-add="ideas"><span class="nm">选题</span><span class="dt">IDEA</span></button>'+
+      '<button data-add="metrics"><span class="nm">平台数据</span><span class="dt">METRICS</span></button>'+
     '</div>','<button class="btn" data-fclose>取消</button>');
 }
 
@@ -2061,6 +2106,29 @@ function openRowForm(table,id){
       '</div>'+
       fld('标签','<input id="fTags" value="'+esc(row&&row.tags||'')+'" placeholder="用逗号分隔">')+
       fld('备注','<textarea id="fNote" rows="4" placeholder="参考、链接、要求">'+esc(row&&row.note||'')+'</textarea>');
+  }else if(table==='metrics'){
+    title=isNew?'新增平台数据':(row&&row.title||'编辑平台数据');
+    function nv(k){ var v=row&&row[k]; return v===undefined||v===null||v===''?0:v; }
+    body=
+      fld('内容标题','<input id="fTitle" value="'+esc(row&&row.title||'')+'" placeholder="与成稿库标题保持一致">')+
+      '<div class="frow">'+
+        fld('日期','<input id="fDate" type="date" value="'+esc(row&&row.date||todayStr())+'">')+
+        fld('平台',sel('fPlatform',PLATFORMS,row&&row.platform||'小红书'))+
+      '</div>'+
+      '<div class="frow">'+
+        fld('播放','<input id="fPlays" type="number" min="0" value="'+esc(nv('plays'))+'">')+
+        fld('点赞','<input id="fLikes" type="number" min="0" value="'+esc(nv('likes'))+'">')+
+      '</div>'+
+      '<div class="frow">'+
+        fld('收藏','<input id="fSaves" type="number" min="0" value="'+esc(nv('saves'))+'">')+
+        fld('评论','<input id="fComments" type="number" min="0" value="'+esc(nv('comments'))+'">')+
+      '</div>'+
+      '<div class="frow">'+
+        fld('转发','<input id="fShares" type="number" min="0" value="'+esc(nv('shares'))+'">')+
+        fld('涨粉','<input id="fFollowers" type="number" value="'+esc(nv('followers'))+'">')+
+      '</div>'+
+      fld('反馈 / 备注','<input id="fFeedback" value="'+esc(row&&row.feedback||'')+'" placeholder="可留空">',
+        '同一天同一内容可多次录入，看板会按日期累加。');
   }else{
     toast('不支持的数据表',true); return;
   }
@@ -2083,13 +2151,23 @@ function openRowForm(table,id){
           notes:$('#fNotes').value||'',owner:'望春秋'};
         if(isNew) await createRow('content_items',Object.assign({format:'图文',priority:2,plays:0,likes:0,comments:0,saves:0,shares:0},patch2));
         else await updateRow('content_items',row.id,patch2);
-      }else{
+      }else if(table==='ideas'){
         var t3=($('#fTitle').value||'').trim();
         if(!t3) throw new Error('先填选题');
         var patch3={title:t3,kind:$('#fKind').value,topic:$('#fTopic').value,platform:$('#fPlatform').value,
           status:$('#fStatus').value,tags:($('#fTags').value||'').trim(),note:$('#fNote').value||''};
         if(isNew) await createRow('ideas',Object.assign({heat:3,url:''},patch3));
         else await updateRow('ideas',row.id,patch3);
+      }else if(table==='metrics'){
+        var t4=($('#fTitle').value||'').trim();
+        if(!t4) throw new Error('先填内容标题');
+        function numv(id){ var v=Number($('#'+id).value); return isFinite(v)?v:0; }
+        var patch4={date:$('#fDate').value||todayStr(),platform:$('#fPlatform').value,title:t4,
+          plays:numv('fPlays'),likes:numv('fLikes'),comments:numv('fComments'),
+          saves:numv('fSaves'),shares:numv('fShares'),followers:numv('fFollowers'),
+          feedback:($('#fFeedback').value||'').trim()};
+        if(isNew) await createRow('metrics',patch4);
+        else await updateRow('metrics',row.id,patch4);
       }
       fClose();
       renderAll();
