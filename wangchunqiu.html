@@ -691,16 +691,15 @@ main::before{
   <section class="view" id="v-data">
     <div class="grid g3">
       <div class="card stat">
-        <div class="lb"><span class="eyebrow">POSTS / WEEK</span><b>3<small>篇</small></b><div class="sub">计划 5 篇</div></div>
-        <div class="gauge"><svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="60.3"/></svg><div class="pct">60%</div></div>
+        <div class="lb"><span class="eyebrow">POSTS / WEEK</span><b><span data-r="d-posts">0</span><small>篇</small></b><div class="sub" data-r="d-posts-sub">计划 0 篇</div></div>
+        <div class="gauge"><svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="d-posts" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg><div class="pct" data-r="d-posts-pct">0%</div></div>
       </div>
       <div class="card stat">
-        <div class="lb"><span class="eyebrow">SAVES / WEEK</span><b>187<small>次</small></b><div class="sub">收藏率 9.8%</div></div>
-        <div class="gauge"><svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="45.2"/></svg><div class="pct">70%</div></div>
+        <div class="lb"><span class="eyebrow">SAVES / WEEK</span><b><span data-r="d-saves">0</span><small>次</small></b><div class="sub" data-r="d-saves-sub">收藏率 —</div></div>
+        <div class="gauge"><svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="d-saves" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg><div class="pct" data-r="d-saves-pct">0%</div></div>
       </div>
       <div class="card stat">
-        <div class="lb"><span class="eyebrow">FOLLOWERS</span><b>+12<small>人</small></b><div class="sub">近 7 天净增</div></div>
-        <div class="gauge"><svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="75.4"/></svg><div class="pct">50%</div></div>
+        <div class="lb"><span class="eyebrow">FOLLOWERS</span><b><span data-r="d-followers">+0</span><small>人</small></b><div class="sub" data-r="d-followers-sub">近 7 天净增</div></div>
       </div>
     </div>
 
@@ -713,7 +712,7 @@ main::before{
             <button data-m="likes">点赞</button>
             <button data-m="followers">涨粉</button>
           </div>
-          <span class="meta">30 D · DEMO</span>
+          <span class="meta">30 D</span>
         </div>
         <div class="card-b">
           <div class="chart" data-line>
@@ -729,7 +728,7 @@ main::before{
         <div class="card-b">
           <div class="donut" data-donut>
             <svg viewBox="0 0 160 160"></svg>
-            <div class="dcore"><b data-dval>196</b><span data-dlb>TOTAL SAVES</span></div>
+            <div class="dcore"><b data-dval>0</b><span data-dlb>TOTAL SAVES</span></div>
           </div>
           <div class="dlegend" data-legend></div>
         </div>
@@ -738,7 +737,7 @@ main::before{
 
     <div class="grid dash-r2">
       <div class="card">
-        <div class="card-h"><span class="no">03</span><h3>笔记收藏排行</h3><span class="meta">TOP 6 · DEMO</span></div>
+        <div class="card-h"><span class="no">03</span><h3>笔记收藏排行</h3><span class="meta">TOP 6</span></div>
         <div class="card-b"><div class="dbars" data-bars></div></div>
       </div>
     </div>
@@ -777,13 +776,13 @@ main::before{
 <div class="ticker">
   <div class="run">
     <span>ZD-OS <b>0.9.0</b></span>
-    <span>MODE <b>LOCAL</b></span>
-    <span>QUEUE <b>6</b></span>
-    <span>DRAFTS <b>3</b></span>
-    <span>IDEAS <b>9</b></span>
-    <span>SAVES <b>187</b></span>
-    <span>NEXT <b>11-18 20:00</b></span>
-    <span class="w">ALERT · 1 ITEM DUE TODAY</span>
+    <span>MODE <b data-r="tk-mode">LOCAL</b></span>
+    <span>QUEUE <b data-r="tk-queue">0</b></span>
+    <span>DRAFTS <b data-r="tk-drafts">0</b></span>
+    <span>IDEAS <b data-r="tk-ideas">0</b></span>
+    <span>SAVES <b data-r="tk-saves">0</b></span>
+    <span>NEXT <b data-r="tk-next">—</b></span>
+    <span class="w" data-r="tk-alert"></span>
     <span>RENDER <b>STATIC</b></span>
   </div>
 </div>
@@ -1188,31 +1187,9 @@ main::before{
 /* 数据看板：自绘 SVG 图表 + 交互 */
 (function(){
   var DAYS=30;
-  var METRICS={
-    saves:{lb:'收藏',unit:'次',v:[3,4,3,6,5,7,4,8,6,9,5,7,11,8,6,9,12,10,8,13,9,11,14,10,12,16,13,11,15,18]},
-    likes:{lb:'点赞',unit:'个',v:[5,6,4,9,7,10,6,11,9,13,8,10,15,12,9,13,17,14,11,18,13,16,20,15,17,22,19,16,21,25]},
-    followers:{lb:'涨粉',unit:'人',v:[0,1,0,1,0,2,1,1,0,2,1,1,2,1,1,2,1,2,2,1,2,2,3,1,2,3,2,2,3,4]}
-  };
-  var KINDS=[
-    {n:'玄学短句',v:121,c:'#F1F4F4'},
-    {n:'小确幸好物',v:48,c:'#AAB2B2'},
-    {n:'日常随笔',v:18,c:'#7C8484'},
-    {n:'选题实验',v:9,c:'#4E5555'}
-  ];
-  var TOP=[
-    {n:'关系卡住时，读这句话',v:64},
-    {n:'最近有点累，就读这6句',v:52},
-    {n:'十一月，先读这6句',v:41},
-    {n:'把手机倒扣的十分钟',v:19},
-    {n:'周末才敢承认的疲惫',v:8},
-    {n:'睡前读给明天的自己',v:3}
-  ];
+  var PALETTE=['#F1F4F4','#AAB2B2','#7C8484','#4E5555','#2E3434'];
   var uid=0;
-  function fmtDate(i){
-    var d=new Date(2026,10,13);
-    d.setDate(d.getDate()-(DAYS-1-i));
-    return (d.getMonth()+1)+'/'+d.getDate();
-  }
+  function dash(){ var d=window.ZD_DASH_DATA; return d&&d.has?d:null; }
   function sum(a,b){return a+b}
 
   function renderLine(wrap){
@@ -1222,9 +1199,17 @@ main::before{
     var sumEl=card?card.querySelector('[data-sum]'):null;
     var W=760,H=240,PL=38,PR=12,PT=16,PB=26;
     var cur='saves';
+    var LB={saves:{lb:'收藏',unit:'次'},likes:{lb:'点赞',unit:'个'},followers:{lb:'涨粉',unit:'人'}};
 
     function draw(){
-      var v=METRICS[cur].v;
+      var d=dash();
+      var v=d?d.series[cur]:null;
+      if(!d||!v||!v.length){
+        svg.innerHTML='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="#545B5B" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="10" letter-spacing="3">NO DATA · 等待同步数据</text>';
+        if(sumEl)sumEl.textContent='合计 —';
+        tip.classList.remove('on');
+        return;
+      }
       var max=Math.max.apply(null,v), top=Math.ceil(max/5)*5||5;
       var nd=++uid;
       function X(i){return PL+(W-PL-PR)*i/(DAYS-1)}
@@ -1238,7 +1223,7 @@ main::before{
            '<text class="ax" x="'+(PL-8)+'" y="'+(yy+3)+'" text-anchor="end">'+Math.round(top*(1-k/4))+'</text>';
       }
       for(var i=0;i<DAYS;i+=5){
-        g+='<text class="ax" x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+fmtDate(i)+'</text>';
+        g+='<text class="ax" x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle">'+(d.dates[i]||'')+'</text>';
       }
       svg.innerHTML=
         '<defs><linearGradient id="zdg'+nd+'" x1="0" y1="0" x2="0" y2="1">'+
@@ -1251,12 +1236,14 @@ main::before{
         '<circle class="dot pt" r="3.4" cx="0" cy="0"/>'+
         '<rect class="hit" x="'+PL+'" y="'+PT+'" width="'+(W-PL-PR)+'" height="'+(H-PT-PB)+'"/>';
       bind();
-      if(sumEl)sumEl.textContent=METRICS[cur].lb+'合计 '+v.reduce(sum,0)+' '+METRICS[cur].unit;
+      if(sumEl)sumEl.textContent=LB[cur].lb+'合计 '+v.reduce(sum,0)+' '+LB[cur].unit;
     }
 
     function bind(){
       var guide=svg.querySelector('.guide'), dot=svg.querySelector('.pt'), hit=svg.querySelector('.hit');
-      var v=METRICS[cur].v;
+      var d=dash(); if(!d)return;
+      var v=d.series[cur];
+      if(!guide||!dot||!hit)return;
       var max=Math.max.apply(null,v), top=Math.ceil(max/5)*5||5;
       function move(ev){
         var r=svg.getBoundingClientRect();
@@ -1269,7 +1256,7 @@ main::before{
         guide.setAttribute('x1',px);guide.setAttribute('x2',px);
         dot.setAttribute('cx',px);dot.setAttribute('cy',py);
         wrap.classList.add('live');
-        tip.innerHTML=fmtDate(i)+' · '+METRICS[cur].lb+'<b>'+v[i]+' '+METRICS[cur].unit+'</b>';
+        tip.innerHTML=(d.dates[i]||'')+' · '+LB[cur].lb+'<b>'+v[i]+' '+LB[cur].unit+'</b>';
         tip.classList.add('on');
         var s=r.width/W;
         tip.style.left=(px*s)+'px';
@@ -1300,7 +1287,16 @@ main::before{
     var valEl=box.querySelector('[data-dval]'), lbEl=box.querySelector('[data-dlb]');
     var legend=box.parentNode.querySelector('[data-legend]');
     if(!svg||!legend)return;
+    var dl=dash();
+    var KINDS=(dl&&dl.kinds?dl.kinds:[]).map(function(k,i){ return {n:k.n,v:k.v,c:PALETTE[i%PALETTE.length]}; });
     var total=KINDS.reduce(function(a,k){return a+k.v},0);
+    if(!total){
+      svg.innerHTML='';
+      legend.innerHTML='<div class="empty-hud" style="padding:12px 0">暂无收藏数据</div>';
+      if(valEl)valEl.textContent='0';
+      if(lbEl)lbEl.textContent='TOTAL SAVES';
+      return;
+    }
     var R=66,C=2*Math.PI*R,off=0,pin=-1;
     var html='';
     KINDS.forEach(function(k,i){
@@ -1354,6 +1350,12 @@ main::before{
   }
 
   function renderBars(box){
+    var dl=dash();
+    var TOP=(dl&&dl.top?dl.top:[]).slice(0,6);
+    if(!TOP.length){
+      box.innerHTML='<div class="empty-hud" style="padding:14px 0">暂无收藏数据</div>';
+      return;
+    }
     var max=Math.max.apply(null,TOP.map(function(t){return t.v}));
     box.innerHTML=TOP.map(function(t){
       return '<div class="dbar"><span class="nm">'+t.n+'</span>'+
@@ -1715,11 +1717,11 @@ function quoteOf(r){
   q=String(q).split(/\n/).filter(Boolean)[0]||'';
   return q.length>70?q.slice(0,70)+'…':q;
 }
-function gauge(key,ratio){
+function gauge(key,ratio,root){
   ratio=Math.max(0,Math.min(1,ratio||0));
   each('[data-gauge="'+key+'"]',function(el){
     el.style.strokeDashoffset=String(150.8*(1-ratio));
-  });
+  },root);
 }
 function upcoming(){
   var t=todayStr();
@@ -1741,6 +1743,85 @@ function ideaTag(s){
   if(s==='采纳'||s==='已用') return 's';
   if(s==='归档') return '';
   return '';
+}
+
+/* 数据看板：全部由 metrics 表实时聚合 */
+function ymd(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function dashBuild(){
+  var ms=rows('metrics'), cs=rows('content_items');
+  function nv(v){ var n=Number(v); return isFinite(n)?n:0; }
+  var days=[], idx={}, base=new Date(); base.setHours(0,0,0,0);
+  for(var i=29;i>=0;i--){
+    var dd=new Date(base.getTime()-i*86400000), k=ymd(dd);
+    days.push(k); idx[k]=i;
+  }
+  var S={saves:[],likes:[],followers:[]}, dates=[];
+  for(i=0;i<30;i++){ S.saves.push(0); S.likes.push(0); S.followers.push(0); dates.push(days[i].slice(5).replace('-','/')); }
+  function inDays(r){ return days.indexOf(String(r&&r.date||'').slice(0,10))>=0; }
+  ms.forEach(function(r){
+    var i=idx[String(r.date||'').slice(0,10)];
+    if(i===undefined) return;
+    S.saves[i]+=nv(r.saves); S.likes[i]+=nv(r.likes); S.followers[i]+=nv(r.followers);
+  });
+  var w=days.slice(23), w2=days.slice(16,23);
+  var wr=ms.filter(function(r){ return w.indexOf(String(r.date||'').slice(0,10))>=0; });
+  var pr=ms.filter(function(r){ return w2.indexOf(String(r.date||'').slice(0,10))>=0; });
+  var seen={}, posts=0;
+  wr.forEach(function(r){ var k=String(r.title||'')+'|'+String(r.platform||''); if(!seen[k]){seen[k]=1;posts++;} });
+  var plan=cs.filter(function(r){ return w.indexOf(String(r.due_date||'').slice(0,10))>=0; }).length;
+  var saves=0, plays=0, fans=0, pfans=0;
+  wr.forEach(function(r){ saves+=nv(r.saves); plays+=nv(r.plays); fans+=nv(r.followers); });
+  pr.forEach(function(r){ pfans+=nv(r.followers); });
+  var rate=plays?Math.round(saves/plays*1000)/10:0;
+  function norm(s){ return String(s||'').replace(/\s+/g,'').toLowerCase(); }
+  var byTitle={};
+  cs.forEach(function(c){ var k=norm(c.title); if(k&&!byTitle[k]) byTitle[k]=catOf(c); });
+  var kindMap={}, topMap={};
+  ms.forEach(function(r){
+    if(!inDays(r)) return;
+    var sv=nv(r.saves); if(!sv) return;
+    var t=String(r.title||'').replace(/\s+/g,' ').trim()||'未命名';
+    var k=byTitle[norm(t)]||'未分类';
+    kindMap[k]=(kindMap[k]||0)+sv;
+    topMap[t]=(topMap[t]||0)+sv;
+  });
+  var kinds=Object.keys(kindMap).map(function(k){ return {n:k,v:kindMap[k]}; })
+    .sort(function(a,b){ return b.v-a.v; });
+  var top=Object.keys(topMap).map(function(k){ return {n:k,v:topMap[k]}; })
+    .sort(function(a,b){ return b.v-a.v; }).slice(0,6);
+  return {
+    has:ms.some(inDays), dates:dates, series:S,
+    posts:posts, plan:plan, saves:saves, rate:rate, fans:fans, fansPrev:pfans,
+    kinds:kinds, top:top
+  };
+}
+function renderDash(root){
+  var d=dashBuild();
+  window.ZD_DASH_DATA=d;
+  txt('[data-r="d-posts"]',d.posts,root);
+  txt('[data-r="d-posts-sub"]','计划 '+d.plan+' 篇',root);
+  var pp=d.plan?Math.min(100,Math.round(d.posts/d.plan*100)):0;
+  txt('[data-r="d-posts-pct"]',pp+'%',root);
+  gauge('d-posts',pp/100,root);
+  txt('[data-r="d-saves"]',d.saves,root);
+  txt('[data-r="d-saves-sub"]','收藏率 '+(d.rate?d.rate+'%':'—'),root);
+  txt('[data-r="d-saves-pct"]',(d.rate?d.rate:0)+'%',root);
+  gauge('d-saves',Math.min(1,d.rate/100),root);
+  txt('[data-r="d-followers"]',(d.fans>=0?'+':'')+d.fans,root);
+  var sub='近 7 天净增';
+  if(d.fans||d.fansPrev) sub+=' · 上周 '+(d.fansPrev>0?'+':'')+d.fansPrev;
+  txt('[data-r="d-followers-sub"]',sub,root);
+  var q=rows('schedule').filter(function(r){ return r.date===todayStr(); });
+  var qLeft=q.filter(function(r){ return r.status!=='完成'; }).length;
+  var up=upcoming();
+  txt('[data-r="tk-mode"]',String(Store.mode||'local').toUpperCase(),root);
+  txt('[data-r="tk-queue"]',q.length,root);
+  txt('[data-r="tk-drafts"]',drafts().length,root);
+  txt('[data-r="tk-ideas"]',rows('ideas').length,root);
+  txt('[data-r="tk-saves"]',d.saves,root);
+  txt('[data-r="tk-next"]',up.length?String(up[0].due_date||'').slice(5):'—',root);
+  txt('[data-r="tk-alert"]',qLeft?('ALERT · '+qLeft+' ITEM DUE TODAY'):'',root);
+  if(window.ZD_DASH)try{window.ZD_DASH(root||document)}catch(err){}
 }
 
 function renderStats(root){
@@ -1894,6 +1975,7 @@ function renderAll(root){
   renderContent(root);
   renderUpcoming(root);
   renderIdeas(root);
+  renderDash(root);
   renderSync();
 }
 window.ZD_REFRESH=function(scope){ renderAll(scope||document); };
