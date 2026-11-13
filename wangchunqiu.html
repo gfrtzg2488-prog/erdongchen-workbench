@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>望春秋工作台</title>
+<title>望春秋 · 自媒体工作台</title>
 <meta name="theme-color" content="#050809">
 <style>
 :root{
@@ -227,7 +227,7 @@ h1#title{font-size:24px;font-weight:500;letter-spacing:.14em;color:var(--ink);li
 .tbl tr:last-child td{border-bottom:0}
 .tbl tbody tr{transition:background .16s}
 .tbl tbody tr:hover{background:rgba(79,227,193,.05)}
-.tbl .id{font-family:var(--mono);font-size:8.5px;color:var(--faint)}
+.tbl .id{font-family:var(--mono);font-size:8.5px;color:var(--faint);white-space:nowrap}
 .tbl .dim{color:var(--dim)}
 .tbl .mono{font-family:var(--mono);font-size:10px;color:var(--ice)}
 
@@ -469,6 +469,61 @@ main::before{
   *{animation:none!important;transition:none!important}
   .card::after{display:none}
 }
+
+/* ================= 数据接入 / 表单 / 提示 ================= */
+#syncChip{cursor:pointer;user-select:none}
+#syncChip.warn{border-color:rgba(217,146,95,.5);color:var(--warn)}
+#syncChip.warn i{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+#syncChip.local i{background:var(--faint);box-shadow:none}
+#syncChip.demo i{background:var(--plum,#8A6EA8);box-shadow:0 0 8px #8A6EA8}
+.add-btn{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--dim);border:1px dashed rgba(255,255,255,.16);padding:5px 9px;margin-bottom:10px;transition:.16s}
+.add-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.4)}
+.card-h .hadd{margin-left:8px;font-family:var(--mono);font-size:8px;letter-spacing:.12em;color:var(--cyan);border:1px solid var(--cyan-line);padding:3px 7px;transition:.16s}
+.card-h .hadd:hover{background:rgba(255,255,255,.08);color:var(--ink);border-color:rgba(255,255,255,.4)}
+.row-act{font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--faint);border:1px solid rgba(255,255,255,.13);padding:2px 5px;margin-left:6px;transition:.15s;line-height:1.4;flex:none}
+.row-act:hover{color:var(--ink);border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.05)}
+.row-act.del:hover{color:#E08A4C;border-color:rgba(224,138,76,.6)}
+.row-act.ai{color:var(--amber);border-color:rgba(217,169,106,.35)}
+.row-act.ai:hover{color:#F1C58F;border-color:var(--amber)}
+.empty-hud{padding:24px 14px;text-align:center;font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);line-height:2;border-bottom:1px dashed rgba(255,255,255,.07)}
+.empty-hud b{display:block;color:var(--dim);font-weight:400;font-size:9px;letter-spacing:.22em;margin-bottom:4px}
+.todo li .m{flex-wrap:wrap;gap:6px}
+#toast{position:fixed;left:50%;bottom:26px;z-index:140;transform:translateX(-50%) translateY(12px);opacity:0;pointer-events:none;transition:.22s;background:rgba(10,12,13,.96);border:1px solid var(--cyan-line);color:var(--ink);font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;padding:9px 16px;box-shadow:0 18px 50px -22px #000;max-width:88vw}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#toast.err{border-color:rgba(224,138,76,.6);color:#F0AE86}
+/* 表单弹层 */
+.fmodal{position:fixed;inset:0;z-index:130;display:none}
+.fmodal.on{display:block}
+.fmodal-mask{position:absolute;inset:0;background:rgba(3,5,6,.74);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.fmodal-panel{position:relative;margin:7vh auto 0;width:min(560px,92vw);max-height:82vh;display:flex;flex-direction:column;background:#0A0B0C;border:1px solid rgba(255,255,255,.2);box-shadow:0 40px 90px -40px #000;animation:fade .2s ease both}
+.fmodal-h{display:flex;align-items:flex-start;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--cyan-line)}
+.fmodal-h .idx{font-family:var(--mono);font-size:7.5px;letter-spacing:.24em;color:var(--faint);display:block;margin-bottom:5px}
+.fmodal-h h2{font-size:16px;font-weight:500;letter-spacing:.1em;color:var(--ink);line-height:1.3;word-break:break-word}
+.fmodal-x{margin-left:auto;color:var(--dim);font-size:14px;padding:2px 6px;border:1px solid transparent;flex:none}
+.fmodal-x:hover{color:var(--ink);border-color:rgba(255,255,255,.25)}
+.fmodal-b{padding:16px;overflow:auto;min-height:40px}
+.fmodal-f{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--cyan-line);background:rgba(255,255,255,.015)}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;color:var(--faint);margin-bottom:5px;text-transform:uppercase}
+.fld input,.fld select,.fld textarea{width:100%;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.14);color:var(--ink);padding:8px 10px;font-family:var(--ff);font-size:12.5px;outline:none;border-radius:0;transition:.16s}
+.fld textarea{font-family:var(--mono);font-size:11px;line-height:1.75;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.06)}
+.fld .hint{display:block;margin-top:5px;font-size:10px;color:var(--faint);line-height:1.55}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fmsg{font-family:var(--mono);font-size:9px;letter-spacing:.04em;color:var(--dim);line-height:1.7;min-height:14px;margin-top:6px;word-break:break-all}
+.fmsg.err{color:#E08A4C}
+.fmsg.ok{color:#9FB48A}
+.kv{font-family:var(--mono);font-size:8.5px;letter-spacing:.05em;color:var(--faint);line-height:2;border:1px dashed rgba(255,255,255,.1);padding:8px 10px;margin-bottom:12px;word-break:break-all}
+.kv b{color:var(--dim);font-weight:400}
+.nmenu{display:grid;gap:8px}
+.nmenu button{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.12);text-align:left;transition:.16s}
+.nmenu button:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.04)}
+.nmenu .nm{font-size:12.5px;color:var(--ink)}
+.nmenu .dt{margin-left:auto;font-family:var(--mono);font-size:7.5px;letter-spacing:.14em;color:var(--faint)}
+@media (max-width:900px){
+  .frow{grid-template-columns:1fr}
+  .fmodal-panel{width:100%;max-width:100%;height:100%;max-height:100%;margin:0}
+}
 </style>
 </head>
 <body>
@@ -476,7 +531,7 @@ main::before{
 <main>
   <header class="topbar">
     <div class="tb-l">
-      <div class="crumb"><i></i>望春秋 / WORKBENCH / 01</div>
+      <div class="crumb"><i></i>WORKBENCH / CONSOLE / 01</div>
       <h1 id="title">今日</h1>
       <p id="subtitle">三条内容在排队，先把今天的做完。</p>
     </div>
@@ -485,8 +540,10 @@ main::before{
         <span>LOCAL TIME</span>
         <b id="clock">--:--:--</b>
       </div>
-      <div class="status"><i></i>SYNC · DEMO</div>
-      <button class="btn primary">+ NEW ENTRY</button>
+      <div class="status" id="syncChip" data-panel="sync" title="点击查看数据连接"><i></i><span>LOCAL · 本机</span></div>
+      <button class="btn" data-panel="data">数据</button>
+      <button class="btn" data-panel="ai">AI</button>
+      <button class="btn primary" data-panel="new">+ NEW ENTRY</button>
     </div>
   </header>
   <div class="ruler"></div>
@@ -498,34 +555,34 @@ main::before{
       <div class="card stat">
         <div class="lb">
           <span class="eyebrow">QUEUE / TODAY</span>
-          <b>4<small>/ 6</small></b>
-          <div class="sub">2 项未完成</div>
+          <b><span data-r="q-done">0</span><small>/ <span data-r="q-total">0</span></small></b>
+          <div class="sub"><span data-r="q-left">0</span> 项未完成</div>
         </div>
         <div class="gauge">
-          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="50.3"/></svg>
-          <div class="pct">67%</div>
+          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="queue" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+          <div class="pct" data-r="q-pct">0%</div>
         </div>
       </div>
       <div class="card stat">
         <div class="lb">
           <span class="eyebrow">OUTPUT / WEEK</span>
-          <b>3<small>/ 5</small></b>
-          <div class="sub">本周成稿</div>
+          <b><span data-r="w-made">0</span><small>/ 5</small></b>
+          <div class="sub">本周成稿（近 7 天新建）</div>
         </div>
         <div class="gauge">
-          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="60.3"/></svg>
-          <div class="pct">60%</div>
+          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="week" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+          <div class="pct" data-r="w-pct">0%</div>
         </div>
       </div>
       <div class="card stat">
         <div class="lb">
           <span class="eyebrow">POOL / IDEAS</span>
-          <b>9<small>条</small></b>
-          <div class="sub">日常 4 · 玄学 3 · 好物 2</div>
+          <b><span data-r="i-total">0</span><small>条</small></b>
+          <div class="sub" data-r="i-mix">—</div>
         </div>
         <div class="gauge">
-          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="37.7"/></svg>
-          <div class="pct">75%</div>
+          <svg viewBox="0 0 58 58" width="58" height="58"><circle class="bg" cx="29" cy="29" r="24"/><circle class="fg" data-gauge="pool" cx="29" cy="29" r="24" stroke-dasharray="150.8" stroke-dashoffset="150.8"/></svg>
+          <div class="pct" data-r="i-pct">0%</div>
         </div>
       </div>
     </div>
@@ -535,9 +592,9 @@ main::before{
       <div class="card-b globe-body">
         <div class="globe-side left">
           <div class="gs-hd">MODULES / 模块</div>
-          <button class="gmod on" data-go="today"><span class="mk"></span><span class="nm">今日</span><span class="dt">QUEUE 6 · 4 DONE</span></button>
-          <button class="gmod" data-go="content"><span class="mk"></span><span class="nm">内容</span><span class="dt">DRAFTS 3 · SCHEDULED 2</span></button>
-          <button class="gmod" data-go="ideas"><span class="mk"></span><span class="nm">选题</span><span class="dt">POOL 9 · READY 3</span></button>
+          <button class="gmod on" data-go="today"><span class="mk"></span><span class="nm">今日</span><span class="dt" data-r="mod-today">QUEUE 0 · 0 DONE</span></button>
+          <button class="gmod" data-go="content"><span class="mk"></span><span class="nm">内容</span><span class="dt" data-r="mod-content">DRAFTS 0 · SCHEDULED 0</span></button>
+          <button class="gmod" data-go="ideas"><span class="mk"></span><span class="nm">选题</span><span class="dt" data-r="mod-ideas">POOL 0 · READY 0</span></button>
           <button class="gmod" data-go="data"><span class="mk"></span><span class="nm">数据看板</span><span class="dt">SAVES 187 · CTR 8.4%</span></button>
           <div class="globe-hint">DRAG TO ROTATE<br>CLICK NODE TO JUMP</div>
           <div class="glegend">
@@ -557,10 +614,8 @@ main::before{
           <div class="gr-row"><span>LON</span><b id="g-lon">--</b></div>
           <div class="gr-row"><span>ROT</span><b id="g-rot">AUTO</b></div>
           <div class="gr-row"><span>RES</span><b>110M</b></div>
-          <div class="sig-list">
-            <div class="sig-row"><span class="k">DUE</span><span class="t">关系卡住时，读这6句</span><span class="v w">11-18</span></div>
-            <div class="sig-row"><span class="k">HOLD</span><span class="t">桌面上的小灯，亮到很晚</span><span class="v">DRAFT</span></div>
-            <div class="sig-row"><span class="k">SIG</span><span class="t">玄学短句 3 篇可连发</span><span class="v">READY</span></div>
+          <div class="sig-list" data-r="sig-list">
+            <div class="sig-row"><span class="k">SIG</span><span class="t">暂无临期事项</span><span class="v">IDLE</span></div>
           </div>
         </div>
       </div>
@@ -568,27 +623,16 @@ main::before{
 
     <div class="today">
       <div class="card">
-        <div class="card-h"><span class="no">02</span><h3>待办队列</h3><span class="meta">06 ITEMS</span></div>
+        <div class="card-h"><span class="no">02</span><h3>待办队列</h3><span class="meta"><span data-r="todo-count">0</span> ITEMS</span></div>
         <div class="card-b">
-          <ul class="todo">
-            <li class="done"><span class="ck"></span><div><div class="tt">给「十一月，先读这6句」配封面</div><div class="m"><span>09:30</span><span class="tag s">DONE</span></div></div></li>
-            <li class="done"><span class="ck"></span><div><div class="tt">检查 c-4 正文合规声明</div><div class="m"><span>10:10</span><span class="tag s">DONE</span></div></div></li>
-            <li class="done"><span class="ck"></span><div><div class="tt">导出小红书 3:4 图片</div><div class="m"><span>11:00</span><span class="tag s">DONE</span></div></div></li>
-            <li class="done"><span class="ck"></span><div><div class="tt">补本周互动数据</div><div class="m"><span>11:40</span><span class="tag s">DONE</span></div></div></li>
-            <li><span class="ck"></span><div><div class="tt">发布「关系卡住时，读这6句」</div><div class="m"><span class="urg">18:00 前</span><span class="tag a">PUBLISH</span></div></div></li>
-            <li><span class="ck"></span><div><div class="tt">整理小确幸好物 3 个待拍物件</div><div class="m"><span>21:00</span><span class="tag">SHOOT</span></div></div></li>
-          </ul>
+          <button class="add-btn" data-add="schedule">+ 新建待办</button>
+          <ul class="todo" data-r="today-todo"></ul>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-h"><span class="no">03</span><h3>成稿待发</h3><span class="meta">3 DRAFTS</span></div>
-        <div class="card-b" style="padding:0">
-          <div class="item"><span class="no">01</span><div class="bd"><div class="t">🌙关系卡住时，读这6句</div><div class="q">有些关系不是坏了，只是停在了一个谁都不先开口的地方。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">02</span><div class="bd"><div class="t">🫧最近有点累，就读这6句</div><div class="q">累不是失败，是你一直在硬撑。存下来，等撑不住了再打开。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">03</span><div class="bd"><div class="t">🍂十一月，先读这6句</div><div class="q">换季的时候人容易空。给你6句短的，读到哪句算哪句。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">04</span><div class="bd"><div class="t">桌面上的小灯，亮到很晚</div><div class="q">一个人住的时候，灯是陪你的那个。选暖光的三个理由。</div><div class="m"><span class="tag">小确幸好物</span><span class="tag">草稿</span><button class="copy" data-copy>COPY</button></div></div></div>
-        </div>
+        <div class="card-h"><span class="no">03</span><h3>成稿待发</h3><span class="meta"><span data-r="draft-count">0</span> DRAFTS</span></div>
+        <div class="card-b" style="padding:0" data-r="today-drafts"></div>
       </div>
     </div>
   </section>
@@ -597,31 +641,18 @@ main::before{
   <section class="view" id="v-content">
     <div class="grid g2">
       <div class="card">
-        <div class="card-h"><span class="no">01</span><h3>成稿库</h3><span class="meta">6 ITEMS</span></div>
-        <div class="card-b" style="padding:0">
-          <div class="item"><span class="no">01</span><div class="bd"><div class="t">🌙关系卡住时，读这6句</div><div class="q">有些关系不是坏了，只是停在了一个谁都不先开口的地方。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">02</span><div class="bd"><div class="t">🫧最近有点累，就读这6句</div><div class="q">累不是失败，是你一直在硬撑。存下来，等撑不住了再打开。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">03</span><div class="bd"><div class="t">🍂十一月，先读这6句</div><div class="q">换季的时候人容易空。给你6句短的，读到哪句算哪句。</div><div class="m"><span class="tag">玄学短句</span><span class="tag w">待发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">04</span><div class="bd"><div class="t">出租屋里的三件小东西</div><div class="q">不贵，但每天都会用到。把日子过得像自己的，从这里开始。</div><div class="m"><span class="tag">小确幸好物</span><span class="tag s">已发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">05</span><div class="bd"><div class="t">先照顾好自己的那杯热水</div><div class="q">冬天最容易忘的是自己。写下今天做到的一件小事，就够了。</div><div class="m"><span class="tag">日常</span><span class="tag s">已发布</span><button class="copy" data-copy>COPY</button></div></div></div>
-          <div class="item"><span class="no">06</span><div class="bd"><div class="t">桌面上的小灯，亮到很晚</div><div class="q">一个人住的时候，灯是陪你的那个。选暖光的三个理由。</div><div class="m"><span class="tag">小确幸好物</span><span class="tag">草稿</span><button class="copy" data-copy>COPY</button></div></div></div>
-        </div>
+        <div class="card-h"><span class="no">01</span><h3>成稿库</h3><span class="hadd" data-add="content_items">+ 新建成稿</span><span class="meta"><span data-r="content-count">0</span> ITEMS</span></div>
+        <div class="card-b" style="padding:0" data-r="content-list"></div>
       </div>
       <div class="card">
         <div class="card-h"><span class="no">02</span><h3>发布节奏</h3><span class="meta">NEXT 7D</span></div>
         <div class="card-b">
           <table class="tbl">
             <thead><tr><th>DATE</th><th>TOPIC</th><th>STATE</th></tr></thead>
-            <tbody>
-              <tr><td class="id">11-18</td><td>关系卡住的6句</td><td><span class="tag w">待发</span></td></tr>
-              <tr><td class="id">11-20</td><td>累了就读的6句</td><td><span class="tag w">待发</span></td></tr>
-              <tr><td class="id">11-22</td><td>十一月先读6句</td><td><span class="tag w">待发</span></td></tr>
-              <tr><td class="id">11-25</td><td>小物件：桌面灯</td><td><span class="tag">草稿</span></td></tr>
-              <tr><td class="id">11-27</td><td>日常：冬日小事</td><td><span class="tag">草稿</span></td></tr>
-            </tbody>
+            <tbody data-r="upcoming"></tbody>
           </table>
           <div style="margin-top:14px;padding-top:12px;border-top:1px dashed rgba(79,227,193,.14)">
-            <div class="legend"><span>NEXT PUBLISH</span><span><b>11-18 20:00</b></span></div>
+            <div class="legend"><span>NEXT PUBLISH</span><span><b data-r="next-publish">—</b></span></div>
           </div>
         </div>
       </div>
@@ -631,21 +662,11 @@ main::before{
   <!-- 选题 -->
   <section class="view" id="v-ideas">
     <div class="card">
-      <div class="card-h"><span class="no">01</span><h3>选题池</h3><span class="meta">9 ITEMS / 3 KINDS</span></div>
+      <div class="card-h"><span class="no">01</span><h3>选题池</h3><span class="hadd" data-add="ideas">+ 新建选题</span><span class="meta"><span data-r="ideas-count">0</span> ITEMS</span></div>
       <div class="card-b" style="padding:0;overflow-x:auto">
         <table class="tbl">
-          <thead><tr><th>ID</th><th>选题</th><th>分类</th><th>平台</th><th>状态</th></tr></thead>
-          <tbody>
-            <tr><td class="id">i-01</td><td>冬夜里的第一杯热可可</td><td class="dim">日常</td><td class="dim">小红书</td><td><span class="tag s">已用</span></td></tr>
-            <tr><td class="id">i-02</td><td>一个人住的第 100 天</td><td class="dim">日常</td><td class="dim">小红书</td><td><span class="tag">待写</span></td></tr>
-            <tr><td class="id">i-05</td><td>你最近一次心动，是什么时候</td><td class="dim">日常</td><td class="dim">小红书</td><td><span class="tag">待写</span></td></tr>
-            <tr><td class="id">i-06</td><td>出租屋改造：只动了三处</td><td class="dim">日常</td><td class="dim">小红书</td><td><span class="tag">待写</span></td></tr>
-            <tr><td class="id">i-09</td><td>关系卡住时，读这 6 句</td><td class="dim">玄学短句</td><td class="dim">小红书</td><td><span class="tag s">已成稿</span></td></tr>
-            <tr><td class="id">i-10</td><td>最近有点累，就读这 6 句</td><td class="dim">玄学短句</td><td class="dim">小红书</td><td><span class="tag s">已成稿</span></td></tr>
-            <tr><td class="id">i-12</td><td>十一月，先读这 6 句</td><td class="dim">玄学短句</td><td class="dim">小红书</td><td><span class="tag s">已成稿</span></td></tr>
-            <tr><td class="id">i-13</td><td>桌面上的小灯，亮到很晚</td><td class="dim">小确幸好物</td><td class="dim">小红书</td><td><span class="tag">待写</span></td></tr>
-            <tr><td class="id">i-14</td><td>三件不贵但每天都用的小东西</td><td class="dim">小确幸好物</td><td class="dim">小红书</td><td><span class="tag">待写</span></td></tr>
-          </tbody>
+          <thead><tr><th>ID</th><th>选题</th><th>分类</th><th>平台</th><th>状态</th><th>ACTIONS</th></tr></thead>
+          <tbody data-r="ideas-body"></tbody>
         </table>
       </div>
     </div>
@@ -724,6 +745,19 @@ main::before{
   </div>
 </div>
 
+<div class="fmodal" id="fmodal" role="dialog" aria-modal="true" aria-labelledby="fmTitle">
+  <div class="fmodal-mask" data-fclose></div>
+  <div class="fmodal-panel">
+    <div class="fmodal-h">
+      <div><span class="idx" id="fmKicker">NEW ENTRY</span><h2 id="fmTitle">新建</h2></div>
+      <button class="fmodal-x" type="button" data-fclose aria-label="关闭">✕</button>
+    </div>
+    <div class="fmodal-b" id="fmBody"></div>
+    <div class="fmodal-f" id="fmFoot"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
 <div class="cursor"><span>X <b id="cx">0000</b></span><span>Y <b id="cy">0000</b></span><span>GRID 32</span></div>
 <div class="ticker">
   <div class="run">
@@ -767,6 +801,7 @@ main::before{
     mSub.textContent=INFO[v][1];
     mBody.innerHTML=src.innerHTML;
     mBody.scrollTop=0;
+    if(window.ZD_REFRESH)try{window.ZD_REFRESH(mBody)}catch(err){}
     if(window.ZD_DASH)try{window.ZD_DASH(mBody)}catch(err){}
     lastFocus=document.activeElement;
     if(closeTimer){clearTimeout(closeTimer);closeTimer=0;}
@@ -815,7 +850,11 @@ main::before{
   document.addEventListener('click',function(e){
     var b=e.target.closest('[data-copy]'); if(!b)return;
     var t=b.closest('.item');
-    var text=t?t.innerText.replace(/COPY/,'').trim():'';
+    var text='';
+    if(t){
+      var tt=t.querySelector('.t'), qq=t.querySelector('.q');
+      text=[tt?tt.innerText:'',qq?qq.innerText:''].filter(Boolean).join('\n').trim();
+    }
     var done=function(){b.textContent='COPIED';b.classList.add('ok');setTimeout(function(){b.textContent='COPY';b.classList.remove('ok')},1400)};
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(text).then(done,function(){b.textContent='FAIL';});
@@ -1264,6 +1303,1055 @@ main::before{
     var b=scope.querySelector('[data-bars]'); if(b)renderBars(b);
   };
   window.ZD_DASH(document);
+})();
+</script>
+<script>
+/* ================= 数据层 / 线上数据库 / AI ================= */
+(function(){
+'use strict';
+
+/* ---------- 配置 ---------- */
+var CFG={
+  OWNER:'gfrtzg2488-prog', REPO:'erdongchen-workbench', BRANCH:'main',
+  PATH:'data/workbench.json',
+  DATA_OWNER:'gfrtzg2488-prog', DATA_REPO:'erdongchen-data', DATA_BRANCH:'main',
+  DATA_PATH:'workbench.json'
+};
+var TOKEN_KEY='zd_gh_token';          /* 与枕冬工作台共用，一次粘贴两页通用 */
+var LS_KEY='zd_workbench_v2';         /* 与枕冬共用同一份本地数据 */
+var BACKUP_KEY='zd_last_backup';
+var AI_PROVIDER_LS='zd_ai_provider';
+var AI_KEY_LS='zd_ai_key';
+var AI_MODEL_LS='zd_ai_model';
+var AI_URL_LS='zd_ai_url';
+
+var TABLES=['content_items','deals','schedule','metrics','ideas'];
+var TOPICS=['日常','玄学短句','小确幸好物'];
+var STAGES=['文案','剪辑','审核','发布','已发布'];
+var PLATFORMS=['小红书','抖音','视频号','公众号'];
+var SCHED_KINDS=['发布','拍摄','剪辑','审核','商单','复盘'];
+var SCHED_STATUS=['待办','进行中','完成'];
+var IDEA_KINDS=['选题','话题','素材'];
+var IDEA_STATUS=['待选','采纳','已用','归档'];
+var DEMO=/[?&]demo=1/.test(location.search);
+var LOCAL_ONLY=/[?&]local=1/.test(location.search);
+
+var Store={
+  mode: DEMO?'demo':((ghToken()&&!LOCAL_ONLY)?'cloud':'local'),
+  data: emptyData(),
+  sha:'',
+  fp:'',
+  lastSync:0,
+  err:''
+};
+
+/* ---------- 小工具 ---------- */
+function $(s,r){ return (r||document).querySelector(s); }
+function each(s,fn,r){
+  var list=(r||document).querySelectorAll(s);
+  for(var i=0;i<list.length;i++) fn(list[i],i);
+}
+function txt(s,v,r){ each(s,function(el){ el.textContent=(v===null||v===undefined)?'':String(v); },r); }
+function esc(s){
+  return String(s===null||s===undefined?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function pad2(n){ return n<10?'0'+n:''+n; }
+function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function addDays(base,n){
+  var p=String(base||todayStr()).split('-');
+  var d=new Date(+p[0],+p[1]-1,+p[2]);
+  d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function mmdd(s){ var v=String(s||''); return v.length>=10?v.slice(5,10):v; }
+function splitRef(ref){ var i=String(ref||'').indexOf('|'); if(i<0)return null; return [ref.slice(0,i),ref.slice(i+1)]; }
+function rows(t){ return (Store.data&&Store.data[t])||[]; }
+function findRow(t,id){ var a=rows(t); for(var i=0;i<a.length;i++){ if(String(a[i].id)===String(id)) return a[i]; } return null; }
+
+var toastTimer=0;
+function toast(msg,isErr){
+  var el=document.getElementById('toast'); if(!el)return;
+  el.textContent=msg;
+  el.className='on'+(isErr?' err':'');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ el.className=''; },3600);
+}
+
+/* ---------- 存储 ---------- */
+function emptyData(){
+  return { content_items:[], deals:[], schedule:[], metrics:[], ideas:[] };
+}
+function normalizeTables(t){
+  var d=emptyData();
+  TABLES.forEach(function(k){ d[k]=Array.isArray(t&&t[k])?t[k]:[]; });
+  return d;
+}
+function lsRead(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);
+    if(raw){
+      var d=JSON.parse(raw);
+      if(d&&d.tables) d=d.tables;
+      if(d&&d.content_items) return normalizeTables(d);
+    }
+  }catch(e){}
+  return emptyData();
+}
+function lsWrite(d){
+  try{ localStorage.setItem(LS_KEY,JSON.stringify(d)); }catch(e){ toast('本机存储写入失败（空间可能已满）',true); }
+}
+function fpOf(d){
+  return TABLES.map(function(t){
+    var rs=d[t]||[], mx='';
+    for(var i=0;i<rs.length;i++){
+      var v=String(rs[i].updated_at||rs[i].updatedAt||rs[i].created_at||rs[i].createdAt||'');
+      if(v>mx) mx=v;
+    }
+    return t+':'+rs.length+':'+mx;
+  }).join('|');
+}
+
+/* ---------- GitHub 私有数据仓库 ---------- */
+function ghToken(){ try{ return localStorage.getItem(TOKEN_KEY)||''; }catch(e){ return ''; } }
+var GH_API='https://api.github.com';
+var GH_FILE='/repos/'+CFG.DATA_OWNER+'/'+CFG.DATA_REPO+'/contents/'+CFG.DATA_PATH;
+var LEGACY_URL='https://raw.githubusercontent.com/'+CFG.OWNER+'/'+CFG.REPO+'/'+CFG.BRANCH+'/'+CFG.PATH;
+
+function ghHeaders(){
+  return {
+    'Authorization':'Bearer '+ghToken(),
+    'Accept':'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2022-11-28',
+    'Content-Type':'application/json'
+  };
+}
+function b64enc(str){
+  var bytes=new TextEncoder().encode(str), bin='';
+  for(var i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64dec(b64){
+  var bin=atob(String(b64||'').replace(/\s+/g,''));
+  var bytes=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+async function ghFetch(path,opts){
+  var o=Object.assign({headers:ghHeaders()},opts||{});
+  var res;
+  try{ res=await fetch(GH_API+path,o); }
+  catch(e){ throw new Error('网络无法连接 GitHub'); }
+  if(res.status===404) return {__notfound:true};
+  if(!res.ok){
+    var msg=res.status+' '+(res.statusText||'');
+    if(res.status===401) msg='令牌无效或已过期';
+    if(res.status===403) msg='令牌权限不足或已限流';
+    if(res.status===409) msg='数据冲突，请稍后重试';
+    try{ var j=await res.json(); if(j&&j.message) msg=j.message; }catch(e){}
+    throw new Error(msg);
+  }
+  var t=await res.text();
+  return t?JSON.parse(t):null;
+}
+async function ghReadDoc(){
+  var r=await ghFetch(GH_FILE+'?ref='+CFG.BRANCH+'&t='+Date.now());
+  if(!r||r.__notfound) return {doc:null,sha:null};
+  var doc=null;
+  try{ doc=JSON.parse(b64dec(r.content)); }catch(e){ doc=null; }
+  return {doc:doc,sha:r.sha};
+}
+function docOf(data){ return {v:1,updated_at:new Date().toISOString(),tables:data}; }
+async function ghWriteDoc(doc){
+  if(LOCAL_ONLY) throw new Error('只读模式，不会写入云端');
+  var body={
+    message:'data: 望春秋数据 '+new Date().toISOString().slice(0,16).replace('T',' '),
+    content:b64enc(JSON.stringify(doc,null,2)),
+    branch:CFG.BRANCH
+  };
+  if(Store.sha) body.sha=Store.sha;
+  var r;
+  try{
+    r=await ghFetch(GH_FILE,{method:'PUT',body:JSON.stringify(body)});
+  }catch(err){
+    if(String(err.message).indexOf('冲突')<0) throw err;
+    var fresh=await ghReadDoc();
+    Store.sha=fresh.sha||'';
+    if(fresh.sha) body.sha=fresh.sha; else delete body.sha;
+    r=await ghFetch(GH_FILE,{method:'PUT',body:JSON.stringify(body)});
+  }
+  if(r&&r.__notfound){
+    throw new Error('找不到数据仓库 '+CFG.DATA_OWNER+'/'+CFG.DATA_REPO+'，请先创建这个私有仓库再连接');
+  }
+  Store.sha=(r&&r.content&&r.content.sha)||Store.sha;
+}
+async function readLegacyDoc(){
+  try{
+    var res=await fetch(LEGACY_URL+'?t='+Date.now());
+    if(!res.ok) return null;
+    var j=JSON.parse(await res.text());
+    return (j&&j.tables)?j:null;
+  }catch(e){ return null; }
+}
+
+/* ---------- 写入与同步 ---------- */
+var pushTimer=null;
+function schedulePush(){
+  if(Store.mode!=='cloud') return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(pushNow,900);
+}
+async function pushNow(){
+  if(Store.mode!=='cloud') return;
+  try{
+    /* 防误清空：某张表突然少掉七成以上时，以云端为准 */
+    try{
+      var remote=await ghReadDoc();
+      if(remote.doc&&remote.doc.tables){
+        var fixed=[];
+        TABLES.forEach(function(t){
+          var rl=(remote.doc.tables[t]||[]).length;
+          var ll=(Store.data[t]||[]).length;
+          if(rl>=6&&ll<rl*0.3){ Store.data[t]=remote.doc.tables[t]; fixed.push(t); }
+        });
+        if(fixed.length) toast('检测到数据异常减少，已按云端恢复：'+fixed.join('、'),true);
+      }
+    }catch(e){}
+    await ghWriteDoc(docOf(Store.data));
+    Store.lastSync=Date.now();
+    Store.err='';
+    Store.fp=fpOf(Store.data);
+    lsWrite(Store.data);
+    renderSync();
+    renderAll();
+  }catch(e){
+    Store.err=e.message;
+    renderSync();
+    toast('云端保存失败：'+e.message,true);
+  }
+}
+
+async function createRow(table,row){
+  var rec=Object.assign({id:uid(),created_at:new Date().toISOString(),updated_at:new Date().toISOString()},row);
+  Store.data[table]=(Store.data[table]||[]).concat(rec);
+  afterChange();
+  return rec;
+}
+async function updateRow(table,id,patch){
+  var i=(Store.data[table]||[]).findIndex(function(r){ return String(r.id)===String(id); });
+  if(i<0) return null;
+  Store.data[table][i]=Object.assign({},Store.data[table][i],patch,{updated_at:new Date().toISOString()});
+  afterChange();
+  return Store.data[table][i];
+}
+async function deleteRow(table,id,label){
+  var arr=Store.data[table]||[];
+  var idx=-1;
+  for(var i=0;i<arr.length;i++){ if(String(arr[i].id)===String(id)){ idx=i; break; } }
+  if(idx<0) return;
+  Store.data[table]=arr.slice(0,idx).concat(arr.slice(idx+1));
+  afterChange();
+  toast((label||'记录')+'已删除');
+}
+function afterChange(){
+  if(Store.mode==='cloud') schedulePush();
+  else if(Store.mode!=='demo') lsWrite(Store.data);
+  Store.fp=fpOf(Store.data);
+}
+
+async function loadAll(){
+  if(Store.mode==='cloud'){
+    var r=await ghReadDoc();
+    var d=(r.doc&&r.doc.tables)?normalizeTables(r.doc.tables):emptyData();
+    var migrated=false;
+    Store.sha=r.sha||'';
+    if(d.content_items.length+d.schedule.length+d.ideas.length+d.deals.length+d.metrics.length===0){
+      var legacy=await readLegacyDoc();
+      if(legacy&&legacy.tables){
+        var sum=0;
+        TABLES.forEach(function(t){ sum+=((legacy.tables[t]||[]).length); });
+        if(sum>0){ d=normalizeTables(legacy.tables); migrated=true; toast('已把旧仓库的数据迁移到私有数据仓库'); }
+      }
+    }
+    Store.data=d;
+    if(migrated||!(r.doc&&r.doc.tables)) await ghWriteDoc(docOf(d));
+    lsWrite(d);
+  }else if(Store.mode==='demo'){
+    Store.data=emptyData();
+  }else{
+    Store.data=lsRead();
+  }
+  Store.fp=fpOf(Store.data);
+  Store.lastSync=Date.now();
+  Store.err='';
+}
+
+async function syncNow(announce){
+  if(Store.mode==='demo') return true;
+  try{
+    if(Store.mode==='cloud'){
+      var r=await ghReadDoc();
+      if(r.doc&&r.doc.tables&&r.sha&&r.sha!==Store.sha){
+        Store.data=normalizeTables(r.doc.tables);
+        Store.sha=r.sha;
+        Store.fp=fpOf(Store.data);
+        Store.lastSync=Date.now();
+        lsWrite(Store.data);
+        if(announce) toast('已同步最新数据');
+        renderAll();
+        return true;
+      }
+      Store.lastSync=Date.now();
+      if(announce) toast('已是最新');
+      return true;
+    }
+    var d=lsRead(), fp=fpOf(d);
+    Store.data=d;
+    Store.lastSync=Date.now();
+    if(fp!==Store.fp){ Store.fp=fp; renderAll(); if(announce) toast('已重新载入本地数据'); }
+    else if(announce){ toast('已是最新'); }
+    return true;
+  }catch(e){
+    Store.err=e.message;
+    renderSync();
+    if(announce) toast('同步失败：'+e.message,true);
+    return false;
+  }
+}
+
+/* ---------- 渲染 ---------- */
+function catOf(r){
+  if(r&&r.topic&&TOPICS.indexOf(r.topic)>=0) return r.topic;
+  var tags=String((r&&r.tags)||'').split(/[,，\s]+/).filter(Boolean);
+  for(var i=0;i<tags.length;i++){
+    for(var j=0;j<TOPICS.length;j++){
+      if(tags[i].indexOf(TOPICS[j])>=0) return TOPICS[j];
+    }
+    if(/玄学|短句/.test(tags[i])) return '玄学短句';
+    if(/好物/.test(tags[i])) return '小确幸好物';
+    if(/日常/.test(tags[i])) return '日常';
+  }
+  if(r&&/玄学|短句/.test(String(r.title||''))) return '玄学短句';
+  return '日常';
+}
+function stageTag(s){
+  if(s==='已发布') return 's';
+  if(s==='发布'||s==='审核') return 'w';
+  return '';
+}
+function quoteOf(r){
+  var q=r.hook||r.note||r.notes||'';
+  q=String(q).split(/\n/).filter(Boolean)[0]||'';
+  return q.length>70?q.slice(0,70)+'…':q;
+}
+function gauge(key,ratio){
+  ratio=Math.max(0,Math.min(1,ratio||0));
+  each('[data-gauge="'+key+'"]',function(el){
+    el.style.strokeDashoffset=String(150.8*(1-ratio));
+  });
+}
+function upcoming(){
+  var t=todayStr();
+  return rows('content_items').filter(function(r){
+    return r.due_date&&r.due_date>=t&&r.stage!=='已发布';
+  }).sort(function(a,b){ return String(a.due_date).localeCompare(String(b.due_date)); });
+}
+function drafts(){
+  return rows('content_items').filter(function(r){ return r.stage!=='已发布'; })
+    .sort(function(a,b){ return String(a.due_date||'9999').localeCompare(String(b.due_date||'9999')); });
+}
+function ideaLabel(s){
+  if(s==='采纳') return '已成稿';
+  if(s==='已用') return '已用';
+  if(s==='归档') return '已归档';
+  return '待写';
+}
+function ideaTag(s){
+  if(s==='采纳'||s==='已用') return 's';
+  if(s==='归档') return '';
+  return '';
+}
+
+function renderStats(root){
+  var t=todayStr();
+  var sch=rows('schedule');
+  var todays=sch.filter(function(r){ return r.date===t; });
+  var done=todays.filter(function(r){ return r.status==='完成'; }).length;
+  var total=todays.length;
+  txt('[data-r="q-done"]',done,root);
+  txt('[data-r="q-total"]',total,root);
+  txt('[data-r="q-left"]',Math.max(0,total-done),root);
+  txt('[data-r="q-pct"]',(total?Math.round(done/total*100):0)+'%',root);
+  gauge('queue',total?done/total:0);
+
+  var made=rows('content_items').filter(function(r){
+    var d=String(r.created_at||r.createdAt||'').slice(0,10);
+    return d&&d>=addDays(t,-6);
+  }).length;
+  txt('[data-r="w-made"]',made,root);
+  txt('[data-r="w-pct"]',Math.round(Math.min(1,made/5)*100)+'%',root);
+  gauge('week',Math.min(1,made/5));
+
+  var ideas=rows('ideas');
+  var ready=ideas.filter(function(r){ return !r.status||r.status==='待选'; }).length;
+  var mix={};
+  TOPICS.forEach(function(k){ mix[k]=0; });
+  ideas.forEach(function(r){ var k=catOf(r); mix[k]=(mix[k]||0)+1; });
+  txt('[data-r="i-total"]',ideas.length,root);
+  txt('[data-r="i-mix"]',TOPICS.map(function(k){ return (k==='小确幸好物'?'好物':k)+' '+(mix[k]||0); }).join(' · '),root);
+  txt('[data-r="i-pct"]',(ideas.length?Math.round(ready/ideas.length*100):0)+'%',root);
+  gauge('pool',ideas.length?ready/ideas.length:0);
+}
+
+function renderMods(root){
+  var t=todayStr();
+  var todays=rows('schedule').filter(function(r){ return r.date===t; });
+  var done=todays.filter(function(r){ return r.status==='完成'; }).length;
+  var dl=drafts().length;
+  var sc=upcoming().length;
+  var ideas=rows('ideas');
+  var ready=ideas.filter(function(r){ return !r.status||r.status==='待选'; }).length;
+  txt('[data-r="mod-today"]','QUEUE '+todays.length+' · '+done+' DONE',root);
+  txt('[data-r="mod-content"]','DRAFTS '+dl+' · SCHEDULED '+sc,root);
+  txt('[data-r="mod-ideas"]','POOL '+ideas.length+' · READY '+ready,root);
+}
+
+function renderSig(root){
+  var up=upcoming().slice(0,3);
+  each('[data-r="sig-list"]',function(el){
+    el.innerHTML=up.length?up.map(function(r){
+      return '<div class="sig-row"><span class="k">DUE</span><span class="t">'+esc(r.title||'未命名')+'</span><span class="v w">'+esc(mmdd(r.due_date))+'</span></div>';
+    }).join(''):'<div class="sig-row"><span class="k">SIG</span><span class="t">暂无临期事项</span><span class="v">IDLE</span></div>';
+  },root);
+}
+
+function renderTodo(root){
+  var t=todayStr();
+  var list=rows('schedule').filter(function(r){ return r.date===t; })
+    .sort(function(a,b){ return String(a.time||'').localeCompare(String(b.time||'')); });
+  each('[data-r="today-todo"]',function(el){
+    el.innerHTML=list.length?list.map(function(r){
+      var isDone=r.status==='完成';
+      return '<li class="'+(isDone?'done':'')+'">'+
+        '<span class="ck" data-tgl="schedule|'+esc(r.id)+'"></span>'+
+        '<div><div class="tt">'+esc(r.title||'未命名待办')+'</div>'+
+        '<div class="m"><span>'+esc(r.time||'--:--')+'</span>'+
+        '<span class="tag '+(isDone?'s':(r.kind==='发布'?'a':''))+'">'+esc(isDone?'DONE':(r.kind||'待办'))+'</span>'+
+        '<button class="row-act" data-edit="schedule|'+esc(r.id)+'">EDIT</button>'+
+        '<button class="row-act del" data-del="schedule|'+esc(r.id)+'">DEL</button></div></div></li>';
+    }).join(''):'<li><div class="empty-hud" style="width:100%"><b>NO TASKS</b>今天还没有待办 —— 点上方「+ 新建待办」</div></li>';
+  },root);
+  txt('[data-r="todo-count"]',list.length,root);
+}
+
+function itemHTML(r,i){
+  return '<div class="item"><span class="no">'+pad2(i+1)+'</span><div class="bd">'+
+    '<div class="t">'+esc(r.title||'未命名成稿')+'</div>'+
+    '<div class="q">'+esc(quoteOf(r))+'</div>'+
+    '<div class="m"><span class="tag">'+esc(catOf(r))+'</span>'+
+    '<span class="tag '+stageTag(r.stage)+'">'+esc(r.stage||'草稿')+'</span>'+
+    '<button class="copy" data-copy>COPY</button>'+
+    '<button class="row-act" data-edit="content_items|'+esc(r.id)+'">EDIT</button>'+
+    '<button class="row-act del" data-del="content_items|'+esc(r.id)+'">DEL</button></div></div></div>';
+}
+function renderDrafts(root){
+  var list=drafts().slice(0,4);
+  each('[data-r="today-drafts"]',function(el){
+    el.innerHTML=list.length?list.map(itemHTML).join(''):
+      '<div class="empty-hud"><b>NO DRAFTS</b>还没有成稿 —— 在选题里用 AI 生成初稿</div>';
+  },root);
+  txt('[data-r="draft-count"]',drafts().length,root);
+}
+function renderContent(root){
+  var list=rows('content_items').slice().sort(function(a,b){
+    return String(b.updated_at||b.created_at||'').localeCompare(String(a.updated_at||a.created_at||''));
+  });
+  each('[data-r="content-list"]',function(el){
+    el.innerHTML=list.length?list.map(itemHTML).join(''):
+      '<div class="empty-hud"><b>LIBRARY EMPTY</b>点右上角「+ 新建成稿」开始</div>';
+  },root);
+  txt('[data-r="content-count"]',list.length,root);
+}
+function renderUpcoming(root){
+  var list=upcoming().slice(0,5);
+  each('[data-r="upcoming"]',function(el){
+    el.innerHTML=list.length?list.map(function(r){
+      return '<tr><td class="id">'+esc(mmdd(r.due_date))+'</td><td>'+esc(r.title||'未命名')+'</td>'+
+        '<td><span class="tag '+stageTag(r.stage)+'">'+esc(r.stage||'草稿')+'</span></td></tr>';
+    }).join(''):'<tr><td class="id">—</td><td class="dim" colspan="2">暂无排期</td></tr>';
+  },root);
+  txt('[data-r="next-publish"]',list.length?list[0].due_date:'—',root);
+}
+function renderIdeas(root){
+  var list=rows('ideas');
+  each('[data-r="ideas-body"]',function(el){
+    el.innerHTML=list.length?list.map(function(r){
+      return '<tr><td class="id">'+esc(String(r.id||'').slice(-6))+'</td><td>'+esc(r.title||'未命名选题')+'</td>'+
+        '<td class="dim">'+esc(catOf(r))+'</td><td class="dim">'+esc(r.platform||'小红书')+'</td>'+
+        '<td><span class="tag '+ideaTag(r.status)+'">'+esc(ideaLabel(r.status))+'</span></td>'+
+        '<td><button class="row-act ai" data-ai-idea="'+esc(r.id)+'">AI</button>'+
+        '<button class="row-act" data-edit="ideas|'+esc(r.id)+'">EDIT</button>'+
+        '<button class="row-act del" data-del="ideas|'+esc(r.id)+'">DEL</button></td></tr>';
+    }).join(''):'<tr><td colspan="6"><div class="empty-hud" style="border:0"><b>POOL EMPTY</b>还没有选题 —— 点「+ 新建选题」</div></td></tr>';
+  },root);
+  txt('[data-r="ideas-count"]',list.length,root);
+}
+function renderSync(){
+  var chip=document.getElementById('syncChip'); if(!chip)return;
+  var s=chip.querySelector('span');
+  chip.className='status';
+  if(Store.mode==='cloud'){
+    s.textContent=Store.err?'SYNC · 离线':'SYNC · 在线';
+    chip.title='数据存在私有仓库 '+CFG.DATA_OWNER+'/'+CFG.DATA_REPO+'，点击查看';
+  }else if(Store.mode==='demo'){
+    chip.className='status demo';
+    s.textContent='SYNC · DEMO';
+    chip.title='演示模式，不写入任何仓库';
+  }else{
+    chip.className='status local';
+    s.textContent='LOCAL · 本机';
+    chip.title='数据只存在本机浏览器，点「数据」连接云端';
+  }
+  if(Store.err) chip.classList.add('warn');
+}
+function renderAll(root){
+  renderStats(root);
+  renderMods(root);
+  renderSig(root);
+  renderTodo(root);
+  renderDrafts(root);
+  renderContent(root);
+  renderUpcoming(root);
+  renderIdeas(root);
+  renderSync();
+}
+window.ZD_REFRESH=function(scope){ renderAll(scope||document); };
+
+/* ---------- 表单弹层 ---------- */
+function fOpen(kicker,title,body,foot){
+  var m=document.getElementById('fmodal'); if(!m)return;
+  $('#fmKicker').textContent=kicker||'';
+  $('#fmTitle').textContent=title||'';
+  $('#fmBody').innerHTML=body||'';
+  $('#fmFoot').innerHTML=foot||'<button class="btn" data-fclose>关闭</button>';
+  m.classList.add('on');
+  var f=$('#fmBody input,#fmBody select,#fmBody textarea');
+  if(f)try{ f.focus({preventScroll:true}); }catch(e){}
+}
+function fClose(){
+  var m=document.getElementById('fmodal'); if(!m)return;
+  m.classList.remove('on');
+  $('#fmBody').innerHTML='';
+  $('#fmFoot').innerHTML='';
+}
+function fld(label,inner,hint){
+  return '<div class="fld"><label>'+esc(label)+'</label>'+inner+(hint?'<span class="hint">'+hint+'</span>':'')+'</div>';
+}
+function sel(id,opts,val){
+  return '<select id="'+id+'">'+opts.map(function(o){
+    return '<option'+(String(o)===String(val)?' selected':'')+'>'+esc(o)+'</option>';
+  }).join('')+'</select>';
+}
+
+/* ---------- 新建 / 编辑 ---------- */
+function openNewMenu(){
+  fOpen('NEW / 入口','新建记录',
+    '<div class="nmenu">'+
+      '<button data-add="schedule"><span class="nm">待办</span><span class="dt">SCHEDULE</span></button>'+
+      '<button data-add="content_items"><span class="nm">成稿</span><span class="dt">CONTENT</span></button>'+
+      '<button data-add="ideas"><span class="nm">选题</span><span class="dt">IDEA</span></button>'+
+    '</div>','<button class="btn" data-fclose>取消</button>');
+}
+
+function openRowForm(table,id){
+  var row=id?findRow(table,id):null;
+  var isNew=!row;
+  var body='', title='';
+  if(table==='schedule'){
+    title=isNew?'新建待办':(row.title||'编辑待办');
+    body=
+      fld('事项', '<input id="fTitle" value="'+esc(row&&row.title||'')+'" placeholder="今天要做什么">')+
+      '<div class="frow">'+
+        fld('日期','<input id="fDate" type="date" value="'+esc(row&&row.date||todayStr())+'">')+
+        fld('时间','<input id="fTime" type="time" value="'+esc(row&&row.time||'10:00')+'">')+
+      '</div>'+
+      '<div class="frow">'+
+        fld('类型',sel('fKind',SCHED_KINDS,row&&row.kind||'发布'))+
+        fld('状态',sel('fStatus',SCHED_STATUS,row&&row.status||'待办'))+
+      '</div>';
+  }else if(table==='content_items'){
+    title=isNew?'新建成稿':(row.title||'编辑成稿');
+    body=
+      fld('标题','<input id="fTitle" value="'+esc(row&&row.title||'')+'" placeholder="成稿标题">')+
+      '<div class="frow">'+
+        fld('平台',sel('fPlatform',PLATFORMS,row&&row.platform||'小红书'))+
+        fld('阶段',sel('fStage',STAGES,row&&row.stage||'文案'))+
+      '</div>'+
+      '<div class="frow">'+
+        fld('分类',sel('fTopic',TOPICS,row&&row.topic||'日常'))+
+        fld('预计发布','<input id="fDue" type="date" value="'+esc(row&&row.due_date||addDays(todayStr(),5))+'">')+
+      '</div>'+
+      fld('一句话钩子','<input id="fHook" value="'+esc(row&&row.hook||'')+'" placeholder="开场第一句（可留空）">')+
+      fld('正文 / 备注','<textarea id="fNotes" rows="10" placeholder="在此写正文，或粘贴 AI 初稿">'+esc(row&&(row.notes||row.note)||'')+'</textarea>',
+        '对外发送前请标注「待人工确认」；事实、价格、体验需自行核实。');
+  }else if(table==='ideas'){
+    title=isNew?'新建选题':(row.title||'编辑选题');
+    body=
+      fld('选题','<input id="fTitle" value="'+esc(row&&row.title||'')+'" placeholder="一句话选题">')+
+      '<div class="frow">'+
+        fld('类型',sel('fKind',IDEA_KINDS,row&&row.kind||'选题'))+
+        fld('分类',sel('fTopic',TOPICS,row&&catOf(row)||'日常'))+
+      '</div>'+
+      '<div class="frow">'+
+        fld('平台',sel('fPlatform',PLATFORMS,row&&row.platform||'小红书'))+
+        fld('状态',sel('fStatus',IDEA_STATUS,row&&row.status||'待选'))+
+      '</div>'+
+      fld('标签','<input id="fTags" value="'+esc(row&&row.tags||'')+'" placeholder="用逗号分隔">')+
+      fld('备注','<textarea id="fNote" rows="4" placeholder="参考、链接、要求">'+esc(row&&row.note||'')+'</textarea>');
+  }else{
+    toast('不支持的数据表',true); return;
+  }
+  fOpen(isNew?'NEW / '+table:'EDIT / '+table,title,body,
+    '<button class="btn" data-fclose>取消</button><button class="btn primary" id="fmSave">保存</button>');
+
+  $('#fmSave').onclick=async function(){
+    var btn=this; btn.disabled=true;
+    try{
+      if(table==='schedule'){
+        var t=($('#fTitle').value||'').trim();
+        if(!t) throw new Error('先填事项');
+        var patch={title:t,date:$('#fDate').value||todayStr(),time:$('#fTime').value||'10:00',kind:$('#fKind').value,status:$('#fStatus').value};
+        if(isNew) await createRow('schedule',patch); else await updateRow('schedule',row.id,patch);
+      }else if(table==='content_items'){
+        var t2=($('#fTitle').value||'').trim();
+        if(!t2) throw new Error('先填标题');
+        var patch2={title:t2,platform:$('#fPlatform').value,stage:$('#fStage').value,topic:$('#fTopic').value,
+          due_date:$('#fDue').value||addDays(todayStr(),5),hook:($('#fHook').value||'').trim(),
+          notes:$('#fNotes').value||'',owner:'望春秋'};
+        if(isNew) await createRow('content_items',Object.assign({format:'图文',priority:2,plays:0,likes:0,comments:0,saves:0,shares:0},patch2));
+        else await updateRow('content_items',row.id,patch2);
+      }else{
+        var t3=($('#fTitle').value||'').trim();
+        if(!t3) throw new Error('先填选题');
+        var patch3={title:t3,kind:$('#fKind').value,topic:$('#fTopic').value,platform:$('#fPlatform').value,
+          status:$('#fStatus').value,tags:($('#fTags').value||'').trim(),note:$('#fNote').value||''};
+        if(isNew) await createRow('ideas',Object.assign({heat:3,url:''},patch3));
+        else await updateRow('ideas',row.id,patch3);
+      }
+      fClose();
+      renderAll();
+      toast(isNew?'已新建':'已保存');
+    }catch(err){
+      toast((err&&err.message)||'保存失败',true);
+      btn.disabled=false;
+    }
+  };
+}
+
+function askDelete(ref){
+  var p=splitRef(ref); if(!p)return;
+  var table=p[0], id=p[1], row=findRow(table,id);
+  if(!row) return;
+  fOpen('CONFIRM / 删除','删除这条记录？',
+    '<div class="kv">'+esc(row.title||'未命名记录')+'</div>'+
+    '<p class="hint" style="font-size:10.5px;color:var(--faint);line-height:1.7">'+
+    (Store.mode==='cloud'?'删除后会同步到私有数据仓库；':'删除只影响本机浏览器；')+'这一步不能在云端撤销。</p>',
+    '<button class="btn" data-fclose>取消</button><button class="btn danger" id="fmDel">确认删除</button>');
+  $('#fmDel').onclick=async function(){
+    this.disabled=true;
+    await deleteRow(table,id,row.title||'记录');
+    fClose();
+    renderAll();
+  };
+}
+
+async function toggleTodo(id){
+  var r=findRow('schedule',id); if(!r) return;
+  await updateRow('schedule',id,{status:r.status==='完成'?'待办':'完成'});
+  renderAll();
+}
+
+/* ---------- 数据连接面板 ---------- */
+function modeLabel(){
+  if(Store.mode==='cloud') return '云端同步';
+  if(Store.mode==='demo') return '演示模式';
+  return '本机存储';
+}
+function openDataPanel(){
+  var body=
+    '<div class="kv">页面仓库 <b>'+esc(CFG.OWNER+'/'+CFG.REPO)+'</b><br>'+
+    '数据仓库 <b>'+esc(CFG.DATA_OWNER+'/'+CFG.DATA_REPO)+' · '+esc(CFG.DATA_PATH)+'</b><br>'+
+    '当前模式 <b>'+esc(modeLabel())+'</b><br>'+
+    '最近同步 <b>'+esc(Store.lastSync?new Date(Store.lastSync).toLocaleString():'—')+'</b></div>'+
+    fld('只读数据仓库的令牌',
+      '<input id="tkIn" type="password" autocomplete="off" placeholder="github_pat_… 或 ghp_…" value="'+esc(ghToken())+'">',
+      '建议用 Fine-grained token，只授权 '+esc(CFG.DATA_REPO)+' 仓库的 Contents 读写。令牌只存在本机浏览器，不会写进页面。')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+      '<button class="btn primary" id="tkConnect">连接并同步</button>'+
+      '<button class="btn" id="tkPull">立即拉取</button>'+
+      '<button class="btn" id="tkExport">导出 JSON</button>'+
+      (ghToken()?'<button class="btn danger" id="tkClear">断开</button>':'')+
+    '</div>'+
+    '<div class="fmsg" id="tkMsg">'+esc(Store.err||'')+'</div>'+
+    '<p class="hint" style="font-size:10px;color:var(--faint);line-height:1.7">未连接时数据只存在本机浏览器；连接后每次改动约 1 秒写入私有仓库，其他设备打开即同步。</p>';
+  fOpen('DATA / 数据连接','线上数据库',body,'<button class="btn" data-fclose>关闭</button>');
+  var msg=$('#tkMsg');
+  function say(t,cls){ msg.textContent=t; msg.className='fmsg'+(cls?' '+cls:''); }
+
+  $('#tkConnect').onclick=async function(){
+    var tok=($('#tkIn').value||'').trim();
+    if(!tok){ say('先粘贴令牌','err'); return; }
+    try{ localStorage.setItem(TOKEN_KEY,tok); }catch(e){ say('浏览器禁止了本地存储','err'); return; }
+    Store.mode='cloud'; Store.sha=''; Store.err='';
+    this.disabled=true; say('正在连接 GitHub…');
+    try{
+      await loadAll();
+      renderAll();
+      say('已连接：'+(Store.sha?'数据已载入':'数据仓库为空，已初始化'),'ok');
+      toast('已连接私有数据仓库');
+    }catch(err){
+      Store.err=err.message||'连接失败';
+      Store.mode='local';
+      try{ localStorage.removeItem(TOKEN_KEY); }catch(e){}
+      Store.data=lsRead();
+      renderAll();
+      say('连接失败：'+Store.err+'（已回到本机模式）','err');
+    }finally{ this.disabled=false; }
+  };
+
+  $('#tkPull').onclick=async function(){
+    if(Store.mode!=='cloud'){ say('先连接再拉取','err'); return; }
+    this.disabled=true; say('正在拉取…');
+    var ok=await syncNow(false);
+    renderAll();
+    say(ok?'已拉取最新数据':'拉取失败：'+(Store.err||''),ok?'ok':'err');
+    this.disabled=false;
+  };
+
+  $('#tkExport').onclick=function(){
+    try{
+      var blob=new Blob([JSON.stringify(docOf(Store.data),null,2)],{type:'application/json'});
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='wangchunqiu-workbench-'+todayStr()+'.json';
+      a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); },4000);
+      try{ localStorage.setItem(BACKUP_KEY,String(Date.now())); }catch(e){}
+      say('已导出 JSON 备份','ok'); toast('已导出 JSON 备份');
+    }catch(e){ say('导出失败：'+e.message,'err'); }
+  };
+
+  var clr=$('#tkClear');
+  if(clr) clr.onclick=async function(){
+    try{ localStorage.removeItem(TOKEN_KEY); }catch(e){}
+    Store.mode='local'; Store.sha=''; Store.err='';
+    lsWrite(Store.data);
+    renderAll();
+    say('已断开，当前数据保留在本机','ok');
+    toast('已断开云端，数据保留在本机');
+  };
+}
+
+/* ---------- AI ---------- */
+var AI_PRESET={
+  dashscope:{label:'通义千问',url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',model:'qwen-turbo',note:'阿里云百炼，新用户有免费额度'},
+  siliconflow:{label:'硅基流动',url:'https://api.siliconflow.cn/v1/chat/completions',model:'Qwen/Qwen3-8B',note:'注册送代金券；Qwen3-8B 便宜，一条文案几分钱'},
+  deepseek:{label:'DeepSeek',url:'https://api.deepseek.com/chat/completions',model:'deepseek-chat',note:'按量付费，中文写作质量好'},
+  moonshot:{label:'Kimi',url:'https://api.moonshot.cn/v1/chat/completions',model:'moonshot-v1-8k',note:'按量付费'},
+  custom:{label:'自定义',url:'',model:'',note:'填任意兼容 OpenAI 的 /chat/completions 地址'}
+};
+function aiLS(k,d){ try{ return localStorage.getItem(k)||d; }catch(e){ return d; } }
+function aiProvider(){ var p=aiLS(AI_PROVIDER_LS,'dashscope'); return AI_PRESET[p]?p:'dashscope'; }
+function aiCfg(){
+  var p=aiProvider(), pre=AI_PRESET[p];
+  return {
+    provider:p,
+    url:p==='custom'?aiLS(AI_URL_LS,''):pre.url,
+    model:aiLS(AI_MODEL_LS,'')||pre.model,
+    key:aiLS(AI_KEY_LS,'')
+  };
+}
+function aiKey(){ return aiCfg().key; }
+function aiModel(){ return aiCfg().model; }
+
+function aiKindOf(x){
+  var cat=catOf(x);
+  if(x.kind==='素材') return '拍摄素材清单';
+  if(/玄学|短句/.test(cat)) return '小红书图文';
+  if(/日常|好物/.test(cat)) return '短视频口播';
+  return '小红书图文';
+}
+function aiPrompt(x,kind,extra){
+  var shape=kind==='短视频口播'
+    ? '【开场 3 秒】一句钩子\n【分镜】3-4 个镜头，每个写「画面 + 口播」\n【结尾】一句互动提问'
+    : kind==='拍摄素材清单'
+    ? '【必拍画面】6-8 条，写清拍什么\n【机位与光线】3 条\n【道具】清单\n【注意】版权与肖像提示'
+    : '【标题备选】3 条，每条不超过 20 字\n【正文】300-500 字，分 3-5 段，第一句是钩子\n【标签】3-5 个，用 # 开头\n【互动】一句提问，放在正文最后';
+  return '你是自媒体账号「望春秋」的写作助手。账号定位：日常、玄学短句、小确幸好物（小物件）三类，语气像朋友聊天。\n'+
+    '选题：'+(x.title||'')+'\n'+
+    '类型：'+(x.kind||'选题')+'｜分类：'+catOf(x)+'｜平台：'+(x.platform||'小红书')+'\n'+
+    '标签：'+(x.tags||'无')+'\n'+
+    '参考备注：'+(x.note||'无')+'\n'+
+    '稿件类型：'+kind+'\n'+
+    (extra?'额外要求：'+extra+'\n':'')+
+    '\n输出结构：\n'+shape+'\n\n'+
+    '硬性要求：\n'+
+    '1. 简体中文，短句，口语化，避免书面腔和空洞形容词\n'+
+    '2. 不虚构销量、库存、粉丝数、平台数据、他人评价\n'+
+    '3. 不使用「最」「第一」「绝对」「全网最低」「顶级」等绝对化用语\n'+
+    '4. 不承诺任何效果，不做健康、财运、感情方面的指导\n'+
+    '5. 不编造具体品牌、价格、地址\n'+
+    '6. 最后单独一行写「（草稿，待人工确认）」\n'+
+    '只输出稿件正文，不要解释思路。';
+}
+function localDraft(x,kind,extra){
+  var t=x.title||'未命名选题';
+  var tg=String(x.tags||'').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  var tail='\n\n'+(tg.length?'# '+tg.map(function(s){ return '#'+s; }).join(' ')+'\n\n':'')+
+    (extra?'（你的额外要求：'+extra+'）\n\n':'')+'（草稿，待人工确认）';
+  if(kind==='短视频口播'){
+    return '【开场 3 秒】\n（写一句让人停下来的话，围绕「'+t+'」）\n\n'+
+      '【分镜】\n1. 画面：…　口播：…\n2. 画面：…　口播：…\n3. 画面：…　口播：…\n\n'+
+      '【结尾】\n（一句提问，引导评论）'+tail;
+  }
+  if(kind==='拍摄素材清单'){
+    return '【必拍画面】\n1. …\n2. …\n3. …\n4. …\n5. …\n6. …\n\n'+
+      '【机位与光线】\n1. …\n2. …\n3. …\n\n'+
+      '【道具】\n- …\n- …\n\n'+
+      '【注意】画面前请确认授权，避免出现他人正脸与可识别的私人空间'+tail;
+  }
+  return '【标题备选】\n1. …\n2. …\n3. …\n\n'+
+    '【正文】\n（第一段：钩子，围绕「'+t+'」）\n\n（第二段：具体场景和细节）\n\n（第三段：一点自己的感受或反转）\n\n【互动】\n（一句提问，引导评论）'+tail;
+}
+async function callAI(prompt,opt){
+  var cfg=aiCfg();
+  var key=(opt&&opt.key)||cfg.key;
+  var model=(opt&&opt.model)||cfg.model;
+  var url=(opt&&opt.url)||cfg.url;
+  if(!url) throw new Error('接口地址为空');
+  var res;
+  try{
+    res=await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:model,messages:[{role:'user',content:prompt}],temperature:0.8,max_tokens:1200})
+    });
+  }catch(e){ throw new Error('网络或跨域失败，检查网络或换一个服务商'); }
+  if(!res.ok){
+    var raw='';
+    try{ var j=await res.json(); raw=(j&&j.error&&j.error.message)||(j&&j.message)||''; }catch(e){}
+    if(res.status===401) throw new Error('Key 无效或已过期（HTTP 401）');
+    throw new Error('HTTP '+res.status+(raw?' · '+raw:''));
+  }
+  var out=await res.json();
+  var content=((out.choices&&out.choices[0]&&out.choices[0].message&&out.choices[0].message.content)||'').trim();
+  if(!content) throw new Error('模型没有返回内容');
+  return content;
+}
+
+function openAIPanel(){
+  var cfg=aiCfg();
+  var provOpts=Object.keys(AI_PRESET).map(function(p){
+    return '<option value="'+p+'"'+(p===cfg.provider?' selected':'')+'>'+esc(AI_PRESET[p].label)+'</option>';
+  }).join('');
+  var body=
+    '<p class="hint" style="font-size:10.5px;color:var(--faint);margin-bottom:12px;line-height:1.7">用自己的模型 Key，只存在这台设备的浏览器里；Key 不会写进页面或数据仓库。</p>'+
+    fld('服务商','<select id="aiProv">'+provOpts+'</select><span class="hint" id="aiProvNote">'+esc(AI_PRESET[cfg.provider].note)+'</span>')+
+    fld('模型','<input id="aiModelIn" value="'+esc(cfg.model)+'" placeholder="模型名">')+
+    fld('API Key','<input id="aiKeyIn" type="password" autocomplete="off" placeholder="粘贴 Key" value="'+esc(cfg.key)+'">','只保存在本机浏览器，不会写进代码或仓库。')+
+    '<div id="aiUrlWrap" style="display:'+(cfg.provider==='custom'?'block':'none')+'">'+
+      fld('接口地址','<input id="aiUrlIn" value="'+esc(aiLS(AI_URL_LS,''))+'" placeholder="https://…/v1/chat/completions">')+
+    '</div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">'+
+      '<button class="btn" id="aiTest">测试连接</button>'+
+      (cfg.key?'<button class="btn danger" id="aiClear">清除 Key</button>':'')+
+    '</div>'+
+    '<div class="fmsg" id="aiState">没填 Key 也能用，会降级成本地模板框架。</div>';
+  fOpen('AI / 写初稿','AI 写作设置',body,
+    '<button class="btn" data-fclose>取消</button><button class="btn primary" id="aiSave">保存</button>');
+
+  var state=$('#aiState');
+  var provSel=$('#aiProv');
+  var modelIn=$('#aiModelIn');
+  provSel.onchange=function(){
+    var p=provSel.value, pre=AI_PRESET[p];
+    $('#aiProvNote').textContent=pre.note;
+    modelIn.value=pre.model;
+    $('#aiUrlWrap').style.display=p==='custom'?'block':'none';
+    state.textContent=''; state.className='fmsg';
+  };
+  $('#aiTest').onclick=async function(){
+    var p=provSel.value;
+    var key=($('#aiKeyIn').value||'').trim();
+    var model=(modelIn.value||'').trim()||AI_PRESET[p].model;
+    var url=p==='custom'?($('#aiUrlIn').value||'').trim():AI_PRESET[p].url;
+    if(!key){ state.textContent='先填 Key 再测试'; state.className='fmsg err'; return; }
+    if(!url){ state.textContent='填一下接口地址'; state.className='fmsg err'; return; }
+    var b=this; b.disabled=true;
+    state.textContent='正在连接 '+model+'…'; state.className='fmsg';
+    try{
+      var r=await callAI('只回复「连接正常」四个字。',{key:key,model:model,url:url});
+      state.textContent='连接正常：'+r.slice(0,40); state.className='fmsg ok';
+    }catch(err){
+      state.textContent='连接失败：'+((err&&err.message)||'未知错误'); state.className='fmsg err';
+    }finally{ b.disabled=false; }
+  };
+  $('#aiSave').onclick=function(){
+    var p=provSel.value;
+    try{
+      localStorage.setItem(AI_PROVIDER_LS,p);
+      localStorage.setItem(AI_KEY_LS,($('#aiKeyIn').value||'').trim());
+      localStorage.setItem(AI_MODEL_LS,($('#aiModelIn').value||'').trim()||AI_PRESET[p].model);
+      if(p==='custom') localStorage.setItem(AI_URL_LS,($('#aiUrlIn').value||'').trim());
+      fClose();
+      toast('AI 设置已保存');
+    }catch(e){ toast('保存失败',true); }
+  };
+  var clr=$('#aiClear');
+  if(clr) clr.onclick=function(){
+    try{
+      localStorage.removeItem(AI_KEY_LS);
+      localStorage.removeItem(AI_MODEL_LS);
+      localStorage.removeItem(AI_URL_LS);
+    }catch(e){}
+    fClose();
+    toast('已清除 Key，将使用本地模板');
+  };
+}
+
+function openIdeaDraft(id){
+  var x=findRow('ideas',id); if(!x) return;
+  var kind=aiKindOf(x);
+  var hasKey=!!aiKey();
+  var body=
+    '<div class="frow">'+
+      fld('稿件类型',sel('dKind',['小红书图文','短视频口播','拍摄素材清单'],kind))+
+      fld('额外要求','<input id="dExtra" placeholder="例如：更克制一点 / 加一段自嘲">')+
+    '</div>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'+
+      '<button class="btn primary" id="dGen">AI 生成初稿</button>'+
+      '<span class="fmsg" id="dTip" style="margin:0">'+esc(hasKey?'将调用 '+aiModel()+'，生成后可直接改':'未配置 Key，将用本地模板生成框架')+'</span>'+
+    '</div>'+
+    fld('初稿（可直接修改）','<textarea id="dOut" rows="12" placeholder="点上面的按钮生成，或自己先写"></textarea>')+
+    '<p class="hint" style="font-size:10px;color:var(--faint);line-height:1.6">AI 只提供结构参考，事实、价格、体验请自己核实；对外发送前标注「待人工确认」。</p>';
+  fOpen('AI / 写初稿',x.title||'未命名选题',body,
+    '<button class="btn" data-fclose>取消</button><button class="btn primary" id="dSave">存入内容库</button>');
+
+  var out=$('#dOut'), tip=$('#dTip'), g=$('#dGen');
+  g.onclick=async function(){
+    var k=$('#dKind').value;
+    var extra=($('#dExtra').value||'').trim();
+    if(!aiKey()){
+      out.value=localDraft(x,k,extra);
+      out.scrollTop=0;
+      tip.textContent='已用本地模板生成，可直接在下面改写'; tip.className='fmsg ok';
+      out.focus();
+      out.scrollTop=0;
+      return;
+    }
+    g.disabled=true;
+    var old=g.textContent;
+    g.textContent='生成中…';
+    tip.textContent='正在调用 '+aiModel()+'…'; tip.className='fmsg';
+    try{
+      out.value=await callAI(aiPrompt(x,k,extra));
+      out.scrollTop=0;
+      tip.textContent='已生成，按自己的语气改完再存'; tip.className='fmsg ok';
+    }catch(err){
+      tip.textContent='生成失败：'+((err&&err.message)||'未知错误')+'；可先用本地模板';
+      tip.className='fmsg err';
+      toast('AI 生成失败：'+((err&&err.message)||'未知错误'),true);
+    }finally{ g.textContent=old; g.disabled=false; }
+  };
+  $('#dSave').onclick=async function(){
+    var content=(out.value||'').trim();
+    if(!content){ toast('先写点内容再保存',true); return; }
+    var b=this; b.disabled=true;
+    try{
+      await createRow('content_items',{
+        title:x.title,
+        platform:x.platform||'小红书',
+        format:$('#dKind').value==='短视频口播'?'视频':'图文',
+        stage:'文案',
+        topic:catOf(x),
+        hook:'',
+        owner:'望春秋',
+        due_date:addDays(todayStr(),5),
+        priority:2,
+        plays:0,likes:0,comments:0,saves:0,shares:0,
+        notes:content
+      });
+      await updateRow('ideas',id,{status:'已用'});
+      fClose();
+      renderAll();
+      toast('已存入内容库的「文案」列');
+    }catch(err){
+      toast((err&&err.message)||'保存失败',true);
+      b.disabled=false;
+    }
+  };
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',function(e){
+  var p=e.target.closest('[data-panel]');
+  if(p){
+    var v=p.getAttribute('data-panel');
+    if(v==='data') openDataPanel();
+    else if(v==='ai') openAIPanel();
+    else if(v==='new') openNewMenu();
+    else if(v==='sync'){
+      if(Store.mode==='cloud'){ syncNow(true).then(function(){ renderAll(); }); }
+      else openDataPanel();
+    }
+    return;
+  }
+  if(e.target.closest('[data-fclose]')){ fClose(); return; }
+  var a=e.target.closest('[data-add]');
+  if(a){ openRowForm(a.getAttribute('data-add'),null); return; }
+  var tg=e.target.closest('[data-tgl]');
+  if(tg){
+    var tr=splitRef(tg.getAttribute('data-tgl'));
+    if(tr) toggleTodo(tr[1]);
+    return;
+  }
+  var ed=e.target.closest('[data-edit]');
+  if(ed){
+    var er=splitRef(ed.getAttribute('data-edit'));
+    if(er) openRowForm(er[0],er[1]);
+    return;
+  }
+  var dl=e.target.closest('[data-del]');
+  if(dl){ askDelete(dl.getAttribute('data-del')); return; }
+  var ai=e.target.closest('[data-ai-idea]');
+  if(ai){ openIdeaDraft(ai.getAttribute('data-ai-idea')); return; }
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'||e.keyCode===27){
+    var m=document.getElementById('fmodal');
+    if(m&&m.classList.contains('on')){ fClose(); }
+  }
+});
+
+/* ---------- 启动 ---------- */
+renderAll();
+if(Store.mode==='demo'){
+  Store.data=emptyData();
+  renderAll();
+}else if(Store.mode==='cloud'){
+  loadAll().then(function(){
+    renderAll();
+  }).catch(function(err){
+    Store.err=err.message||'连接失败';
+    Store.mode='local';
+    Store.data=lsRead();
+    renderAll();
+    toast('云端连接失败，已切到本机：'+Store.err,true);
+  });
+}else{
+  Store.data=lsRead();
+  renderAll();
+}
 })();
 </script>
 </body>
