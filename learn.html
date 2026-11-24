@@ -409,7 +409,8 @@ dialog::backdrop{background:rgba(11,31,32,.45);backdrop-filter:blur(4px)}
 <script>
 /* ================= 常量 ================= */
 const LS_KEY = 'zj_learn_v1';
-const CONTENT_VERSION = 3;
+const CONTENT_VERSION = 4;
+const RESET_VERSION = 4;
 const TABLES = ['modules','units','practices','results','reviews','archives'];
 const UNIT_STATUS = ['未开始','学习中','已学完'];
 const PRACTICE_STATUS = ['待开始','进行中','已完成','受阻'];
@@ -559,33 +560,13 @@ function emptyData(){
 }
 function seedData(){
   const now = new Date().toISOString();
-  const today = todayStr();
-  const sampleUnit = {u01:'已学完', u02:'已学完', u04:'学习中'};
-  const sampleNotes = {u01:'已整理成一页资源清单。'};
   const units = UNIT_SEED.map((u,i)=>Object.assign({}, u, {
-    status: sampleUnit[u.id] || '未开始',
-    notes: sampleNotes[u.id] || '',
-    sample: !!sampleUnit[u.id],
-    order: i+1,
-    created_at: now,
-    updated_at: now
+    status:'未开始', notes:'', sample:false,
+    order: i+1, created_at: now, updated_at: now
   }));
-  const practices = [
-    {id:'p01',module_id:'m02',unit_id:'u04',title:'完成 10 次目标客户访谈',action:'按访谈提纲约访，记录客户原话。',deliverable:'访谈记录表 + 需求归纳',due_date:addDays(today,5),status:'进行中',notes:'先约 3 位熟人，再扩展到陌生客户。',sample:true,created_at:now,updated_at:now},
-    {id:'p02',module_id:'m01',unit_id:'u02',title:'做一份 12 个月现金流测算',action:'按真实支出估算，给固定支出和弹性支出分开列。',deliverable:'现金流表 v1',due_date:addDays(today,-3),status:'已完成',notes:'',sample:true,created_at:now,updated_at:now}
-  ];
-  const results = [
-    {id:'r01',practice_id:'p02',title:'现金流测算 v1',metric:'现金可覆盖月份',target:'12 个月',actual:'9 个月',verdict:'部分达标',evidence:'',date:addDays(today,-2),notes:'还需压缩 2 项固定支出。',sample:true,created_at:now,updated_at:now}
-  ];
-  const reviews = [
-    {id:'v01',scope:'实操',ref_id:'p02',ref_title:'做一份 12 个月现金流测算',date:addDays(today,-2),kept:'按真实支出估算，发现了订阅类隐性支出。',improve:'低估了设备更新成本。',next:'下月把固定支出压到 9 项以内。',score:4,notes:'',sample:true,created_at:now,updated_at:now}
-  ];
-  const archives = [
-    {id:'a01',date:addDays(today,-6),title:'示例归档 · 阶段一',scope:'全部',formats:['JSON'],counts:{units:24,practices:2,results:1,reviews:1},notes:'仅用于演示归档日志。',sample:true,created_at:now,updated_at:now}
-  ];
   return {
-    modules: MODULES_SEED.map((m,i)=>Object.assign({}, m, {order:i+1,builtin:true})),
-    units, practices, results, reviews, archives
+    modules: MODULES_SEED.map((m,i)=>Object.assign({}, m, {order:i+1, builtin:true})),
+    units, practices: [], results: [], reviews: [], archives: []
   };
 }
 function normalize(d){
@@ -615,6 +596,27 @@ function syncCurriculum(d){
     }
   });
 }
+function clearDemo(d){
+  const now = new Date().toISOString();
+  let touched = false;
+  d.units = d.units.map(u=>{
+    if(!u.sample) return u;
+    touched = true;
+    return Object.assign({}, u, {status:'未开始', notes:'', sample:false, updated_at:now});
+  });
+  ['practices','results','reviews','archives'].forEach(t=>{
+    const kept = d[t].filter(x=>!x.sample);
+    if(kept.length !== d[t].length){ touched = true; d[t] = kept; }
+  });
+  return touched;
+}
+function resetLearning(d){
+  const now = new Date().toISOString();
+  d.units = d.units.map(u=>Object.assign({}, u, {
+    status:'未开始', notes:'', sample:false, updated_at:now
+  }));
+  d.practices = []; d.results = []; d.reviews = []; d.archives = [];
+}
 const Store = { data: emptyData() };
 
 function lsWrite(d){
@@ -633,9 +635,15 @@ function lsRead(){
       const ver = j && typeof j.v === 'number' ? j.v : 0;
       const n = normalize(d);
       if(n.modules.length || n.units.length || n.practices.length){
+        let touched = false;
         if(ver < CONTENT_VERSION){
-          try{ syncCurriculum(n); lsWrite(n); }catch(e){}
+          try{ syncCurriculum(n); touched = true; }catch(e){}
         }
+        if(ver < RESET_VERSION){
+          resetLearning(n); touched = true;
+        }
+        if(clearDemo(n)) touched = true;
+        if(touched) lsWrite(n);
         return n;
       }
     }
